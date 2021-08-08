@@ -1,0 +1,18 @@
+version: '3.2'
+
+services:
+  mylab-search-test-es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
+    container_name: mylab-search-test-es
+    environment:
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - mylab_search_test_es_data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+
+volumes:
