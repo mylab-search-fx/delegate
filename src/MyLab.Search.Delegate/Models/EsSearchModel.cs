@@ -13,8 +13,8 @@ namespace MyLab.Search.Delegate.Models
         [JsonProperty("query")]
         public EsSearchQueryModel Query { get; set; }
         [JsonProperty("sort")]
-        [JsonConverter(typeof(StrArrayToObjectArrayJsonConverter))]
-        public string[] Sort { get; set; }
+        [JsonConverter(typeof(StrToObjectArrayJsonConverter))]
+        public string Sort { get; set; }
     }
 
     class EsSearchQueryModel

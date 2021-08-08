@@ -87,17 +87,12 @@ namespace UnitTests
         public void ShouldSerializeSorts()
         {
             //Arrange
-            const string sort1 = "{\"foo\":{\"order\":\"asc\"}}";
-            const string sort2 = "{\"bar\":{\"order\":\"asc\"}}";
+            const string sort = "{\"foo\":{\"order\":\"asc\"}}";
             var m = new EsSearchModel
             {
                 From = 10,
                 Size = 20,
-                Sort = new[]
-                {
-                    sort1,
-                    sort2
-                }
+                Sort = sort
             };
 
             //Act
@@ -105,7 +100,7 @@ namespace UnitTests
 
             //Assert
             Assert.Contains(
-                $"\"sort\": [{sort1},{sort2}]",
+                $"\"sort\": {sort}",
                 stringRes);
         }
 
