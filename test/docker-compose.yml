@@ -16,3 +16,4 @@ services:
       - 9200:9200
 
 volumes:
+  mylab_search_test_es_data:
