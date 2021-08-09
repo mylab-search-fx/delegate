@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using MyLab.Search.Delegate;
@@ -100,6 +101,64 @@ namespace FunctionTests
             //Assert
             Assert.NotNull(found);
             Assert.Equal(19, found[0].Id);
+        }
+
+        [Fact]
+        public async Task ShouldUseDefaultFilter()
+        {
+            //Arrange
+            var cl = _client.StartWithProxy(srv => srv
+                .Configure<DelegateOptions>(o =>
+                {
+                    o.DefaultFilter = "from5to15";
+                })
+            );
+
+            //Act
+            var found = await cl.SearchAsync();
+
+            //Assert
+            Assert.NotNull(found);
+            foreach (var i in Enumerable.Range(5, 10))
+            {
+                Assert.Contains(found, f => f.Id == i);
+            }
+        }
+
+        [Fact]
+        public async Task ShouldUseSpecifiedFilter()
+        {
+            //Arrange
+            var cl = _client.StartWithProxy();
+
+            //Act
+            var found = await cl.SearchAsync(filter: "from5to15");
+
+            //Assert
+            Assert.NotNull(found);
+            foreach (var i in Enumerable.Range(5, 10))
+            {
+                Assert.Contains(found, f => f.Id == i);
+            }
+        }
+
+        [Fact]
+        public async Task ShouldUseFullRequestWithoutQuery()
+        {
+            //Arrange
+            var cl = _client.StartWithProxy();
+
+            //Act
+            var found = await cl.SearchAsync(
+                filter: "from5to15",
+                sort: "revert",
+                offset: 1,
+                limit: 1);
+
+            //Assert
+            Assert.NotNull(found);
+            Assert.Single(found);
+            Assert.Equal(13, found[0].Id);
         }
     }
 }

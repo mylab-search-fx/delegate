@@ -28,10 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="files\filter\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <None Update="files\filter\from5to15.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="files\sort\revert.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
