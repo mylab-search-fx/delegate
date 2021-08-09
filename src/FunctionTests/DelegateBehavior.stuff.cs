@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using MyLab.ApiClient;
 using MyLab.ApiClient.Test;
 using MyLab.Search.Delegate;
+using MyLab.Search.Delegate.Models;
+using MyLab.Search.Delegate.Services;
 using MyLab.Search.EsAdapter;
 using MyLab.Search.EsTest;
 using Xunit;
@@ -35,6 +37,11 @@ namespace FunctionTests
                     {
                         o.Url = "http://localhost:9200";
                         o.DefaultIndex = esFxt.IndexName;
+                    })
+                    .Configure<DelegateOptions>(o =>
+                    {
+                        o.FilterPath = "files/filter";
+                        o.SortPath = "files/sort";
                     })
                     .AddLogging(l => l
                         .AddXUnit(output)

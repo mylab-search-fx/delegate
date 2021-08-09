@@ -27,4 +27,14 @@
     <ProjectReference Include="..\MyLab.Search.Delegate\MyLab.Search.Delegate.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="files\filter\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="files\sort\revert.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
