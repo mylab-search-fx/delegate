@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Net;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using MyLab.Search.Delegate.Services;
+using MyLab.WebErrors;
 using Nest;
 using SearchRequest = MyLab.Search.Delegate.Models.SearchRequest;
 
@@ -23,6 +25,7 @@ namespace MyLab.Search.Delegate.Controllers
         }
 
         [HttpGet]
+        [ErrorToResponse(typeof(ResourceNotFoundException), HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Get([FromQuery]SearchRequest request)
         {
             var result = await _requestProcessor.ProcessSearchRequestAsync(request);

@@ -4,6 +4,6 @@
     {
         public string DefaultFilter { get; set; }
         public string DefaultSort { get; set; }
-        public string DefaultLimit { get; set; }
+        public int? DefaultLimit { get; set; }
     }
 }

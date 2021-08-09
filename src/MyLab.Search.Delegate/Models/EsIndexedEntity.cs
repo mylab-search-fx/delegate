@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace MyLab.Search.Delegate.Models
 {
-    public class EsIndexedEntity : Dictionary<string,string>
+    public class EsIndexedEntity : Dictionary<string,object>
     {
 
     }

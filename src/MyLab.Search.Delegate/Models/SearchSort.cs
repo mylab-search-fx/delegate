@@ -2,5 +2,6 @@
 {
     class SearchSort
     {
+        public string Content { get; set; }
     }
 }

@@ -3,8 +3,8 @@ using MyLab.Search.Delegate.Models;
 
 namespace MyLab.Search.Delegate.Services
 {
-    interface ISortProvider
+    interface IEsFilterProvider
     {
-        Task<SearchSort> ProvideAsync(string name);
+        Task<SearchFilter> ProvideAsync(string filterId);
     }
 }
