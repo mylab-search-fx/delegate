@@ -65,7 +65,7 @@ namespace UnitTests
                 {
                     Bool = new EsSearchQueryBoolModel
                     {
-                        Must = new []
+                        Should = new []
                         {
                             filter1,
                             filter2

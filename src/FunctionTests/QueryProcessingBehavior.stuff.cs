@@ -1,13 +1,9 @@
-using System;
-using System.Linq;
+﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MyLab.ApiClient;
 using MyLab.ApiClient.Test;
 using MyLab.Search.Delegate;
-using MyLab.Search.Delegate.Models;
-using MyLab.Search.Delegate.Services;
 using MyLab.Search.EsAdapter;
 using MyLab.Search.EsTest;
 using Xunit;
@@ -15,18 +11,18 @@ using Xunit.Abstractions;
 
 namespace FunctionTests
 {
-    public partial class DelegateBehavior :
-        IClassFixture<EsIndexFixture<TestEntity, TestConnectionProvider>>,
+    partial class QueryProcessingBehavior :
+        IClassFixture<EsFixture<TestConnectionProvider>>,
         IAsyncLifetime
     {
-        private readonly EsIndexFixture<TestEntity, TestConnectionProvider> _esFxt;
+        private readonly EsFixture<TestConnectionProvider> _esFxt;
         private readonly ITestOutputHelper _output;
         private readonly TestApi<Startup, ISearchService> _client;
 
-        public DelegateBehavior(EsIndexFixture<TestEntity, TestConnectionProvider> esFxt, ITestOutputHelper output)
+        public QueryProcessingBehavior(EsFixture<TestConnectionProvider> esFxt,
+            ITestOutputHelper output)
         {
             _esFxt = esFxt;
-            //_esFxt.Output = output;
 
             _output = output;
 
@@ -36,7 +32,6 @@ namespace FunctionTests
                     .Configure<ElasticsearchOptions>(o =>
                     {
                         o.Url = "http://localhost:9200";
-                        o.DefaultIndex = esFxt.IndexName;
                     })
                     .Configure<DelegateOptions>(o =>
                     {
@@ -48,15 +43,23 @@ namespace FunctionTests
                         .AddFilter(l => true)),
                 Output = output
             };
-
-            output.WriteLine("Test index: " + esFxt.IndexName);
         }
+
+        ISearchService StartApi(string indexName)
+        {
+            return _client.StartWithProxy(srv =>
+            {
+                srv.Configure<ElasticsearchOptions>(o =>
+                {
+                    o.DefaultIndex = indexName;
+                });
+            });
+        }
+
+        string CreateIndexName() => "test-" + Guid.NewGuid().ToString("N");
 
         public async Task InitializeAsync()
         {
-            await _esFxt.Indexer.IndexManyAsync(CreateTestEntities());
-
-            await Task.Delay(2000);
         }
 
         public async Task DisposeAsync()

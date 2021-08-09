@@ -28,6 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="files\filter\from1123to6123.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="files\filter\from5to15.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

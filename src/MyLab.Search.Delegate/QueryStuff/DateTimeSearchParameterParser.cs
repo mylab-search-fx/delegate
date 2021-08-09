@@ -11,7 +11,7 @@
         {
             var dt = SupportedDateTimeFormat.Parse(word);
 
-            return new DateTimeQueryParameter(dt, rank);
+            return new DateTimeRangeQueryParameter(dt.Date, dt.Date.AddDays(1), rank);
         }
     }
 }

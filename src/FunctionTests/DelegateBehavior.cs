@@ -1,9 +1,8 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using MyLab.Search.Delegate;
-using MyLab.Search.Delegate.Services;
-using MyLab.Search.EsAdapter.SearchEngine;
 using Xunit;
 
 namespace FunctionTests
@@ -159,6 +158,17 @@ namespace FunctionTests
             Assert.NotNull(found);
             Assert.Single(found);
             Assert.Equal(13, found[0].Id);
+        }
+
+        private IEnumerable<TestEntity> CreateTestEntities()
+        {
+            return Enumerable
+                .Range(1, 20)
+                .Select(i => new TestEntity
+                {
+                    Id = i,
+                    Value = "val_" + i
+                });
         }
     }
 }

@@ -19,7 +19,9 @@ namespace UnitTests
             var q = SearchQuery.Parse(query);
 
             //Assert
-            Assert.Empty(q.Params);
+            Assert.Empty(q.DateTimeParams);
+            Assert.Empty(q.NumericParams);
+            Assert.Empty(q.TextParams);
         }
 
         [Theory]
@@ -33,7 +35,9 @@ namespace UnitTests
             var q = SearchQuery.Parse(query);
 
             //Assert
-            Assert.Empty(q.Params);
+            Assert.Empty(q.DateTimeParams);
+            Assert.Empty(q.NumericParams);
+            Assert.Empty(q.TextParams);
         }
 
         [Fact]
@@ -44,10 +48,10 @@ namespace UnitTests
 
             //Act
             var q = SearchQuery.Parse(query);
-            var p = q.Params.FirstOrDefault() as TextQueryParameter;
+            var p = q.TextParams.FirstOrDefault() as TextQueryParameter;
             
             //Assert
-            Assert.Single(q.Params);
+            Assert.Single(q.TextParams);
             Assert.Equal("foo", p.Value);
         }
 
@@ -60,7 +64,7 @@ namespace UnitTests
             //Act
             var q = SearchQuery.Parse(query);
 
-            var ranks = q.Params
+            var ranks = q.TextParams
                 .Select(p => p.Rank)
                 .ToArray();
 
@@ -79,7 +83,7 @@ namespace UnitTests
             //Act
             var q = SearchQuery.Parse(query);
 
-            var numParam = q.Params
+            var numParam = q.NumericParams
                 .FirstOrDefault()
                 as NumericQueryParameter;
 
@@ -100,7 +104,7 @@ namespace UnitTests
             //Act
             var q = SearchQuery.Parse(query);
 
-            var dtParam = q.Params
+            var dtParam = q.DateTimeParams
                     .FirstOrDefault(p => p.Rank == 1)
                 as DateTimeQueryParameter;
 
@@ -120,7 +124,7 @@ namespace UnitTests
             //Act
             var q = SearchQuery.Parse(query);
 
-            var numParam = q.Params
+            var numParam = q.NumericParams
                     .FirstOrDefault()
                 as NumericRangeQueryParameter;
 
@@ -143,7 +147,7 @@ namespace UnitTests
             //Act
             var q = SearchQuery.Parse(query);
 
-            var dtParam = q.Params
+            var dtParam = q.DateTimeParams
                     .FirstOrDefault(p => p.Rank == 1)
                 as DateTimeRangeQueryParameter;
 
@@ -165,7 +169,7 @@ namespace UnitTests
             //Act
             var q = SearchQuery.Parse(query);
 
-            var dtParam = q.Params
+            var dtParam = q.DateTimeParams
                     .FirstOrDefault(p => p.Rank == 1)
                 as DateTimeRangeQueryParameter;
 
@@ -187,7 +191,7 @@ namespace UnitTests
             //Act
             var q = SearchQuery.Parse(query);
 
-            var dtParam = q.Params
+            var dtParam = q.DateTimeParams
                     .FirstOrDefault(p => p.Rank == 1)
                 as DateTimeRangeQueryParameter;
 

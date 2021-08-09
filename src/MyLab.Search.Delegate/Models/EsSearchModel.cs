@@ -25,8 +25,12 @@ namespace MyLab.Search.Delegate.Models
 
     class EsSearchQueryBoolModel
     {
-        [JsonProperty("must")]
+        [JsonProperty("should")]
         [JsonConverter(typeof(StrArrayToObjectArrayJsonConverter))]
-        public string[] Must { get; set; }
+        public string[] Should { get; set; }
+
+        [JsonProperty("filter")]
+        [JsonConverter(typeof(StrArrayToObjectArrayJsonConverter))]
+        public string[] Filter { get; set; }
     }
 }

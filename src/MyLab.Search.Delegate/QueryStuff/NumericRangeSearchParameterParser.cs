@@ -19,7 +19,11 @@ namespace MyLab.Search.Delegate.QueryStuff
             int from = int.Parse(parts[0]);
             int to = int.Parse(parts[1]);
 
-            return new NumericRangeQueryParameter(from, to, rank);
+            return new NumericRangeQueryParameter(from, to, rank)
+            {
+                IncludeFrom = true,
+                IncludeTo = true
+            };
         }
     }
 }

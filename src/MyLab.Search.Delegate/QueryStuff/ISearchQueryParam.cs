@@ -2,6 +2,8 @@
 {
     interface ISearchQueryParam
     {
-        public int Rank { get; }
+        int Rank { get; }
+
+        string ToJson(string propName, string propType);
     }
 }

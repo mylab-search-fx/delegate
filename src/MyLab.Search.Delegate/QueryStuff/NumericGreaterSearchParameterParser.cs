@@ -10,7 +10,10 @@
         public ISearchQueryParam Parse(string word, int rank)
         {
             var val = int.Parse(word.Substring(1));
-            return new NumericRangeQueryParameter(val, null, rank);
+            return new NumericRangeQueryParameter(val, null, rank)
+            {
+                IncludeFrom = false
+            };
         }
     }
 }

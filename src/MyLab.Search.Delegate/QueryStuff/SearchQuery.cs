@@ -1,37 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace MyLab.Search.Delegate.QueryStuff
 {
     class SearchQuery
     {
-        static readonly ISearchParameterParser DefaultParameterParser = new TextSearchParameterParser();
+        static readonly ISearchParameterParser TextParameterParser = new TextSearchParameterParser();
 
-        static readonly ISearchParameterParser[] Parsers = 
+        static readonly ISearchParameterParser[] NumericParsers = 
         {
-            new DateTimeSearchParameterParser(),
-            new DateTimeRangeSearchParameterParser(),
-            new DateTimeLessSearchParameterParser(),
-            new DateTimeGreaterSearchParameterParser(),
             new NumericSearchParameterParser(),
             new NumericRangeSearchParameterParser(), 
             new NumericLessSearchParameterParser(), 
             new NumericGreaterSearchParameterParser(), 
-        }; 
+        };
 
-        public IReadOnlyCollection<ISearchQueryParam> Params => _searchParams;
-
-        private readonly ISearchQueryParam[] _searchParams;
-        
-        public SearchQuery(IEnumerable<ISearchQueryParam> searchParams)
+        static readonly ISearchParameterParser[] DateTimeParsers =
         {
-            _searchParams = searchParams.ToArray();
+            new DateTimeSearchParameterParser(),
+            new DateTimeRangeSearchParameterParser(),
+            new DateTimeLessSearchParameterParser(),
+            new DateTimeGreaterSearchParameterParser()
+        };
+
+        public IReadOnlyCollection<ISearchQueryParam> TextParams => _textSearchParams;
+        public IReadOnlyCollection<ISearchQueryParam> NumericParams => _numSearchParams;
+        public IReadOnlyCollection<ISearchQueryParam> DateTimeParams => _dtSearchParams;
+
+        private ISearchQueryParam[] _textSearchParams;
+        private ISearchQueryParam[] _numSearchParams;
+        private ISearchQueryParam[] _dtSearchParams;
+
+        SearchQuery()
+        {
+            
         }
 
         public static SearchQuery Parse(string query)
         {
-            var qParams = new List<ISearchQueryParam>();
+            var txtParams = new List<ISearchQueryParam>();
+            var numParams = new List<ISearchQueryParam>();
+            var dtParams = new List<ISearchQueryParam>();
 
             if (!string.IsNullOrWhiteSpace(query))
             {
@@ -42,14 +53,37 @@ namespace MyLab.Search.Delegate.QueryStuff
                 for (int i = 0; i < words.Length; i++)
                 {
                     var word = words[i];
-                    var parser = Parsers.FirstOrDefault(p => p.CanParse(word)) ?? DefaultParameterParser;
+                    var rank = words.Length - i;
 
-                    var param = parser.Parse(word, words.Length-i);
-                    qParams.Add(param);
+                    if (!TryParse(word, rank, NumericParsers, numParams))
+                    {
+                        if (!TryParse(word, rank, DateTimeParsers, dtParams))
+                        {
+                            txtParams.Add(TextParameterParser.Parse(word, rank));
+                        }
+                    }
                 }
             }
 
-            return new SearchQuery(qParams);
+            return new SearchQuery
+            {
+                _numSearchParams = numParams.ToArray(),
+                _textSearchParams = txtParams.ToArray(),
+                _dtSearchParams = dtParams.ToArray()
+            };
+        }
+
+        static bool TryParse(string word, int rank, ISearchParameterParser[] parsers, List<ISearchQueryParam> resultParams)
+        {
+            var parser = parsers.FirstOrDefault(p => p.CanParse(word));
+
+            if (parser == null)
+                return false;
+
+            var param = parser.Parse(word, rank);
+            resultParams.Add(param);
+
+            return true;
         }
     }
 }

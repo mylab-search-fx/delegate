@@ -1,14 +1,28 @@
-﻿namespace MyLab.Search.Delegate.QueryStuff
+﻿using MyLab.Search.Delegate.Tools;
+
+namespace MyLab.Search.Delegate.QueryStuff
 {
-    class SearchQueryParameter<T> : ISearchQueryParam
+    abstract class SearchQueryParameter<T> : ISearchQueryParam
     {
         public T Value { get; }
         public int Rank { get;}
-
-        public SearchQueryParameter(T value, int rank)
+        protected SearchQueryParameter(T value, int rank)
         {
             Value = value;
             Rank = rank;
+        }
+
+        public string ToJson(string propName, string propType)
+        {
+            var boost = BoostCalculator.CalculateString(Rank);
+            switch (propType)
+            {
+                case "text":
+                    return "{\"match\":{\"" + propName + "\":{\"query\":\"" + Value + "\"}}}";
+                default:
+                    return "{\"term\":{\"" + propName + "\":{\"value\":\"" + Value + "\",\"boost\":" + boost + "}}}";
+            }
+
         }
     }
 }

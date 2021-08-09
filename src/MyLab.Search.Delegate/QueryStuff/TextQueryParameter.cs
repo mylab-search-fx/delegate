@@ -1,4 +1,6 @@
-﻿namespace MyLab.Search.Delegate.QueryStuff
+﻿using MyLab.Search.Delegate.Tools;
+
+namespace MyLab.Search.Delegate.QueryStuff
 {
     class TextQueryParameter : SearchQueryParameter<string>
     {
