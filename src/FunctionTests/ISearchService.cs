@@ -6,7 +6,7 @@ namespace FunctionTests
     [Api]
     public interface ISearchService
     {
-        [Get("search")]
+        [Get("search/test")]
         Task<SearchResultEntity[]> SearchAsync(
             [Query] string query = null,
             [Query] string filter = null,

@@ -20,14 +20,14 @@ namespace MyLab.Search.Delegate.Services
 {
     class EsRequestProcessor : IEsRequestProcessor
     {
-        private readonly ElasticsearchOptions _options;
+        private readonly DelegateOptions _options;
         private readonly IEsRequestBuilder _requestBuilder;
         private readonly ElasticClient _esClient;
         private readonly EsSearchRequestSerializer _esReqSerializer;
         private readonly IDslLogger _log;
 
         public EsRequestProcessor(
-            IOptions<ElasticsearchOptions> options,
+            IOptions<DelegateOptions> options,
             IEsRequestBuilder requestBuilder,
             IEsClientProvider esClientProvider,
             ILogger<EsRequestProcessor> logger = null)
@@ -37,7 +37,7 @@ namespace MyLab.Search.Delegate.Services
         }
 
         public EsRequestProcessor(
-            ElasticsearchOptions options,
+            DelegateOptions options,
             IEsRequestBuilder requestBuilder,
             IEsClientProvider esClientProvider,
             ILogger<EsRequestProcessor> logger = null)
@@ -51,22 +51,25 @@ namespace MyLab.Search.Delegate.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<IEnumerable<EsIndexedEntity>> ProcessSearchRequestAsync(SearchRequest request)
+        public async Task<IEnumerable<EsIndexedEntity>> ProcessSearchRequestAsync(SearchRequest request, string ns)
         {
-            var esRequest = await _requestBuilder.BuildAsync(request);
+            var nsOptions = _options.Namespaces?.FirstOrDefault(n => n.Name == ns);
+            if (nsOptions == null)
+                throw new InvalidOperationException("Namespace options not found");
+
+            var esRequest = await _requestBuilder.BuildAsync(request, ns);
 
             var strReq = _esReqSerializer.Serialize(esRequest.Model);
 
             _log?.Debug("Perform search request")
-                .AndFactIs("origin-req", request)
                 .AndFactIs("search-req", strReq)
-                .AndFactIs("index", _options.DefaultIndex)
+                .AndFactIs("index", nsOptions.Index)
                 .Write();
 
             SearchResponse<EsIndexedEntityContent> res;
             try
             {
-                res = await _esClient.LowLevel.SearchAsync<SearchResponse<EsIndexedEntityContent>>(_options.DefaultIndex, strReq);
+                res = await _esClient.LowLevel.SearchAsync<SearchResponse<EsIndexedEntityContent>>(nsOptions.Index, strReq);
             }
             catch (UnexpectedElasticsearchClientException e)
             {

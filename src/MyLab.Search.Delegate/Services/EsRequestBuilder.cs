@@ -44,11 +44,13 @@ namespace MyLab.Search.Delegate.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<EsSearchRequest> BuildAsync(SearchRequest searchRequest)
+        public async Task<EsSearchRequest> BuildAsync(SearchRequest searchRequest, string ns)
         {
+            var nsOptions = _options.GetNamespace(ns);
+
             int limit = searchRequest.Limit > 0
                 ? searchRequest.Limit
-                : _options.DefaultLimit ?? 10;
+                : nsOptions.DefaultLimit ?? 10;
 
             var req = new EsSearchRequest
             {
@@ -59,14 +61,22 @@ namespace MyLab.Search.Delegate.Services
                 }
             };
 
-            await ApplySortAsync(searchRequest, req);
+            string sortId = searchRequest.Sort ?? nsOptions.DefaultSort;
+            if (sortId != null)
+            {
+                var sort = await _esSortProvider.ProvideAsync(sortId, ns);
+                req.Model.Sort = sort.Content;
+            }
 
-            var selectedFilter = await RetrieveSelectedFilterAsync(searchRequest.Filter);
+            string selectedFilterId = searchRequest.Filter ?? nsOptions.DefaultFilter;
+            var selectedFilter = selectedFilterId != null
+                ? await _filterProvider.ProvideAsync(selectedFilterId, ns) 
+                : null;
             
             var query = SearchQuery.Parse(searchRequest.Query);
-            var mapping = await _indexMappingService.GetIndexMappingAsync();
+            var mapping = await _indexMappingService.GetIndexMappingAsync(ns);
 
-            var queryExpressions = GetQueryExpressions(query, mapping, searchRequest.Query);
+            var queryExpressions = GetQueryExpressions(query, mapping);
 
             if (selectedFilter != null || queryExpressions.Length != 0)
             {
@@ -90,7 +100,7 @@ namespace MyLab.Search.Delegate.Services
             return req;
         }
 
-        string[] GetQueryExpressions(SearchQuery query, IndexMapping indexMapping, string originalStrQuery)
+        string[] GetQueryExpressions(SearchQuery query, IndexMapping indexMapping)
         {
             var expressions = new List<string>();
 
@@ -135,24 +145,6 @@ namespace MyLab.Search.Delegate.Services
             }
 
             return expressions.Where(e => e != null).ToArray();
-        }
-
-        private async Task ApplySortAsync(SearchRequest searchRequest, EsSearchRequest req)
-        {
-            string sortId = searchRequest.Sort ?? _options.DefaultSort;
-            if (sortId != null)
-            {
-                var sort = await _esSortProvider.ProvideAsync(sortId);
-                req.Model.Sort = sort.Content;
-            }
-        }
-
-        private async Task<SearchFilter> RetrieveSelectedFilterAsync(string searchRequestFilter)
-        {
-            string selectedFilterId = searchRequestFilter ?? _options.DefaultFilter;
-            if (selectedFilterId == null)
-                return null;
-            return await _filterProvider.ProvideAsync(selectedFilterId);
         }
     }
 }

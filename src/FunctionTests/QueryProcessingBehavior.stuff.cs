@@ -49,9 +49,16 @@ namespace FunctionTests
         {
             return _client.StartWithProxy(srv =>
             {
-                srv.Configure<ElasticsearchOptions>(o =>
+                srv.Configure<DelegateOptions>(o =>
                 {
-                    o.DefaultIndex = indexName;
+                    o.Namespaces = new[]
+                    {
+                        new DelegateOptions.Namespace
+                        {
+                            Name = "test",
+                            Index = indexName
+                        }
+                    };
                 });
             });
         }

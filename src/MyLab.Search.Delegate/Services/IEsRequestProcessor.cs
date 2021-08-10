@@ -8,6 +8,6 @@ namespace MyLab.Search.Delegate.Services
 {
     public interface IEsRequestProcessor
     {
-        Task<IEnumerable<EsIndexedEntity>> ProcessSearchRequestAsync(SearchRequest request);
+        Task<IEnumerable<EsIndexedEntity>> ProcessSearchRequestAsync(SearchRequest request, string ns);
     }
 }

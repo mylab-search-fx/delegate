@@ -30,7 +30,7 @@ namespace FunctionTests
             var cl = _client.StartWithProxy(srv => srv
                 .Configure<DelegateOptions>(o =>
                 {
-                    o.DefaultLimit = 5;
+                    o.Namespaces.First(n => n.Name == "test").DefaultLimit = 5;
                 }));
 
             //Act
@@ -62,9 +62,8 @@ namespace FunctionTests
             var cl = _client.StartWithProxy(srv => srv
                 .Configure<DelegateOptions>(o =>
                 {
-                    o.DefaultSort = "revert";
-                })
-            );
+                    o.Namespaces.First(n => n.Name == "test").DefaultSort = "revert";
+                }));
 
             //Act
             var found = await cl.SearchAsync();
@@ -109,7 +108,7 @@ namespace FunctionTests
             var cl = _client.StartWithProxy(srv => srv
                 .Configure<DelegateOptions>(o =>
                 {
-                    o.DefaultFilter = "from5to15";
+                    o.Namespaces.First(n => n.Name == "test").DefaultFilter = "from5to15";
                 })
             );
 

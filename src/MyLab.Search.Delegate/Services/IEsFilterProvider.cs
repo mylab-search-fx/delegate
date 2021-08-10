@@ -5,6 +5,6 @@ namespace MyLab.Search.Delegate.Services
 {
     interface IEsFilterProvider
     {
-        Task<SearchFilter> ProvideAsync(string filterId);
+        Task<SearchFilter> ProvideAsync(string filterId, string ns);
     }
 }
