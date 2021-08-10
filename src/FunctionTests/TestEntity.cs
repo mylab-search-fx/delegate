@@ -14,4 +14,10 @@ namespace FunctionTests
         [Date(Name = "Date")]
         public DateTime Date { get; set; }
     }
+
+    public class SearchResultEntity
+    {
+        public double Score { get; set; }
+        public TestEntity Content { get; set; }
+    }
 }

@@ -71,7 +71,7 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(20, found[0].Id);
+            Assert.Equal(20, found[0].Content.Id);
         }
 
         [Fact]
@@ -85,7 +85,7 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(20, found[0].Id);
+            Assert.Equal(20, found[0].Content.Id);
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(19, found[0].Id);
+            Assert.Equal(19, found[0].Content.Id);
         }
 
         [Fact]
@@ -120,7 +120,7 @@ namespace FunctionTests
             Assert.NotNull(found);
             foreach (var i in Enumerable.Range(5, 10))
             {
-                Assert.Contains(found, f => f.Id == i);
+                Assert.Contains(found, f => f.Content.Id == i);
             }
         }
 
@@ -137,7 +137,7 @@ namespace FunctionTests
             Assert.NotNull(found);
             foreach (var i in Enumerable.Range(5, 10))
             {
-                Assert.Contains(found, f => f.Id == i);
+                Assert.Contains(found, f => f.Content.Id == i);
             }
         }
 
@@ -157,7 +157,7 @@ namespace FunctionTests
             //Assert
             Assert.NotNull(found);
             Assert.Single(found);
-            Assert.Equal(13, found[0].Id);
+            Assert.Equal(13, found[0].Content.Id);
         }
 
         private IEnumerable<TestEntity> CreateTestEntities()

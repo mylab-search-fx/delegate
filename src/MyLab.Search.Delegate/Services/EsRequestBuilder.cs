@@ -66,11 +66,14 @@ namespace MyLab.Search.Delegate.Services
             var query = SearchQuery.Parse(searchRequest.Query);
             var mapping = await _indexMappingService.GetIndexMappingAsync();
 
-            var queryExpressions = GetQueryExpressions(query, mapping);
+            var queryExpressions = GetQueryExpressions(query, mapping, searchRequest.Query);
 
             if (selectedFilter != null || queryExpressions.Length != 0)
             {
-                var boolModel = new EsSearchQueryBoolModel();
+                var boolModel = new EsSearchQueryBoolModel
+                {
+                    MinShouldMatch = query.IsEmpty ? null : (int?)1
+                };
 
                 if (selectedFilter != null)
                     boolModel.Filter = new[] {selectedFilter.Content};
@@ -87,12 +90,13 @@ namespace MyLab.Search.Delegate.Services
             return req;
         }
 
-        string[] GetQueryExpressions(SearchQuery query, IndexMapping indexMapping)
+        string[] GetQueryExpressions(SearchQuery query, IndexMapping indexMapping, string originalStrQuery)
         {
             var expressions = new List<string>();
 
             foreach (var prop in indexMapping.Props)
             {
+
                 IReadOnlyCollection<ISearchQueryParam> qParams = null;
 
                 switch (prop.Type)

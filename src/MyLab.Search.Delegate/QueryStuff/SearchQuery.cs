@@ -29,6 +29,8 @@ namespace MyLab.Search.Delegate.QueryStuff
         public IReadOnlyCollection<ISearchQueryParam> NumericParams => _numSearchParams;
         public IReadOnlyCollection<ISearchQueryParam> DateTimeParams => _dtSearchParams;
 
+        public bool IsEmpty => _dtSearchParams.Length + _numSearchParams.Length + _textSearchParams.Length == 0;
+
         private ISearchQueryParam[] _textSearchParams;
         private ISearchQueryParam[] _numSearchParams;
         private ISearchQueryParam[] _dtSearchParams;

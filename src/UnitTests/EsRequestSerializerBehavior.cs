@@ -79,7 +79,7 @@ namespace UnitTests
 
             //Assert
             Assert.Contains(
-                $"\"must\": [{filter1},{filter2}]",
+                $"\"should\": [{filter1},{filter2}]",
                 stringRes);
         }
 

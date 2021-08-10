@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ namespace MyLab.Search.Delegate.Controllers
         public async Task<IActionResult> Get([FromQuery]SearchRequest request)
         {
             var result = await _requestProcessor.ProcessSearchRequestAsync(request);
+
             return Ok(result);
         }
     }

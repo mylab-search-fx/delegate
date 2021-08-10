@@ -106,11 +106,12 @@ namespace UnitTests
 
             var dtParam = q.DateTimeParams
                     .FirstOrDefault(p => p.Rank == 1)
-                as DateTimeQueryParameter;
+                as DateTimeRangeQueryParameter;
 
             //Assert
             Assert.NotNull(dtParam);
-            Assert.Equal(expected, dtParam.Value);
+            Assert.Equal(expected, dtParam.From);
+            Assert.Equal(expected.AddDays(1), dtParam.To);
         }
 
         [Theory]

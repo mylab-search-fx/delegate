@@ -18,7 +18,7 @@ namespace MyLab.Search.Delegate.QueryStuff
             switch (propType)
             {
                 case "text":
-                    return "{\"match\":{\"" + propName + "\":{\"query\":\"" + Value + "\"}}}";
+                    return "{\"match\":{\"" + propName + "\":{\"query\":\"" + Value + "\",\"boost\":" + boost + "}}}";
                 default:
                     return "{\"term\":{\"" + propName + "\":{\"value\":\"" + Value + "\",\"boost\":" + boost + "}}}";
             }

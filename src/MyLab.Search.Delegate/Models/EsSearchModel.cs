@@ -5,6 +5,10 @@ namespace MyLab.Search.Delegate.Models
 {
     class EsSearchModel
     {
+        [JsonProperty("min_score")]
+        public float? MinScore{ get; set; }
+        [JsonProperty("track_scores")]
+        public bool TrackScores { get; set; } = true;
         [JsonProperty("from")]
         public int From { get; set; }
         [JsonProperty("size")]
@@ -25,6 +29,9 @@ namespace MyLab.Search.Delegate.Models
 
     class EsSearchQueryBoolModel
     {
+        [JsonProperty("minimum_should_match")]
+        public int? MinShouldMatch { get; set; }
+
         [JsonProperty("should")]
         [JsonConverter(typeof(StrArrayToObjectArrayJsonConverter))]
         public string[] Should { get; set; }

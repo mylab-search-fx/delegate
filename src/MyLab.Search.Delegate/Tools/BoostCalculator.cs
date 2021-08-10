@@ -6,7 +6,8 @@ namespace MyLab.Search.Delegate.Tools
     {
         public static double Calculate(int rank)
         {
-            return 1.0 + (0.1 * rank);
+            return rank;
+            //return 1.0 + (0.1 * rank);
         }
 
         public static string CalculateString(int rank)

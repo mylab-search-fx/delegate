@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using MyLab.ApiClient;
-using MyLab.Search.Delegate.Models;
 
 namespace FunctionTests
 {
@@ -8,7 +7,7 @@ namespace FunctionTests
     public interface ISearchService
     {
         [Get("search")]
-        Task<TestEntity[]> SearchAsync(
+        Task<SearchResultEntity[]> SearchAsync(
             [Query] string query = null,
             [Query] string filter = null,
             [Query] string sort = null,

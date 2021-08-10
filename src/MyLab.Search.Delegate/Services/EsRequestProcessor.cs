@@ -63,10 +63,10 @@ namespace MyLab.Search.Delegate.Services
                 .AndFactIs("index", _options.DefaultIndex)
                 .Write();
 
-            SearchResponse<EsIndexedEntity> res;
+            SearchResponse<EsIndexedEntityContent> res;
             try
             {
-                res = await _esClient.LowLevel.SearchAsync<SearchResponse<EsIndexedEntity>>(_options.DefaultIndex, strReq);
+                res = await _esClient.LowLevel.SearchAsync<SearchResponse<EsIndexedEntityContent>>(_options.DefaultIndex, strReq);
             }
             catch (UnexpectedElasticsearchClientException e)
             {
@@ -76,7 +76,11 @@ namespace MyLab.Search.Delegate.Services
                 throw;
             }
 
-            return res.Documents;
+            return res.Hits.Select(h => new EsIndexedEntity
+            {
+                Content = h.Source,
+                Score = h.Score
+            });
         }
     }
 }
