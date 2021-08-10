@@ -8,7 +8,8 @@ namespace MyLab.Search.Delegate
         public string SortPath { get; set; } = "/etc/mylab-search-delegate/sort/";
         public string FilterPath { get; set; } = "/etc/mylab-search-delegate/filter/";
         public Namespace[] Namespaces { get; set; }
-
+        public Tokenizing Token { get; set; }
+        
         public class Namespace
         {
             public string Name { get; set; }
@@ -16,6 +17,12 @@ namespace MyLab.Search.Delegate
             public string DefaultFilter { get; set; }
             public string DefaultSort { get; set; }
             public int? DefaultLimit { get; set; }
+        }
+
+        public class Tokenizing
+        {
+            public int? ExpirySec { get; set; }
+            public string SignKey { get; set; }
         }
 
         public Namespace GetNamespace(string ns)

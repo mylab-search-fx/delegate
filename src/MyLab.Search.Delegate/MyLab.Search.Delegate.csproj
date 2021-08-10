@@ -12,6 +12,7 @@
     <PackageReference Include="MyLab.StatusProvider" Version="1.5.9" />
     <PackageReference Include="MyLab.WebErrors" Version="1.1.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.12.0" />
   </ItemGroup>
 
 </Project>

@@ -31,13 +31,18 @@ namespace MyLab.Search.Delegate.Controllers
 
         [HttpGet("{namespace}")]
         [ErrorToResponse(typeof(ResourceNotFoundException), HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Get([FromQuery]SearchRequest request, [FromRoute(Name = "namespace")]string ns)
+        [ErrorToResponse(typeof(InvalidTokenException), HttpStatusCode.BadRequest)]
+        [ErrorToResponse(typeof(TokenizingDisabledException), HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Get(
+            [FromQuery]SearchRequest request, 
+            [FromRoute(Name = "namespace")]string ns, 
+            [FromHeader(Name = "X-Search-Header")]string searchToken)
         {
             IEnumerable<EsIndexedEntity> result;
 
             try
             {
-                result = await _requestProcessor.ProcessSearchRequestAsync(request, ns);
+                result = await _requestProcessor.ProcessSearchRequestAsync(request, ns, searchToken);
             }
             catch (Exception e)
             {

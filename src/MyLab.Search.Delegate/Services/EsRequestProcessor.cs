@@ -22,6 +22,7 @@ namespace MyLab.Search.Delegate.Services
     {
         private readonly DelegateOptions _options;
         private readonly IEsRequestBuilder _requestBuilder;
+        private readonly ITokenService _tokenService;
         private readonly ElasticClient _esClient;
         private readonly EsSearchRequestSerializer _esReqSerializer;
         private readonly IDslLogger _log;
@@ -30,8 +31,9 @@ namespace MyLab.Search.Delegate.Services
             IOptions<DelegateOptions> options,
             IEsRequestBuilder requestBuilder,
             IEsClientProvider esClientProvider,
+            ITokenService tokenService,
             ILogger<EsRequestProcessor> logger = null)
-        :this(options.Value, requestBuilder, esClientProvider, logger)
+        :this(options.Value, requestBuilder, esClientProvider, tokenService, logger)
         {
 
         }
@@ -40,24 +42,36 @@ namespace MyLab.Search.Delegate.Services
             DelegateOptions options,
             IEsRequestBuilder requestBuilder,
             IEsClientProvider esClientProvider,
+            ITokenService tokenService,
             ILogger<EsRequestProcessor> logger = null)
         {
             if (esClientProvider == null) throw new ArgumentNullException(nameof(esClientProvider));
             _options = options;
             _requestBuilder = requestBuilder ?? throw new ArgumentNullException(nameof(requestBuilder));
+            _tokenService = tokenService;
 
             _esClient = esClientProvider.Provide();
             _esReqSerializer = new EsSearchRequestSerializer();
             _log = logger?.Dsl();
         }
 
-        public async Task<IEnumerable<EsIndexedEntity>> ProcessSearchRequestAsync(SearchRequest request, string ns)
+        public async Task<IEnumerable<EsIndexedEntity>> ProcessSearchRequestAsync(SearchRequest request, string ns, string searchToken)
         {
+            FiltersCall filterCall = null;
+
+            if (_tokenService.IsEnabled())
+            {
+                if (searchToken == null)
+                    throw new InvalidTokenException("Search Token required");
+
+                filterCall = _tokenService.ValidateAndExtractSearchToken(searchToken);
+            }
+
             var nsOptions = _options.Namespaces?.FirstOrDefault(n => n.Name == ns);
             if (nsOptions == null)
                 throw new InvalidOperationException("Namespace options not found");
 
-            var esRequest = await _requestBuilder.BuildAsync(request, ns);
+            var esRequest = await _requestBuilder.BuildAsync(request, ns, filterCall);
 
             var strReq = _esReqSerializer.Serialize(esRequest.Model);
 
