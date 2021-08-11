@@ -5,6 +5,7 @@ namespace MyLab.Search.Delegate.Models
 {
     public class TokenRequest
     {
+        [JsonProperty("namespaces")]
         public NamespaceSettingsMap Namespaces { get; set; }
     }
 

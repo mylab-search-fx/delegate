@@ -51,7 +51,7 @@ namespace UnitTests
             var srv = new TokenService(opt);
 
             //Act & Assert
-            Assert.Throws<TokenizingDisabledException>(() =>
+            AssertThrows<TokenizingDisabledException>(() =>
             {
                 CreateSearchToken(srv, TokenRequest);
             });
@@ -65,7 +65,7 @@ namespace UnitTests
             var srv = new TokenService(opt);
 
             //Act & Assert
-            Assert.Throws<TokenizingDisabledException>(() =>
+            AssertThrows<TokenizingDisabledException>(() =>
             {
                 srv.ValidateAndExtractSettings("token", TestNamespace);
             });
@@ -118,7 +118,7 @@ namespace UnitTests
             var token = CreateSearchToken(srv, TokenRequest);
 
             //Act & Assert
-            Assert.Throws<InvalidTokenException>(() =>
+            AssertThrows<InvalidTokenException>(() =>
             {
                 srv2.ValidateAndExtractSettings(token, TestNamespace);
             });
@@ -164,7 +164,7 @@ namespace UnitTests
             var token = CreateSearchToken(srv, TokenRequest);
 
             //Act & Assert
-            Assert.Throws<InvalidTokenException>(() =>
+            AssertThrows<InvalidTokenException>(() =>
             {
                 srv.ValidateAndExtractSettings(token, TestNamespace);
             });
@@ -186,7 +186,7 @@ namespace UnitTests
             var token = CreateSearchToken(srv, TokenRequest);
 
             //Act & Assert
-            Assert.Throws<InvalidTokenException>(() =>
+            AssertThrows<InvalidTokenException>(() =>
             {
                 srv.ValidateAndExtractSettings(token, "wrong-namespace");
             });
@@ -209,6 +209,14 @@ namespace UnitTests
             _output.WriteLine("Token: " + token);
 
             return token;
+        }
+
+        void AssertThrows<T>(Action act)
+            where T : Exception
+        {
+            var exception = Assert.Throws<T>(act);
+
+            _output.WriteLine("Exception: " + exception);
         }
     }
 }
