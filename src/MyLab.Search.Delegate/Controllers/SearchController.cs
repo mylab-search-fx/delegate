@@ -31,7 +31,7 @@ namespace MyLab.Search.Delegate.Controllers
 
         [HttpGet("{namespace}")]
         [ErrorToResponse(typeof(ResourceNotFoundException), HttpStatusCode.BadRequest)]
-        [ErrorToResponse(typeof(InvalidTokenException), HttpStatusCode.BadRequest)]
+        [ErrorToResponse(typeof(InvalidTokenException), HttpStatusCode.Forbidden)]
         [ErrorToResponse(typeof(TokenizingDisabledException), HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Get(
             [FromQuery]SearchRequest request, 
