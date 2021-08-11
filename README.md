@@ -174,7 +174,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 Результат поиска - список объектов, описывающих найденные сущности. 
 
-```json
+```
 [
   {
     "content": { ... },
@@ -198,7 +198,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 После получения запроса от клиента, `Delegate` формирует на его основе запрос в `ElasticSearch` (далее `ES`). Условный шаблон запроса выглядит на примере ниже:
 
-```json
+```
 {
   "from": 0,
   "size": 10,
@@ -274,7 +274,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 Пример фильтра:
 
-```json
+```
 {
   "range": {
     "Id": {
@@ -343,7 +343,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 Пример фильтра:
 
-```json
+```
 {
   "range": {
     "Id": {
