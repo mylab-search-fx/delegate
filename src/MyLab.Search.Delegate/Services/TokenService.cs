@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MyLab.Log;
 using MyLab.Search.Delegate.Models;
 using Newtonsoft.Json;
 
@@ -18,7 +19,7 @@ namespace MyLab.Search.Delegate.Services
         readonly Lazy<SymmetricSecurityKey> _securityKey;
         readonly DateTime _epoch = new DateTime(1970, 1, 1);
 
-        private const string FiltersClaimName = "mylab:search-dlgt:filters";
+        private const string NamespaceSettingsClaimName = "mylab:search-dlgt:namespaces";
 
         public TokenService(IOptions<DelegateOptions> options)
         :this(options.Value)
@@ -42,17 +43,24 @@ namespace MyLab.Search.Delegate.Services
             if(!IsEnabled())
                 throw new TokenizingDisabledException("Token factoring disabled");
             
-            var filtersJson = JsonConvert.SerializeObject(request.Filters);
+            var namespaceSettings = JsonConvert.SerializeObject(request.Namespaces);
             var claims = new List<Claim>
             {
-                new Claim(FiltersClaimName, filtersJson)
+                new Claim(NamespaceSettingsClaimName, namespaceSettings)
             };
 
             if (_options.Token.ExpirySec.HasValue)
             {
                 var expDt = (long)(DateTime.Now.AddSeconds(_options.Token.ExpirySec.Value) - _epoch).TotalSeconds;
+
                 claims.Add(new Claim("exp", expDt.ToString()));
             }
+
+            if (request.Namespaces != null)
+            {
+                claims.AddRange(request.Namespaces.Select(ns => new Claim("aud", ns.Key)));
+            }
+
             var header = new JwtHeader(new SigningCredentials(_securityKey.Value, "HS256"));
             var payload = new JwtPayload(claims);
             try
@@ -65,7 +73,7 @@ namespace MyLab.Search.Delegate.Services
             }
         }
 
-        public FiltersCall ValidateAndExtractSearchToken(string token)
+        public NamespaceSettings ValidateAndExtractSettings(string token, string ns)
         {
             if (!IsEnabled())
                 throw new TokenizingDisabledException("Token factoring disabled");
@@ -78,7 +86,7 @@ namespace MyLab.Search.Delegate.Services
                     ValidateIssuer = false,
                     ValidateTokenReplay = false,
                     ValidateActor = false,
-                    ValidateAudience = false,
+                    ValidateAudience = true,
                     ValidateLifetime = _options.Token.ExpirySec.HasValue,
                     LifetimeValidator= (before, expires, securityToken, parameters) =>
                     {
@@ -88,7 +96,8 @@ namespace MyLab.Search.Delegate.Services
                         var now = DateTime.Now;
                         return expires >= now;
                     },
-                    IssuerSigningKey = _securityKey.Value
+                    IssuerSigningKey = _securityKey.Value,
+                    ValidAudience = ns
                 }, out _);
             }
             catch (Exception e)
@@ -96,24 +105,27 @@ namespace MyLab.Search.Delegate.Services
                 throw new InvalidTokenException("Search token validation failed", e);
             }
 
-            var filtersClaim = tokenPrincipal.Claims.FirstOrDefault(c => c.Type == FiltersClaimName);
+            var namespacedClaim = tokenPrincipal.Claims.FirstOrDefault(c => c.Type == NamespaceSettingsClaimName);
 
-            if (filtersClaim == null)
+            if (namespacedClaim == null)
             {
-                throw new InvalidTokenException("Filters Claim not found in the Search Token");
+                throw new InvalidTokenException("Namespaces Claim not found in the Search Token");
             }
 
-            FiltersCall filtersCall;
+            NamespaceSettings namespaceSettings;
             try
             {
-                filtersCall = JsonConvert.DeserializeObject<FiltersCall>(filtersClaim.Value);
+                var nss = JsonConvert.DeserializeObject<NamespaceSettingsMap>(namespacedClaim.Value);
+
+                nss.TryGetValue(ns, out namespaceSettings);
             }
             catch (JsonException e)
             {
-                throw new InvalidTokenException("Filters Call from Search Token has wrong format", e);
+                throw new InvalidTokenException("namespaces claim from Search Token has wrong format", e)
+                    .AndFactIs("token", namespacedClaim.Value);
             }
 
-            return filtersCall;
+            return namespaceSettings;
         }
     }
 }

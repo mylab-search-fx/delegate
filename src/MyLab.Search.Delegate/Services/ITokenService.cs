@@ -6,6 +6,6 @@ namespace MyLab.Search.Delegate.Services
     {
         bool IsEnabled();
         string CreateSearchToken(TokenRequest request);
-        FiltersCall ValidateAndExtractSearchToken(string token);
+        NamespaceSettings ValidateAndExtractSettings(string token, string ns);
     }
 }

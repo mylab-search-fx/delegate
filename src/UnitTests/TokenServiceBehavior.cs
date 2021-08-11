@@ -1,14 +1,39 @@
-﻿using System;
+﻿using MyLab.Log;
+using System;
 using System.Linq;
 using MyLab.Search.Delegate;
 using MyLab.Search.Delegate.Models;
 using MyLab.Search.Delegate.Services;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace UnitTests
 {
     public class TokenServiceBehavior
     {
+        private readonly ITestOutputHelper _output;
+        private const string TestNamespace = "test";
+        private const string TestNamespace2 = "test2";
+        static readonly TokenRequest TokenRequest = new TokenRequest
+        {
+            Namespaces = new NamespaceSettingsMap
+            {
+                {
+                    TestNamespace,
+                    new NamespaceSettings
+                    {
+                        Filters = new FiltersCall()
+                    }
+                },
+                {TestNamespace2, new NamespaceSettings()}
+            }
+        };
+
+        public TokenServiceBehavior(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Fact]
         public void ShouldNotCreateWhenNoTokenizingConfig()
         {
@@ -19,10 +44,7 @@ namespace UnitTests
             //Act & Assert
             Assert.Throws<TokenizingDisabledException>(() =>
             {
-                srv.CreateSearchToken(new TokenRequest
-                {
-                    Filters = new FiltersCall()
-                });
+                srv.CreateSearchToken(TokenRequest);
             });
         }
 
@@ -36,7 +58,7 @@ namespace UnitTests
             //Act & Assert
             Assert.Throws<TokenizingDisabledException>(() =>
             {
-                srv.ValidateAndExtractSearchToken("token");
+                srv.ValidateAndExtractSettings("token", TestNamespace);
             });
         }
 
@@ -53,13 +75,10 @@ namespace UnitTests
             };
             var srv = new TokenService(opt);
 
-            var token = srv.CreateSearchToken(new TokenRequest
-            {
-                Filters = new FiltersCall()
-            });
+            var token = srv.CreateSearchToken(TokenRequest);
 
             //Act
-            srv.ValidateAndExtractSearchToken(token);
+            srv.ValidateAndExtractSettings(token, TestNamespace);
 
             //Assert
 
@@ -87,15 +106,12 @@ namespace UnitTests
             var srv = new TokenService(opt);
             var srv2 = new TokenService(opt2);
 
-            var token = srv.CreateSearchToken(new TokenRequest
-            {
-                Filters = new FiltersCall()
-            });
+            var token = srv.CreateSearchToken(TokenRequest);
 
             //Act & Assert
             Assert.Throws<InvalidTokenException>(() =>
             {
-                srv2.ValidateAndExtractSearchToken(token);
+                srv2.ValidateAndExtractSettings(token, TestNamespace);
             });
         }
 
@@ -113,13 +129,10 @@ namespace UnitTests
             };
             var srv = new TokenService(opt);
 
-            var token = srv.CreateSearchToken(new TokenRequest
-            {
-                Filters = new FiltersCall()
-            });
+            var token = srv.CreateSearchToken(TokenRequest);
 
             //Act
-            srv.ValidateAndExtractSearchToken(token);
+            srv.ValidateAndExtractSettings(token, TestNamespace);
 
             //Assert
 
@@ -139,15 +152,34 @@ namespace UnitTests
             };
             var srv = new TokenService(opt);
 
-            var token = srv.CreateSearchToken(new TokenRequest
-            {
-                Filters = new FiltersCall()
-            });
+            var token = srv.CreateSearchToken(TokenRequest);
 
             //Act & Assert
             Assert.Throws<InvalidTokenException>(() =>
             {
-                srv.ValidateAndExtractSearchToken(token);
+                srv.ValidateAndExtractSettings(token, TestNamespace);
+            });
+        }
+
+        [Fact]
+        public void ShouldNotValidateIfWrongAudience()
+        {
+            //Arrange
+            var opt = new DelegateOptions
+            {
+                Token = new DelegateOptions.Tokenizing
+                {
+                    SignKey = CreateKey()
+                }
+            };
+            var srv = new TokenService(opt);
+
+            var token = srv.CreateSearchToken(TokenRequest);
+
+            //Act & Assert
+            Assert.Throws<InvalidTokenException>(() =>
+            {
+                srv.ValidateAndExtractSettings(token, "wrong-namespace");
             });
         }
 

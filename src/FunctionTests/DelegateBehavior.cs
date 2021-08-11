@@ -185,13 +185,22 @@ namespace FunctionTests
 
             var tokenRequest = new TokenRequest
             {
-                Filters = new FiltersCall
+                Namespaces = new NamespaceSettingsMap
                 {
                     {
-                        "paramFilter", new FilterArgs
+                        "test",
+                        new NamespaceSettings
                         {
-                            {"from", "6"},
-                            {"to", "8"}
+                            Filters = new FiltersCall
+                            {
+                                {
+                                    "paramFilter", new FilterArgs
+                                    {
+                                        {"from", "6"},
+                                        {"to", "8"}
+                                    }
+                                }
+                            }
                         }
                     }
                 }

@@ -57,21 +57,21 @@ namespace MyLab.Search.Delegate.Services
 
         public async Task<IEnumerable<EsIndexedEntity>> ProcessSearchRequestAsync(SearchRequest request, string ns, string searchToken)
         {
-            FiltersCall filterCall = null;
+            NamespaceSettings namespaceSettings = null;
 
             if (_tokenService.IsEnabled())
             {
                 if (searchToken == null)
                     throw new InvalidTokenException("Search Token required");
 
-                filterCall = _tokenService.ValidateAndExtractSearchToken(searchToken);
+                namespaceSettings = _tokenService.ValidateAndExtractSettings(searchToken, ns);
             }
 
             var nsOptions = _options.Namespaces?.FirstOrDefault(n => n.Name == ns);
             if (nsOptions == null)
                 throw new InvalidOperationException("Namespace options not found");
 
-            var esRequest = await _requestBuilder.BuildAsync(request, ns, filterCall);
+            var esRequest = await _requestBuilder.BuildAsync(request, ns, namespaceSettings?.Filters);
 
             var strReq = _esReqSerializer.Serialize(esRequest.Model);
 
