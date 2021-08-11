@@ -44,25 +44,11 @@ namespace MyLab.Search.Delegate.Services
                 throw new TokenizingDisabledException("Token factoring disabled");
             
             var namespaceSettings = JsonConvert.SerializeObject(request.Namespaces);
-            var claims = new List<Claim>
-            {
-                new Claim(NamespaceSettingsClaimName, namespaceSettings)
-            };
 
-            if (_options.Token.ExpirySec.HasValue)
-            {
-                var expDt = (long)(DateTime.Now.AddSeconds(_options.Token.ExpirySec.Value) - _epoch).TotalSeconds;
-
-                claims.Add(new Claim("exp", expDt.ToString()));
-            }
-
-            if (request.Namespaces != null)
-            {
-                claims.AddRange(request.Namespaces.Select(ns => new Claim("aud", ns.Key)));
-            }
+            var payload = BuildPayload(request, namespaceSettings);
 
             var header = new JwtHeader(new SigningCredentials(_securityKey.Value, "HS256"));
-            var payload = new JwtPayload(claims);
+            
             try
             {
                 return _tokenHandler.WriteToken(new JwtSecurityToken(header, payload));
@@ -126,6 +112,30 @@ namespace MyLab.Search.Delegate.Services
             }
 
             return namespaceSettings;
+        }
+
+        private JwtPayload BuildPayload(TokenRequest request, string namespaceSettings)
+        {
+            var payloadLines = new List<string>();
+
+            payloadLines.Add($"\"{NamespaceSettingsClaimName}\": {namespaceSettings}");
+
+
+            if (_options.Token.ExpirySec.HasValue)
+            {
+                var expDt = (long)(DateTime.Now.AddSeconds(_options.Token.ExpirySec.Value) - _epoch).TotalSeconds;
+                payloadLines.Add($"\"exp\": {expDt}");
+            }
+
+            if (request.Namespaces != null)
+            {
+                var namespaceNames = request.Namespaces.Select(ns => "\"" + ns.Key + "\"");
+                payloadLines.Add($"\"aud\": [{string.Join(',', namespaceNames)}]");
+            }
+
+            string payloadJson = "{" + string.Join(',', payloadLines) + "}";
+            var payload = JwtPayload.Deserialize(payloadJson);
+            return payload;
         }
     }
 }

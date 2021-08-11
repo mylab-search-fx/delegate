@@ -25,7 +25,13 @@ namespace UnitTests
                         Filters = new FiltersCall()
                     }
                 },
-                {TestNamespace2, new NamespaceSettings()}
+                {
+                    TestNamespace2, 
+                    new NamespaceSettings
+                    {
+                        Filters = new FiltersCall()
+                    }
+                }
             }
         };
 
@@ -44,7 +50,7 @@ namespace UnitTests
             //Act & Assert
             Assert.Throws<TokenizingDisabledException>(() =>
             {
-                srv.CreateSearchToken(TokenRequest);
+                CreateSearchToken(srv, TokenRequest);
             });
         }
 
@@ -75,7 +81,7 @@ namespace UnitTests
             };
             var srv = new TokenService(opt);
 
-            var token = srv.CreateSearchToken(TokenRequest);
+            var token = CreateSearchToken(srv, TokenRequest);
 
             //Act
             srv.ValidateAndExtractSettings(token, TestNamespace);
@@ -106,7 +112,7 @@ namespace UnitTests
             var srv = new TokenService(opt);
             var srv2 = new TokenService(opt2);
 
-            var token = srv.CreateSearchToken(TokenRequest);
+            var token = CreateSearchToken(srv, TokenRequest);
 
             //Act & Assert
             Assert.Throws<InvalidTokenException>(() =>
@@ -129,7 +135,7 @@ namespace UnitTests
             };
             var srv = new TokenService(opt);
 
-            var token = srv.CreateSearchToken(TokenRequest);
+            var token = CreateSearchToken(srv, TokenRequest);
 
             //Act
             srv.ValidateAndExtractSettings(token, TestNamespace);
@@ -152,7 +158,7 @@ namespace UnitTests
             };
             var srv = new TokenService(opt);
 
-            var token = srv.CreateSearchToken(TokenRequest);
+            var token = CreateSearchToken(srv, TokenRequest);
 
             //Act & Assert
             Assert.Throws<InvalidTokenException>(() =>
@@ -174,7 +180,7 @@ namespace UnitTests
             };
             var srv = new TokenService(opt);
 
-            var token = srv.CreateSearchToken(TokenRequest);
+            var token = CreateSearchToken(srv, TokenRequest);
 
             //Act & Assert
             Assert.Throws<InvalidTokenException>(() =>
@@ -186,6 +192,15 @@ namespace UnitTests
         string CreateKey()
         {
             return string.Join(':', Enumerable.Repeat(Guid.NewGuid().ToString("N"), 10));
+        }
+
+        string CreateSearchToken(TokenService srv, TokenRequest request)
+        {
+            var token = srv.CreateSearchToken(request);
+
+            _output.WriteLine("Token: " + token);
+
+            return token;
         }
     }
 }

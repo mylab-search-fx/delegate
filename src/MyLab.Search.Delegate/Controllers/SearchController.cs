@@ -36,7 +36,7 @@ namespace MyLab.Search.Delegate.Controllers
         public async Task<IActionResult> Get(
             [FromQuery]SearchRequest request, 
             [FromRoute(Name = "namespace")]string ns, 
-            [FromHeader(Name = "X-Search-Header")]string searchToken)
+            [FromHeader(Name = "X-Search-Token")]string searchToken)
         {
             IEnumerable<EsIndexedEntity> result;
 
