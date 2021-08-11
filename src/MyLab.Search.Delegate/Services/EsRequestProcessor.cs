@@ -20,53 +20,70 @@ namespace MyLab.Search.Delegate.Services
 {
     class EsRequestProcessor : IEsRequestProcessor
     {
-        private readonly ElasticsearchOptions _options;
+        private readonly DelegateOptions _options;
         private readonly IEsRequestBuilder _requestBuilder;
+        private readonly ITokenService _tokenService;
         private readonly ElasticClient _esClient;
         private readonly EsSearchRequestSerializer _esReqSerializer;
         private readonly IDslLogger _log;
 
         public EsRequestProcessor(
-            IOptions<ElasticsearchOptions> options,
+            IOptions<DelegateOptions> options,
             IEsRequestBuilder requestBuilder,
             IEsClientProvider esClientProvider,
+            ITokenService tokenService,
             ILogger<EsRequestProcessor> logger = null)
-        :this(options.Value, requestBuilder, esClientProvider, logger)
+        :this(options.Value, requestBuilder, esClientProvider, tokenService, logger)
         {
 
         }
 
         public EsRequestProcessor(
-            ElasticsearchOptions options,
+            DelegateOptions options,
             IEsRequestBuilder requestBuilder,
             IEsClientProvider esClientProvider,
+            ITokenService tokenService,
             ILogger<EsRequestProcessor> logger = null)
         {
             if (esClientProvider == null) throw new ArgumentNullException(nameof(esClientProvider));
             _options = options;
             _requestBuilder = requestBuilder ?? throw new ArgumentNullException(nameof(requestBuilder));
+            _tokenService = tokenService;
 
             _esClient = esClientProvider.Provide();
             _esReqSerializer = new EsSearchRequestSerializer();
             _log = logger?.Dsl();
         }
 
-        public async Task<IEnumerable<EsIndexedEntity>> ProcessSearchRequestAsync(SearchRequest request)
+        public async Task<IEnumerable<EsIndexedEntity>> ProcessSearchRequestAsync(SearchRequest request, string ns, string searchToken)
         {
-            var esRequest = await _requestBuilder.BuildAsync(request);
+            NamespaceSettings namespaceSettings = null;
+
+            if (_tokenService.IsEnabled())
+            {
+                if (searchToken == null)
+                    throw new InvalidTokenException("Search Token required");
+
+                namespaceSettings = _tokenService.ValidateAndExtractSettings(searchToken, ns);
+            }
+
+            var nsOptions = _options.Namespaces?.FirstOrDefault(n => n.Name == ns);
+            if (nsOptions == null)
+                throw new InvalidOperationException("Namespace options not found");
+
+            var esRequest = await _requestBuilder.BuildAsync(request, ns, namespaceSettings?.Filters);
 
             var strReq = _esReqSerializer.Serialize(esRequest.Model);
 
             _log?.Debug("Perform search request")
-                .AndFactIs("origin-req", request)
                 .AndFactIs("search-req", strReq)
-                .AndFactIs("index", _options.DefaultIndex)
+                .AndFactIs("index", nsOptions.Index)
                 .Write();
 
             SearchResponse<EsIndexedEntityContent> res;
             try
             {
-                res = await _esClient.LowLevel.SearchAsync<SearchResponse<EsIndexedEntityContent>>(_options.DefaultIndex, strReq);
+                res = await _esClient.LowLevel.SearchAsync<SearchResponse<EsIndexedEntityContent>>(nsOptions.Index, strReq);
             }
             catch (UnexpectedElasticsearchClientException e)
             {

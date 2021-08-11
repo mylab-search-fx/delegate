@@ -44,11 +44,13 @@ namespace MyLab.Search.Delegate.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<EsSearchRequest> BuildAsync(SearchRequest searchRequest)
+        public async Task<EsSearchRequest> BuildAsync(SearchRequest searchRequest, string ns, FiltersCall filtersCall)
         {
+            var nsOptions = _options.GetNamespace(ns);
+
             int limit = searchRequest.Limit > 0
                 ? searchRequest.Limit
-                : _options.DefaultLimit ?? 10;
+                : nsOptions.DefaultLimit ?? 10;
 
             var req = new EsSearchRequest
             {
@@ -59,24 +61,51 @@ namespace MyLab.Search.Delegate.Services
                 }
             };
 
-            await ApplySortAsync(searchRequest, req);
+            string sortId = searchRequest.Sort ?? nsOptions.DefaultSort;
+            if (sortId != null)
+            {
+                var sort = await _esSortProvider.ProvideAsync(sortId, ns);
+                req.Model.Sort = sort.Content;
+            }
 
-            var selectedFilter = await RetrieveSelectedFilterAsync(searchRequest.Filter);
+            var filtersToAdd = new List<SearchFilter>();
+
+            string selectedFilterId = searchRequest.Filter ?? nsOptions.DefaultFilter;
+
+            if (selectedFilterId != null)
+            {
+                var selectedFilter = await _filterProvider.ProvideAsync(selectedFilterId, ns);
+                filtersToAdd.Add(selectedFilter);
+            }
+
+            if (filtersCall != null)
+            {
+                foreach (var filterCall in filtersCall)
+                {
+                    var filter = await _filterProvider.ProvideAsync(filterCall.Key, ns);
+                    var initiator= new FilterInitiator(filterCall.Value);
+                    initiator.InitFilter(filter);
+
+                    filtersToAdd.Add(filter);
+                }
+            }
             
             var query = SearchQuery.Parse(searchRequest.Query);
-            var mapping = await _indexMappingService.GetIndexMappingAsync();
+            var mapping = await _indexMappingService.GetIndexMappingAsync(ns);
 
-            var queryExpressions = GetQueryExpressions(query, mapping, searchRequest.Query);
+            var queryExpressions = GetQueryExpressions(query, mapping);
 
-            if (selectedFilter != null || queryExpressions.Length != 0)
+            if (filtersToAdd.Count != 0 || queryExpressions.Length != 0)
             {
                 var boolModel = new EsSearchQueryBoolModel
                 {
                     MinShouldMatch = query.IsEmpty ? null : (int?)1
                 };
 
-                if (selectedFilter != null)
-                    boolModel.Filter = new[] {selectedFilter.Content};
+                if (filtersToAdd.Count != 0)
+                    boolModel.Filter = filtersToAdd
+                        .Select(f => f.Content)
+                        .ToArray();
 
                 if (queryExpressions.Length != 0)
                     boolModel.Should = queryExpressions;
@@ -90,7 +119,7 @@ namespace MyLab.Search.Delegate.Services
             return req;
         }
 
-        string[] GetQueryExpressions(SearchQuery query, IndexMapping indexMapping, string originalStrQuery)
+        string[] GetQueryExpressions(SearchQuery query, IndexMapping indexMapping)
         {
             var expressions = new List<string>();
 
@@ -135,24 +164,6 @@ namespace MyLab.Search.Delegate.Services
             }
 
             return expressions.Where(e => e != null).ToArray();
-        }
-
-        private async Task ApplySortAsync(SearchRequest searchRequest, EsSearchRequest req)
-        {
-            string sortId = searchRequest.Sort ?? _options.DefaultSort;
-            if (sortId != null)
-            {
-                var sort = await _esSortProvider.ProvideAsync(sortId);
-                req.Model.Sort = sort.Content;
-            }
-        }
-
-        private async Task<SearchFilter> RetrieveSelectedFilterAsync(string searchRequestFilter)
-        {
-            string selectedFilterId = searchRequestFilter ?? _options.DefaultFilter;
-            if (selectedFilterId == null)
-                return null;
-            return await _filterProvider.ProvideAsync(selectedFilterId);
         }
     }
 }

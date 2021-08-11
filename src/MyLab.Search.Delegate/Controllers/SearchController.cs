@@ -1,8 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using MyLab.Log;
+using MyLab.Search.Delegate.Models;
 using MyLab.Search.Delegate.Services;
 using MyLab.WebErrors;
 using Nest;
@@ -11,7 +15,7 @@ using SearchRequest = MyLab.Search.Delegate.Models.SearchRequest;
 namespace MyLab.Search.Delegate.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v1/[controller]")]
     public class SearchController : ControllerBase
     {
         private readonly IEsRequestProcessor _requestProcessor;
@@ -25,12 +29,28 @@ namespace MyLab.Search.Delegate.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet("{namespace}")]
         [ErrorToResponse(typeof(ResourceNotFoundException), HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Get([FromQuery]SearchRequest request)
+        [ErrorToResponse(typeof(InvalidTokenException), HttpStatusCode.Forbidden)]
+        [ErrorToResponse(typeof(TokenizingDisabledException), HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Get(
+            [FromQuery]SearchRequest request, 
+            [FromRoute(Name = "namespace")]string ns, 
+            [FromHeader(Name = "X-Search-Token")]string searchToken)
         {
-            var result = await _requestProcessor.ProcessSearchRequestAsync(request);
+            IEnumerable<EsIndexedEntity> result;
 
+            try
+            {
+                result = await _requestProcessor.ProcessSearchRequestAsync(request, ns, searchToken);
+            }
+            catch (Exception e)
+            {
+                e.AndFactIs("Initial request", request)
+                    .AndFactIs("Request namespace", ns);
+                throw;
+            }
+            
             return Ok(result);
         }
     }

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using MyLab.Search.Delegate.Models;
-using MyLab.Search.EsAdapter;
 using MyLab.Log;
 
 namespace MyLab.Search.Delegate.Services
@@ -22,15 +21,31 @@ namespace MyLab.Search.Delegate.Services
             _options = options;
         }
 
-        public async Task<SearchSort> ProvideAsync(string sortId)
+        public async Task<SearchSort> ProvideAsync(string sortId, string ns)
         {
-            var path = Path.Combine(_options.SortPath, sortId + ".json");
+            var pathNs = Path.Combine(_options.SortPath, ns, sortId + ".json");
+            var pathBase = Path.Combine(_options.SortPath, sortId + ".json");
 
-            if(!File.Exists(path))
-                throw new ResourceNotFoundException("Specified sort not found")
-                    .AndFactIs("sortId", sortId);
+            string resultPath;
 
-            var str = await File.ReadAllTextAsync(path);
+            if (File.Exists(pathNs))
+            {
+                resultPath = pathNs;
+            }
+            else
+            {
+                if (File.Exists(pathBase))
+                {
+                    resultPath = pathBase;
+                }
+                else
+                {
+                    throw new ResourceNotFoundException("Specified sort not found")
+                        .AndFactIs("sortId", sortId);
+                }
+            }
+
+            var str = await File.ReadAllTextAsync(resultPath);
 
             return new SearchSort
             {

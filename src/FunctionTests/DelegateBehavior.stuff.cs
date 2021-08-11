@@ -36,12 +36,19 @@ namespace FunctionTests
                     .Configure<ElasticsearchOptions>(o =>
                     {
                         o.Url = "http://localhost:9200";
-                        o.DefaultIndex = esFxt.IndexName;
                     })
                     .Configure<DelegateOptions>(o =>
                     {
                         o.FilterPath = "files/filter";
                         o.SortPath = "files/sort";
+                        o.Namespaces = new[]
+                        {
+                            new DelegateOptions.Namespace
+                            {
+                                Name = "test",
+                                Index = esFxt.IndexName
+                            }
+                        };
                     })
                     .AddLogging(l => l
                         .AddXUnit(output)

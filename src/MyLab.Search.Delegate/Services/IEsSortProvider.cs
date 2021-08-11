@@ -5,6 +5,6 @@ namespace MyLab.Search.Delegate.Services
 {
     interface IEsSortProvider
     {
-        Task<SearchSort> ProvideAsync(string sortId);
+        Task<SearchSort> ProvideAsync(string sortId, string ns);
     }
 }

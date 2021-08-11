@@ -4,6 +4,6 @@ namespace MyLab.Search.Delegate.Services
 {
     interface IIndexMappingService
     {
-        Task<IndexMapping> GetIndexMappingAsync();
+        Task<IndexMapping> GetIndexMappingAsync(string ns);
     }
 }

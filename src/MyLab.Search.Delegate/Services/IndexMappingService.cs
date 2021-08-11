@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -12,13 +14,13 @@ namespace MyLab.Search.Delegate.Services
 {
     class IndexMappingService : IIndexMappingService
     {
-        private readonly ElasticsearchOptions _esOptions;
+        private readonly DelegateOptions _esOptions;
         private readonly IEsClientProvider _esClientProvider;
         private readonly IDslLogger _log;
-        private IndexMapping _indexMapping;
+        private readonly ConcurrentDictionary<string, IndexMapping> _nsToIndexMapping = new ConcurrentDictionary<string, IndexMapping>();
 
         public IndexMappingService(
-            IOptions<ElasticsearchOptions> esOptions,
+            IOptions<DelegateOptions> esOptions,
             IEsClientProvider esClientProvider,
             ILogger<IndexMappingService> logger = null)
             :this(esOptions.Value, esClientProvider, logger)
@@ -27,7 +29,7 @@ namespace MyLab.Search.Delegate.Services
         }
 
         public IndexMappingService(
-            ElasticsearchOptions esOptions,
+            DelegateOptions esOptions,
             IEsClientProvider esClientProvider,
             ILogger<IndexMappingService> logger = null)
         {
@@ -36,32 +38,35 @@ namespace MyLab.Search.Delegate.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<IndexMapping> GetIndexMappingAsync()
+        public async Task<IndexMapping> GetIndexMappingAsync(string ns)
         {
-            if (_indexMapping != null)
-                return _indexMapping;
+            if (_nsToIndexMapping.TryGetValue(ns, out var currentMapping))
+                return currentMapping;
+
+            var nsOptions = _esOptions.GetNamespace(ns);
 
             var client = _esClientProvider.Provide();
 
-            var mappingResponse = await client.Indices.GetMappingAsync(new GetMappingRequest(_esOptions.DefaultIndex));
+            var mappingResponse = await client.Indices.GetMappingAsync(new GetMappingRequest(nsOptions.Index));
 
             _log.Debug("Get index mapping")
                 .AndFactIs("dump", ApiCallDumper.ApiCallToDump(mappingResponse.ApiCall))
                 .Write();
 
-            if (!mappingResponse.Indices.TryGetValue(_esOptions.DefaultIndex, out var indexMapping))
+            if (!mappingResponse.Indices.TryGetValue(nsOptions.Index, out var indexMapping))
                 throw new InvalidOperationException("Index mapping not found")
-                    .AndFactIs("index", _esOptions.DefaultIndex);
+                    .AndFactIs("index", nsOptions.Index);
 
             var propertiesMapping = indexMapping?.Mappings?.Properties;
 
             if (propertiesMapping == null)
                 throw new InvalidOperationException("Index properties mapping not found")
-                    .AndFactIs("index", _esOptions.DefaultIndex);
+                    .AndFactIs("index", nsOptions.Index);
 
-            _indexMapping = new IndexMapping(propertiesMapping.Values.Select(p => new IndexMappingProperty(p.Name.Name, p.Type)));
+            currentMapping = new IndexMapping(propertiesMapping.Values.Select(p => new IndexMappingProperty(p.Name.Name, p.Type)));
+            _nsToIndexMapping.TryAdd(ns, currentMapping);
 
-            return _indexMapping;
+            return currentMapping;
         }
     }
 }

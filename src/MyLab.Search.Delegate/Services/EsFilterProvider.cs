@@ -21,15 +21,31 @@ namespace MyLab.Search.Delegate.Services
             _options = options;
         }
 
-        public async Task<SearchFilter> ProvideAsync(string filterId)
+        public async Task<SearchFilter> ProvideAsync(string filterId, string ns)
         {
-            var path = Path.Combine(_options.FilterPath, filterId + ".json");
+            var pathNs = Path.Combine(_options.FilterPath, ns, filterId + ".json");
+            var pathBase = Path.Combine(_options.FilterPath, filterId + ".json");
 
-            if (!File.Exists(path))
-                throw new ResourceNotFoundException("Specified filter not found")
-                    .AndFactIs("filterId", filterId);
+            string resultPath;
 
-            var str = await File.ReadAllTextAsync(path);
+            if (File.Exists(pathNs))
+            {
+                resultPath = pathNs;
+            }
+            else
+            {
+                if (File.Exists(pathBase))
+                {
+                    resultPath = pathBase;
+                }
+                else
+                {
+                    throw new ResourceNotFoundException("Specified filter not found")
+                        .AndFactIs("filterId", filterId);
+                }
+            }
+
+            var str = await File.ReadAllTextAsync(resultPath);
 
             return new SearchFilter
             {

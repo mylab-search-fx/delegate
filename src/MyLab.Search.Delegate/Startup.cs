@@ -32,6 +32,7 @@ namespace MyLab.Search.Delegate
                 .AddSingleton<IEsFilterProvider, EsFilterProvider>()
                 .AddSingleton<IEsSortProvider, EsSortProvider>()
                 .AddSingleton<IIndexMappingService, IndexMappingService>()
+                .AddSingleton<ITokenService, TokenService>()
                 .AddEsTools(Configuration)
                 .Configure<DelegateOptions>(Configuration.GetSection("Delegate"))
                 .AddControllers(o => o.AddExceptionProcessing());
