@@ -1,6 +1,7 @@
 ﻿using MyLab.Log;
 using System;
 using System.Linq;
+using System.Text;
 using MyLab.Search.Delegate;
 using MyLab.Search.Delegate.Models;
 using MyLab.Search.Delegate.Services;
@@ -11,6 +12,8 @@ namespace UnitTests
 {
     public class TokenServiceBehavior
     {
+        readonly Random _rnd = new Random(DateTime.Now.Millisecond);
+
         private readonly ITestOutputHelper _output;
         private const string TestNamespace = "test";
         private const string TestNamespace2 = "test2";
@@ -191,7 +194,12 @@ namespace UnitTests
 
         string CreateKey()
         {
-            return string.Join(':', Enumerable.Repeat(Guid.NewGuid().ToString("N"), 10));
+            char ch = (char)('a' + _rnd.Next(10));
+            var key = new string(Enumerable.Repeat(ch, 16).ToArray());
+
+            _output.WriteLine($"Key: '{key}' ({Encoding.UTF8.GetByteCount(key)} bytes)");
+            
+            return key;
         }
 
         string CreateSearchToken(TokenService srv, TokenRequest request)
