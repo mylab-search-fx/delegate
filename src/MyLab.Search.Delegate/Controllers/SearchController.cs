@@ -15,7 +15,7 @@ using SearchRequest = MyLab.Search.Delegate.Models.SearchRequest;
 namespace MyLab.Search.Delegate.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v1/[controller]")]
     public class SearchController : ControllerBase
     {
         private readonly IEsRequestProcessor _requestProcessor;

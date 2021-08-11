@@ -8,7 +8,7 @@ using MyLab.WebErrors;
 namespace MyLab.Search.Delegate.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v1/[controller]")]
     public class TokenController : ControllerBase
     {
         private readonly ITokenService _tokenService;

@@ -4,7 +4,7 @@ using MyLab.Search.Delegate.Models;
 
 namespace FunctionTests
 {
-    [Api]
+    [Api("api/v1")]
     public interface ISearchService
     {
         [Post("token")]
