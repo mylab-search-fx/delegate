@@ -343,7 +343,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 Пример фильтра:
 
-```json
+```
 {
   "range": {
     "Id": {
