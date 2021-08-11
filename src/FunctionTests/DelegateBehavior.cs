@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -118,6 +119,7 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
+            Assert.Equal(10, found.Length);
             foreach (var i in Enumerable.Range(5, 10))
             {
                 Assert.Contains(found, f => f.Content.Id == i);
@@ -135,6 +137,7 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
+            Assert.Equal(10, found.Length);
             foreach (var i in Enumerable.Range(5, 10))
             {
                 Assert.Contains(found, f => f.Content.Id == i);
@@ -171,6 +174,7 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
+            Assert.Equal(3, found.Length);
             foreach (var i in Enumerable.Range(2, 3))
             {
                 Assert.Contains(found, f => f.Content.Id == i);
@@ -181,7 +185,13 @@ namespace FunctionTests
         public async Task ShouldUseFilterFromToken()
         {
             //Arrange
-            var cl = _client.StartWithProxy();
+            var cl = _client.StartWithProxy(srv => srv.Configure<DelegateOptions>(o =>
+            {
+                o.Token = new DelegateOptions.Tokenizing
+                {
+                    SignKey = string.Join(';', Enumerable.Repeat(Guid.NewGuid().ToString("N"), 10))
+                };
+            }));
 
             var tokenRequest = new TokenRequest
             {
@@ -207,12 +217,13 @@ namespace FunctionTests
             };
 
             //Act
-            var token = await cl.CreateToken(tokenRequest);
+            string token = await cl.CreateToken(tokenRequest);
 
             var found = await cl.SearchAsync(searchToken: token);
 
             //Assert
             Assert.NotNull(found);
+            Assert.Equal(2, found.Length);
             foreach (var i in Enumerable.Range(6, 2))
             {
                 Assert.Contains(found, f => f.Content.Id == i);

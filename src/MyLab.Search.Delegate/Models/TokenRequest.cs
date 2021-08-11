@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace MyLab.Search.Delegate.Models
 {
@@ -13,6 +14,7 @@ namespace MyLab.Search.Delegate.Models
 
     public class NamespaceSettings
     {
+        [JsonProperty("filters")]
         public FiltersCall Filters { get; set; } 
     }
 
