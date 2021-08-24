@@ -367,7 +367,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 Основная конфигурация состоит из следующих узлов:
 
-* `Elasticsearch` - настройки подключения к `ElasticSearch`:
+* `ES` - настройки подключения к `ElasticSearch`:
   * `Url` - `url` подключения
 * `Delegate` - настройки логики сервиса:
   * `SortPath` - путь по умолчанию к директории для хранения сортировок. Значение по умолчанию - `/etc/mylab-search-delegate/sort/`;

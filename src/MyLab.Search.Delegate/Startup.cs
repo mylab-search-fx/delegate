@@ -33,7 +33,7 @@ namespace MyLab.Search.Delegate
                 .AddSingleton<IEsSortProvider, EsSortProvider>()
                 .AddSingleton<IIndexMappingService, IndexMappingService>()
                 .AddSingleton<ITokenService, TokenService>()
-                .AddEsTools(Configuration)
+                .AddEsTools(Configuration, "ES")
                 .Configure<DelegateOptions>(Configuration.GetSection("Delegate"))
                 .AddControllers(o => o.AddExceptionProcessing());
         }
