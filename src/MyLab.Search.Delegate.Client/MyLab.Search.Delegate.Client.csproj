@@ -1,14 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <PackageId>MyLab.Search.Delegate.Share</PackageId>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PackageId>MyLab.Search.Delegate.Client</PackageId>
     <Authors>Andrey O.</Authors>
-    <Product>MyLab.Search.Delegate.Share</Product>
+    <Copyright>Copyright (c) 2021 Andrey Osintsev &lt;ozzy.ext@gmail.com&gt;</Copyright>
+    <Product>MyLab.Search.Delegate.Client</Product>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.0</Version>
-    <AssemblyVersion>1.1.0.2608</AssemblyVersion>
-    <FileVersion>1.1.0.2608</FileVersion>
+    <Version>1.1.1</Version>
+    <AssemblyVersion>1.1.1.2708</AssemblyVersion>
+    <FileVersion>1.1.1.2708</FileVersion>
     <PackageProjectUrl>https://github.com/mylab-search-fx/delegate</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mylab-search-fx/delegate.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
