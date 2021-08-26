@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MyLab.Search.Delegate.Client\MyLab.Search.Delegate.Client.csproj" />
     <ProjectReference Include="..\MyLab.Search.Delegate\MyLab.Search.Delegate.csproj" />
   </ItemGroup>
 

@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <PackageId>MyLab.Search.Delegate.Share</PackageId>
+    <Authors>Andrey O.</Authors>
+    <Product>MyLab.Search.Delegate.Share</Product>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.2608</AssemblyVersion>
+    <FileVersion>1.1.0.2608</FileVersion>
+    <PackageProjectUrl>https://github.com/mylab-search-fx/delegate</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mylab-search-fx/delegate.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>analytics.png</PackageIcon>
+    <PackageIconUrl />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;IS_CLIENT</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;IS_CLIENT</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\MyLab.Search.Delegate\Models\TokenRequest.cs" Link="TokenRequest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="analytics.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MyLab.ApiClient" Version="3.7.21" />
+  </ItemGroup>
+
+</Project>
