@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using MyLab.Search.Delegate;
@@ -11,6 +12,19 @@ namespace FunctionTests
 {
     public partial class DelegateBehavior
     {
+        [Fact]
+        public async Task ShouldReturn500WhenEsRequestError()
+        {
+            //Arrange
+            var cl = _searchClient.Start();
+
+            //Act
+            var resp = await cl.Call(s => s.SearchAsync<TestEntity>("test", null, "bad", null, 0, 0, null));
+
+            //Assert
+            Assert.Equal(HttpStatusCode.InternalServerError, resp.StatusCode);
+        }
+
         [Fact]
         public async Task ShouldPerformSimpleSearch()
         {

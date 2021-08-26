@@ -33,6 +33,7 @@ namespace MyLab.Search.Delegate.Controllers
         [ErrorToResponse(typeof(ResourceNotFoundException), HttpStatusCode.BadRequest)]
         [ErrorToResponse(typeof(InvalidTokenException), HttpStatusCode.Forbidden)]
         [ErrorToResponse(typeof(TokenizingDisabledException), HttpStatusCode.BadRequest)]
+        [ErrorToResponse(typeof(ElasticsearchSearchException), HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Get(
             [FromQuery]SearchRequest request, 
             [FromRoute(Name = "namespace")]string ns, 
