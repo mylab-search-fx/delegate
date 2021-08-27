@@ -87,10 +87,18 @@ namespace MyLab.Search.Delegate.Services
             }
             catch (UnexpectedElasticsearchClientException e)
             {
-                if(e.Response != null)
-                    e.AndFactIs("dump", ApiCallDumper.ApiCallToDump(e.Response));
+                throw new ElasticsearchSearchException(e)
+                    .AndFactIs("dump", e.Response != null 
+                        ? ApiCallDumper.ApiCallToDump(e.Response)
+                        : null); ;
+            }
 
-                throw;
+            if (!res.ApiCall.Success)
+            {
+                throw new ElasticsearchSearchException()
+                    .AndFactIs("dump", res.ApiCall != null
+                        ? ApiCallDumper.ApiCallToDump(res.ApiCall)
+                        : null); ;
             }
 
             return res.Hits.Select(h => new EsIndexedEntity

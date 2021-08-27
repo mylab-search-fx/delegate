@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MyLab.ApiClient.Test;
 using MyLab.Search.Delegate;
+using MyLab.Search.Delegate.Client;
 using MyLab.Search.EsAdapter;
 using MyLab.Search.EsTest;
 using Xunit;
@@ -17,7 +18,7 @@ namespace FunctionTests
     {
         private readonly EsFixture<TestConnectionProvider> _esFxt;
         private readonly ITestOutputHelper _output;
-        private readonly TestApi<Startup, ISearchService> _client;
+        private readonly TestApi<Startup, ISearchDelegateApiV1> _client;
 
         public QueryProcessingBehavior(EsFixture<TestConnectionProvider> esFxt,
             ITestOutputHelper output)
@@ -26,7 +27,7 @@ namespace FunctionTests
 
             _output = output;
 
-            _client = new TestApi<Startup, ISearchService>()
+            _client = new TestApi<Startup, ISearchDelegateApiV1>()
             {
                 ServiceOverrider = srv => srv
                     .Configure<ElasticsearchOptions>(o =>
@@ -45,7 +46,7 @@ namespace FunctionTests
             };
         }
 
-        ISearchService StartApi(string indexName)
+        ISearchDelegateApiV1 StartApi(string indexName)
         {
             return _client.StartWithProxy(srv =>
             {

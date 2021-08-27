@@ -24,11 +24,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MyLab.Search.Delegate.Client\MyLab.Search.Delegate.Client.csproj" />
     <ProjectReference Include="..\MyLab.Search.Delegate\MyLab.Search.Delegate.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="files\filter\from1123to6123.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="files\filter\bad.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="files\filter\paramFilter.json">

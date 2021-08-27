@@ -15,7 +15,7 @@ using SearchRequest = MyLab.Search.Delegate.Models.SearchRequest;
 namespace MyLab.Search.Delegate.Controllers
 {
     [ApiController]
-    [Route("api/v1/[controller]")]
+    [Route("v1/[controller]")]
     public class SearchController : ControllerBase
     {
         private readonly IEsRequestProcessor _requestProcessor;
@@ -33,6 +33,7 @@ namespace MyLab.Search.Delegate.Controllers
         [ErrorToResponse(typeof(ResourceNotFoundException), HttpStatusCode.BadRequest)]
         [ErrorToResponse(typeof(InvalidTokenException), HttpStatusCode.Forbidden)]
         [ErrorToResponse(typeof(TokenizingDisabledException), HttpStatusCode.BadRequest)]
+        [ErrorToResponse(typeof(ElasticsearchSearchException), HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Get(
             [FromQuery]SearchRequest request, 
             [FromRoute(Name = "namespace")]string ns, 

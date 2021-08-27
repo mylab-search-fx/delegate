@@ -1,4 +1,6 @@
 ﻿using MyLab.Search.Delegate.Models;
+using NamespaceSettings = MyLab.Search.Delegate.Models.NamespaceSettings;
+using TokenRequest = MyLab.Search.Delegate.Models.TokenRequest;
 
 namespace MyLab.Search.Delegate.Services
 {

@@ -4,6 +4,8 @@
 
 Спецификация `API`: [![API specification](https://img.shields.io/badge/OAS3-oas3%20specifiecation-green)](https://app.swaggerhub.com/apis/ozzy/mylab-search-delegate-api/1)
 
+Клиент [![NuGet](https://img.shields.io/nuget/v/MyLab.Search.Delegate.Client.svg)](https://www.nuget.org/packages/MyLab.Search.Delegate.Client/)
+
 ## Обзор
 
 `MyLab.Search.Delegate` (далее `Delegate`) - сервис поиска по предварительно сконфигурированным условиям. 
@@ -156,7 +158,7 @@
 Запрос клиента осуществляется следующим запросом:
 
 ```http
-GET /search/[namespace]?query=...&filter=...&sort=...$offset=...&limit=...
+GET /v1/search/[namespace]?query=...&filter=...&sort=...$offset=...&limit=...
 
 X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe7pls5nsO8khWl6zHOnY4
 ```
@@ -367,7 +369,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 Основная конфигурация состоит из следующих узлов:
 
-* `Elasticsearch` - настройки подключения к `ElasticSearch`:
+* `ES` - настройки подключения к `ElasticSearch`:
   * `Url` - `url` подключения
 * `Delegate` - настройки логики сервиса:
   * `SortPath` - путь по умолчанию к директории для хранения сортировок. Значение по умолчанию - `/etc/mylab-search-delegate/sort/`;

@@ -1,7 +1,12 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
+#if IS_CLIENT
+namespace MyLab.Search.Delegate.Client
+#else
 namespace MyLab.Search.Delegate.Models
+#endif
+
 {
     public class TokenRequest
     {

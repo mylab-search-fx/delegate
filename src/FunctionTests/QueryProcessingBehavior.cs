@@ -27,7 +27,7 @@ namespace FunctionTests
             var api = StartApi(indexName);
 
             //Act
-            var found = await api.SearchAsync("bar");
+            var found = await api.SearchAsync<TestEntity>("test", "bar");
 
             //Assert
             Assert.NotNull(found);
@@ -59,7 +59,7 @@ namespace FunctionTests
             var api = StartApi(indexName);
 
             //Act
-            var found = await api.SearchAsync(query);
+            var found = await api.SearchAsync<TestEntity>("test", query);
 
             //Assert
             Assert.NotNull(found);
@@ -91,7 +91,7 @@ namespace FunctionTests
             var api = StartApi(indexName);
 
             //Act
-            var found = await api.SearchAsync(query);
+            var found = await api.SearchAsync<TestEntity>("test", query);
 
             //Assert
             Assert.NotNull(found);
@@ -124,7 +124,7 @@ namespace FunctionTests
             var api = StartApi(indexName);
 
             //Act
-            var found = await api.SearchAsync("03.03.2001");
+            var found = await api.SearchAsync<TestEntity>("test", "03.03.2001");
 
             //Assert
             Assert.NotNull(found);
@@ -157,7 +157,7 @@ namespace FunctionTests
             var api = StartApi(indexName);
 
             //Act
-            var found = await api.SearchAsync("02.03.2001-04.03.2001");
+            var found = await api.SearchAsync<TestEntity>("test", "02.03.2001-04.03.2001");
 
             //Assert
             Assert.NotNull(found);
@@ -191,8 +191,8 @@ namespace FunctionTests
             var api = StartApi(indexName);
 
             //Act
-            var found1 = await api.SearchAsync("04.03.2001 foo_2");
-            var found2 = await api.SearchAsync("foo_2 04.03.2001");
+            var found1 = await api.SearchAsync<TestEntity>("test", "04.03.2001 foo_2");
+            var found2 = await api.SearchAsync<TestEntity>("test", "foo_2 04.03.2001");
 
             //Assert
             Assert.NotNull(found1);
@@ -230,7 +230,7 @@ namespace FunctionTests
             var api = StartApi(indexName);
 
             //Act
-            var found = await api.SearchAsync("<04.03.2001 foo", "from1123to6123", "revert");
+            var found = await api.SearchAsync<TestEntity>("test", "<04.03.2001 foo", "from1123to6123", "revert");
 
             //Assert
             Assert.NotNull(found);
