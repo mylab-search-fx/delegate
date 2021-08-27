@@ -6,7 +6,10 @@ namespace MyLab.Search.Delegate.Client
     /// <summary>
     /// Specify token-api
     /// </summary>
-    [Api("v1")]
+    /// <remarks>
+    /// Contract key = `search-delegate`
+    /// </remarks>
+    [Api("v1", Key = "search-delegate")]
     public interface ISearchDelegateApiV1
     {
         /// <summary>
