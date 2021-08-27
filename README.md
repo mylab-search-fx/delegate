@@ -158,7 +158,7 @@
 Запрос клиента осуществляется следующим запросом:
 
 ```http
-GET /search/[namespace]?query=...&filter=...&sort=...$offset=...&limit=...
+GET /v1/search/[namespace]?query=...&filter=...&sort=...$offset=...&limit=...
 
 X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe7pls5nsO8khWl6zHOnY4
 ```
