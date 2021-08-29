@@ -201,5 +201,23 @@ namespace UnitTests
             Assert.Equal(expectedFrom, dtParam.From);
             Assert.Null(dtParam.To);
         }
+
+        [Fact]
+        public void ShouldDetectManyDigitsAsTextToo()
+        {
+            //Arrange
+            string query = "94200005";
+
+            //Act
+            var q = SearchQuery.Parse(query);
+            var t = q.TextParams.FirstOrDefault() as TextQueryParameter;
+            var n = q.NumericParams.FirstOrDefault() as NumericQueryParameter;
+
+            //Assert
+            Assert.Single(q.TextParams);
+            Assert.Single(q.NumericParams);
+            Assert.Equal("94200005", t.Value);
+            Assert.Equal(94200005, n.Value);
+        }
     }
 }
