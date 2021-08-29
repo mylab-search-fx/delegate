@@ -61,9 +61,11 @@ namespace MyLab.Search.Delegate.QueryStuff
                     {
                         if (!TryParse(word, rank, DateTimeParsers, dtParams))
                         {
-                            txtParams.Add(TextParameterParser.Parse(word, rank));
+                            // do nothing
                         }
                     }
+
+                    txtParams.Add(TextParameterParser.Parse(word, rank));
                 }
             }
 
