@@ -164,7 +164,7 @@ namespace MyLab.Search.Delegate.Services
 
             if (unsupportedProperty.Count != 0)
             {
-                _log.Warning("Met unsupported property types")
+                _log?.Warning("Met unsupported property types")
                     .AndFactIs("properties", unsupportedProperty)
                     .Write();
             }
