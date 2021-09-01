@@ -95,6 +95,7 @@ namespace UnitTests
         [Theory]
         [InlineData("02/01/2003")]
         [InlineData("01.02.2003")]
+        [InlineData("010203")]
         public void ShouldDetectDateTime(string dtString)
         {
             //Arrange
@@ -138,6 +139,7 @@ namespace UnitTests
         [Theory]
         [InlineData("02/01/2003-02/02/2003")]
         [InlineData("01.02.2003-02.02.2003")]
+        [InlineData("010203-020203")]
         public void ShouldDetectDateTimeRange(string dtString)
         {
             //Arrange
@@ -161,6 +163,7 @@ namespace UnitTests
         [Theory]
         [InlineData("<02/02/2003")]
         [InlineData("<02.02.2003")]
+        [InlineData("<020203")]
         public void ShouldDetectDateTimeLess(string dtString)
         {
             //Arrange
@@ -183,6 +186,7 @@ namespace UnitTests
         [Theory]
         [InlineData(">02/01/2003")]
         [InlineData(">01.02.2003")]
+        [InlineData(">010203")]
         public void ShouldDetectDateTimeGreater(string dtString)
         {
             //Arrange
@@ -200,6 +204,24 @@ namespace UnitTests
             Assert.NotNull(dtParam);
             Assert.Equal(expectedFrom, dtParam.From);
             Assert.Null(dtParam.To);
+        }
+
+        [Fact]
+        public void ShouldDetectManyDigitsAsTextToo()
+        {
+            //Arrange
+            string query = "94200005";
+
+            //Act
+            var q = SearchQuery.Parse(query);
+            var t = q.TextParams.FirstOrDefault() as TextQueryParameter;
+            var n = q.NumericParams.FirstOrDefault() as NumericQueryParameter;
+
+            //Assert
+            Assert.Single(q.TextParams);
+            Assert.Single(q.NumericParams);
+            Assert.Equal("94200005", t.Value);
+            Assert.Equal(94200005, n.Value);
         }
     }
 }

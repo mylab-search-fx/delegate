@@ -123,6 +123,8 @@ namespace MyLab.Search.Delegate.Services
         {
             var expressions = new List<string>();
 
+            var unsupportedProperty = new List<IndexMappingProperty>();
+
             foreach (var prop in indexMapping.Props)
             {
 
@@ -152,15 +154,19 @@ namespace MyLab.Search.Delegate.Services
 
                 if (qParams == null)
                 {
-                    _log.Warning("Met unsupported property type")
-                        .AndFactIs("property-name", prop.Name)
-                        .AndFactIs("property-type", prop.Type)
-                        .Write();
+                    unsupportedProperty.Add(prop);
                 }
                 else
                 {
                     expressions.AddRange(qParams.Select(param => param.ToJson(prop.Name, prop.Type)));
                 }
+            }
+
+            if (unsupportedProperty.Count != 0)
+            {
+                _log?.Warning("Met unsupported property types")
+                    .AndFactIs("properties", unsupportedProperty)
+                    .Write();
             }
 
             return expressions.Where(e => e != null).ToArray();

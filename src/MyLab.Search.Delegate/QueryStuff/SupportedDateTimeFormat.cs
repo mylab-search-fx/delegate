@@ -8,7 +8,8 @@ namespace MyLab.Search.Delegate.QueryStuff
         private static readonly string[] Formats =
         {
             "d",
-            "dd.MM.yyyy"
+            "dd.MM.yyyy",
+            "ddMMyy"
         };
 
         public static bool CanParse(string str)

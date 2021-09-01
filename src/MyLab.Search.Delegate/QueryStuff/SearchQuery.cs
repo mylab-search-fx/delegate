@@ -57,13 +57,9 @@ namespace MyLab.Search.Delegate.QueryStuff
                     var word = words[i];
                     var rank = words.Length - i;
 
-                    if (!TryParse(word, rank, NumericParsers, numParams))
-                    {
-                        if (!TryParse(word, rank, DateTimeParsers, dtParams))
-                        {
-                            txtParams.Add(TextParameterParser.Parse(word, rank));
-                        }
-                    }
+                    TryParse(word, rank, NumericParsers, numParams);
+                    TryParse(word, rank, DateTimeParsers, dtParams);
+                    txtParams.Add(TextParameterParser.Parse(word, rank));
                 }
             }
 
