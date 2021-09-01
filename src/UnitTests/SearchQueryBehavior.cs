@@ -95,6 +95,7 @@ namespace UnitTests
         [Theory]
         [InlineData("02/01/2003")]
         [InlineData("01.02.2003")]
+        [InlineData("010203")]
         public void ShouldDetectDateTime(string dtString)
         {
             //Arrange
@@ -138,6 +139,7 @@ namespace UnitTests
         [Theory]
         [InlineData("02/01/2003-02/02/2003")]
         [InlineData("01.02.2003-02.02.2003")]
+        [InlineData("010203-020203")]
         public void ShouldDetectDateTimeRange(string dtString)
         {
             //Arrange
@@ -161,6 +163,7 @@ namespace UnitTests
         [Theory]
         [InlineData("<02/02/2003")]
         [InlineData("<02.02.2003")]
+        [InlineData("<020203")]
         public void ShouldDetectDateTimeLess(string dtString)
         {
             //Arrange
@@ -183,6 +186,7 @@ namespace UnitTests
         [Theory]
         [InlineData(">02/01/2003")]
         [InlineData(">01.02.2003")]
+        [InlineData(">010203")]
         public void ShouldDetectDateTimeGreater(string dtString)
         {
             //Arrange
