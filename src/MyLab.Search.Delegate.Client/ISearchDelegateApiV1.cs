@@ -29,7 +29,7 @@ namespace MyLab.Search.Delegate.Client
         /// <param name="limit">paging limit</param>
         /// <param name="searchToken">search token</param>
         [Get("search/{namespace}")]
-        Task<FoundEntity<TRes>[]> SearchAsync<TRes>(
+        Task<FoundEntities<TRes>> SearchAsync<TRes>(
             [Path("namespace")] string ns,
             [Query] string query = null,
             [Query] string filter = null,

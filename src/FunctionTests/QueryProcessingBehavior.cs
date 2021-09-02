@@ -31,8 +31,8 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Single(found);
-            Assert.Equal(2, found[0].Content.Id);
+            Assert.Single(found.Entities);
+            Assert.Equal(2, found.Entities[0].Content.Id);
         }
 
         [Theory]
@@ -63,8 +63,8 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Single(found);
-            Assert.Equal(expected, found[0].Content.Id);
+            Assert.Single(found.Entities);
+            Assert.Equal(expected, found.Entities[0].Content.Id);
         }
 
         [Theory]
@@ -95,10 +95,10 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(3, found.Length);
-            Assert.Contains(found, e => e.Content.Id == expected1);
-            Assert.Contains(found, e => e.Content.Id == expected2);
-            Assert.Contains(found, e => e.Content.Id == expected3);
+            Assert.Equal(3, found.Entities.Length);
+            Assert.Contains(found.Entities, e => e.Content.Id == expected1);
+            Assert.Contains(found.Entities, e => e.Content.Id == expected2);
+            Assert.Contains(found.Entities, e => e.Content.Id == expected3);
         }
 
         [Fact]
@@ -128,9 +128,9 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(2, found.Length);
-            Assert.Contains(found, f => f.Content.Id == 3);
-            Assert.Contains(found, f => f.Content.Id == 4);
+            Assert.Equal(2, found.Entities.Length);
+            Assert.Contains(found.Entities, f => f.Content.Id == 3);
+            Assert.Contains(found.Entities, f => f.Content.Id == 4);
         }
 
         [Fact]
@@ -161,10 +161,10 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(3, found.Length);
-            Assert.Contains(found, e => e.Content.Id == 2);
-            Assert.Contains(found, e => e.Content.Id == 3);
-            Assert.Contains(found, e => e.Content.Id == 4);
+            Assert.Equal(3, found.Entities.Length);
+            Assert.Contains(found.Entities, e => e.Content.Id == 2);
+            Assert.Contains(found.Entities, e => e.Content.Id == 3);
+            Assert.Contains(found.Entities, e => e.Content.Id == 4);
         }
 
         [Fact]
@@ -196,14 +196,14 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found1);
-            Assert.Equal(2, found1.Length);
-            Assert.Equal(5, found1[0].Content.Id);
-            Assert.Equal(2, found1[1].Content.Id);
+            Assert.Equal(2, found1.Entities.Length);
+            Assert.Equal(5, found1.Entities[0].Content.Id);
+            Assert.Equal(2, found1.Entities[1].Content.Id);
 
             Assert.NotNull(found2);
-            Assert.Equal(2, found2.Length);
-            Assert.Equal(2, found2[0].Content.Id);
-            Assert.Equal(5, found2[1].Content.Id);
+            Assert.Equal(2, found2.Entities.Length);
+            Assert.Equal(2, found2.Entities[0].Content.Id);
+            Assert.Equal(5, found2.Entities[1].Content.Id);
         }
 
         [Fact]
@@ -234,10 +234,10 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(3, found.Length);
-            Assert.Equal(4123, found[0].Content.Id);
-            Assert.Equal(3123, found[1].Content.Id);
-            Assert.Equal(2123, found[2].Content.Id);
+            Assert.Equal(3, found.Entities.Length);
+            Assert.Equal(4123, found.Entities[0].Content.Id);
+            Assert.Equal(3123, found.Entities[1].Content.Id);
+            Assert.Equal(2123, found.Entities[2].Content.Id);
         }
 
     }

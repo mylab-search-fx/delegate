@@ -39,7 +39,7 @@ namespace MyLab.Search.Delegate.Controllers
             [FromRoute(Name = "namespace")]string ns, 
             [FromHeader(Name = "X-Search-Token")]string searchToken)
         {
-            IEnumerable<EsIndexedEntity> result;
+            FoundEntities<FoundEntityContent> result;
 
             try
             {

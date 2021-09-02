@@ -9,6 +9,7 @@ namespace MyLab.Search.Delegate
         public string FilterPath { get; set; } = "/etc/mylab-search-delegate/filter/";
         public Namespace[] Namespaces { get; set; }
         public Tokenizing Token { get; set; }
+        public bool Debug { get; set; }
         
         public class Namespace
         {

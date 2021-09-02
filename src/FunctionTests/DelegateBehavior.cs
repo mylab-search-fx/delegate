@@ -6,12 +6,46 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using MyLab.Search.Delegate;
 using MyLab.Search.Delegate.Models;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace FunctionTests
 {
     public partial class DelegateBehavior
     {
+        [Fact]
+        public async Task ShouldProvideTotalCount()
+        {
+            //Arrange
+            var cl = _searchClient.StartWithProxy();
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", limit: 1);
+
+            //Assert
+            Assert.Single(found.Entities);
+            Assert.Equal(20, found.Total);
+        }
+
+        [Fact]
+        public async Task ShouldProvideDebugInfo()
+        {
+            //Arrange
+            var cl = _searchClient.StartWithProxy(srv => srv
+                .Configure<DelegateOptions>(o =>
+                {
+                    o.Debug = true;
+                }));
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", limit: 1);
+            var foundExplanation = found?.Entities?.First()?.Explanation;
+
+            //Assert
+            Assert.NotNull(foundExplanation);
+            Assert.NotNull(found.EsRequest);
+        }
+
         [Fact]
         public async Task ShouldReturn500WhenEsRequestError()
         {
@@ -36,7 +70,7 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(10, found.Length);
+            Assert.Equal(10, found.Entities.Length);
         }
 
         [Fact]
@@ -54,7 +88,7 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(5, found.Length);
+            Assert.Equal(5, found.Entities.Length);
         }
 
         [Fact]
@@ -68,7 +102,7 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(3, found.Length);
+            Assert.Equal(3, found.Entities.Length);
         }
 
         [Fact]
@@ -86,7 +120,7 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(20, found[0].Content.Id);
+            Assert.Equal(20, found.Entities[0].Content.Id);
         }
 
         [Fact]
@@ -100,7 +134,7 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(20, found[0].Content.Id);
+            Assert.Equal(20, found.Entities[0].Content.Id);
         }
 
         [Fact]
@@ -114,7 +148,7 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(19, found[0].Content.Id);
+            Assert.Equal(19, found.Entities[0].Content.Id);
         }
 
         [Fact]
@@ -133,10 +167,10 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(10, found.Length);
+            Assert.Equal(10, found.Entities.Length);
             foreach (var i in Enumerable.Range(5, 10))
             {
-                Assert.Contains(found, f => f.Content.Id == i);
+                Assert.Contains(found.Entities, f => f.Content.Id == i);
             }
         }
 
@@ -151,10 +185,10 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(10, found.Length);
+            Assert.Equal(10, found.Entities.Length);
             foreach (var i in Enumerable.Range(5, 10))
             {
-                Assert.Contains(found, f => f.Content.Id == i);
+                Assert.Contains(found.Entities, f => f.Content.Id == i);
             }
         }
 
@@ -174,8 +208,8 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Single(found);
-            Assert.Equal(13, found[0].Content.Id);
+            Assert.Single(found.Entities);
+            Assert.Equal(13, found.Entities[0].Content.Id);
         }
 
         [Fact]
@@ -189,10 +223,10 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(3, found.Length);
+            Assert.Equal(3, found.Entities.Length);
             foreach (var i in Enumerable.Range(2, 3))
             {
-                Assert.Contains(found, f => f.Content.Id == i);
+                Assert.Contains(found.Entities, f => f.Content.Id == i);
             }
         }
 
@@ -238,10 +272,10 @@ namespace FunctionTests
 
             //Assert
             Assert.NotNull(found);
-            Assert.Equal(2, found.Length);
+            Assert.Equal(2, found.Entities.Length);
             foreach (var i in Enumerable.Range(6, 2))
             {
-                Assert.Contains(found, f => f.Content.Id == i);
+                Assert.Contains(found.Entities, f => f.Content.Id == i);
             }
         }
 

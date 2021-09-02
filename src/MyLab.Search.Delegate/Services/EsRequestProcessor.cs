@@ -55,7 +55,7 @@ namespace MyLab.Search.Delegate.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<IEnumerable<EsIndexedEntity>> ProcessSearchRequestAsync(SearchRequest request, string ns, string searchToken)
+        public async Task<FoundEntities<FoundEntityContent>> ProcessSearchRequestAsync(SearchRequest request, string ns, string searchToken)
         {
             NamespaceSettings namespaceSettings = null;
 
@@ -80,10 +80,15 @@ namespace MyLab.Search.Delegate.Services
                 .AndFactIs("index", nsOptions.Index)
                 .Write();
 
-            SearchResponse<EsIndexedEntityContent> res;
+            SearchResponse<FoundEntityContent> res;
+
+            var searchParams = _options.Debug
+                ? new DelegateSearchRequestParameters {Explain = true}
+                : null;
+
             try
             {
-                res = await _esClient.LowLevel.SearchAsync<SearchResponse<EsIndexedEntityContent>>(nsOptions.Index, strReq);
+                res = await _esClient.LowLevel.SearchAsync<SearchResponse<FoundEntityContent>>(nsOptions.Index, strReq, searchParams);
             }
             catch (UnexpectedElasticsearchClientException e)
             {
@@ -101,11 +106,21 @@ namespace MyLab.Search.Delegate.Services
                         : null); ;
             }
 
-            return res.Hits.Select(h => new EsIndexedEntity
+            var foundEntities = res.Hits.Select(h => new FoundEntity<FoundEntityContent>
             {
                 Content = h.Source,
-                Score = h.Score
+                Score = h.Score,
+                Explanation = h.Explanation
             });
+
+            return new FoundEntities<FoundEntityContent>
+            {
+                Entities = foundEntities.ToArray(),
+                Total = res.HitsMetadata.Total.Value,
+                EsRequest = _options.Debug 
+                    ? esRequest.Model
+                    : null
+            };
         }
     }
 }
