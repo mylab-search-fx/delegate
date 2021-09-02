@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
-using MyLab.Search.Delegate.QueryStuff;
+using MyLab.Search.Delegate.QueryTools;
 using Xunit;
 
 namespace UnitTests
 {
-    public class SearchQueryBehavior
+    public class SearchQueryProcessorBehavior
     {
         [Theory]
         [InlineData("")]
@@ -16,12 +16,10 @@ namespace UnitTests
             //Arrange
 
             //Act
-            var q = SearchQuery.Parse(query);
+            var q = SearchQueryProcessor.Parse(query);
 
             //Assert
-            Assert.Empty(q.DateTimeParams);
-            Assert.Empty(q.NumericParams);
-            Assert.Empty(q.TextParams);
+            Assert.Empty(q.Items);
         }
 
         [Theory]
@@ -32,12 +30,10 @@ namespace UnitTests
             //Arrange
 
             //Act
-            var q = SearchQuery.Parse(query);
+            var q = SearchQueryProcessor.Parse(query);
 
             //Assert
-            Assert.Empty(q.DateTimeParams);
-            Assert.Empty(q.NumericParams);
-            Assert.Empty(q.TextParams);
+            Assert.Empty(q.Items);
         }
 
         [Fact]
@@ -47,31 +43,32 @@ namespace UnitTests
             string query = "foo";
 
             //Act
-            var q = SearchQuery.Parse(query);
-            var p = q.TextParams.FirstOrDefault() as TextQueryParameter;
+            var q = SearchQueryProcessor.Parse(query);
+            var p = q.Items.FirstOrDefault()
+                ?.Expressions.FirstOrDefault() as WorldQueryExpression;
             
             //Assert
-            Assert.Single(q.TextParams);
-            Assert.Equal("foo", p.Value);
+            Assert.NotNull(p);
+            Assert.Equal("foo", p.Literal);
         }
 
         [Fact]
-        public void ShouldSetRightRanks()
+        public void ShouldSetRightBoosts()
         {
             //Arrange
             string query = "foo bar";
 
             //Act
-            var q = SearchQuery.Parse(query);
+            var q = SearchQueryProcessor.Parse(query);
 
-            var ranks = q.TextParams
-                .Select(p => p.Rank)
+            var boosts = q.Items
+                .Select(p => p.Boost)
                 .ToArray();
 
             //Assert
-            Assert.Equal(2, ranks.Length);
-            Assert.Equal(2, ranks[0]);
-            Assert.Equal(1, ranks[1]);
+            Assert.Equal(2, boosts.Length);
+            Assert.Equal(2, boosts[0]);
+            Assert.Equal(1, boosts[1]);
         }
 
         [Fact]
@@ -81,11 +78,12 @@ namespace UnitTests
             string query = "123";
 
             //Act
-            var q = SearchQuery.Parse(query);
+            var q = SearchQueryProcessor.Parse(query);
 
-            var numParam = q.NumericParams
+            var numParam = q.Items
                 .FirstOrDefault()
-                as NumericQueryParameter;
+                ?.Expressions.FirstOrDefault()
+                as NumericQueryExpression;
 
             //Assert
             Assert.NotNull(numParam);
@@ -103,11 +101,12 @@ namespace UnitTests
             DateTime expected = new DateTime(2003, 02, 01);
 
             //Act
-            var q = SearchQuery.Parse(query);
+            var q = SearchQueryProcessor.Parse(query);
 
-            var dtParam = q.DateTimeParams
-                    .FirstOrDefault(p => p.Rank == 1)
-                as DateTimeRangeQueryParameter;
+            var dtParam = q.Items
+                    .FirstOrDefault(p => p.Boost == 1)
+                    ?.Expressions.FirstOrDefault()
+                as RangeDateQueryExpression;
 
             //Assert
             Assert.NotNull(dtParam);
@@ -116,7 +115,6 @@ namespace UnitTests
         }
 
         [Theory]
-        [InlineData("123-222", 123, 222)]
         [InlineData("<222", null, 222)]
         [InlineData(">123", 123, null)]
         public void ShouldDetectNumericRange(string query, int? from, int? to)
@@ -124,16 +122,37 @@ namespace UnitTests
             //Arrange
 
             //Act
-            var q = SearchQuery.Parse(query);
+            var q = SearchQueryProcessor.Parse(query);
 
-            var numParam = q.NumericParams
+            var numParam = q.Items
                     .FirstOrDefault()
-                as NumericRangeQueryParameter;
+                    ?.Expressions.FirstOrDefault()
+                as RangeNumericQueryExpression;
 
             //Assert
             Assert.NotNull(numParam);
-            Assert.Equal(from, numParam.From);
-            Assert.Equal(to, numParam.To);
+            Assert.Equal(from, numParam.Greater);
+            Assert.Equal(to, numParam.Less);
+        }
+
+        [Theory]
+        [InlineData("123-222", 123, 222)]
+        public void ShouldDetectFullNumericRange(string query, int? from, int? to)
+        {
+            //Arrange
+
+            //Act
+            var q = SearchQueryProcessor.Parse(query);
+
+            var numParam = q.Items
+                    .FirstOrDefault()
+                    ?.Expressions.FirstOrDefault()
+                as RangeNumericQueryExpression;
+
+            //Assert
+            Assert.NotNull(numParam);
+            Assert.Equal(from, numParam.GreaterOrEqual);
+            Assert.Equal(to, numParam.LessOrEqual);
         }
 
         [Theory]
@@ -148,11 +167,12 @@ namespace UnitTests
             DateTime expectedTo = new DateTime(2003, 02, 02);
 
             //Act
-            var q = SearchQuery.Parse(query);
+            var q = SearchQueryProcessor.Parse(query);
 
-            var dtParam = q.DateTimeParams
-                    .FirstOrDefault(p => p.Rank == 1)
-                as DateTimeRangeQueryParameter;
+            var dtParam = q.Items
+                    .FirstOrDefault(p => p.Boost == 1)
+                    ?.Expressions.FirstOrDefault()
+                as RangeDateQueryExpression;
 
             //Assert
             Assert.NotNull(dtParam);
@@ -171,11 +191,12 @@ namespace UnitTests
             DateTime expectedTo = new DateTime(2003, 02, 02);
 
             //Act
-            var q = SearchQuery.Parse(query);
+            var q = SearchQueryProcessor.Parse(query);
 
-            var dtParam = q.DateTimeParams
-                    .FirstOrDefault(p => p.Rank == 1)
-                as DateTimeRangeQueryParameter;
+            var dtParam = q.Items
+                    .FirstOrDefault(p => p.Boost == 1)
+                    ?.Expressions.FirstOrDefault()
+                as RangeDateQueryExpression;
 
             //Assert
             Assert.NotNull(dtParam);
@@ -194,11 +215,12 @@ namespace UnitTests
             DateTime expectedFrom = new DateTime(2003, 02, 01);
 
             //Act
-            var q = SearchQuery.Parse(query);
+            var q = SearchQueryProcessor.Parse(query);
 
-            var dtParam = q.DateTimeParams
-                    .FirstOrDefault(p => p.Rank == 1)
-                as DateTimeRangeQueryParameter;
+            var dtParam = q.Items
+                    .FirstOrDefault(p => p.Boost == 1)
+                    ?.Expressions.FirstOrDefault()
+                as RangeDateQueryExpression;
 
             //Assert
             Assert.NotNull(dtParam);
@@ -213,14 +235,14 @@ namespace UnitTests
             string query = "94200005";
 
             //Act
-            var q = SearchQuery.Parse(query);
-            var t = q.TextParams.FirstOrDefault() as TextQueryParameter;
-            var n = q.NumericParams.FirstOrDefault() as NumericQueryParameter;
+            var q = SearchQueryProcessor.Parse(query);
+            var t = q.Items.FirstOrDefault()?.Expressions.OfType<WorldQueryExpression>().FirstOrDefault();
+            var n = q.Items.FirstOrDefault()?.Expressions.OfType<NumericQueryExpression>().FirstOrDefault();
 
             //Assert
-            Assert.Single(q.TextParams);
-            Assert.Single(q.NumericParams);
-            Assert.Equal("94200005", t.Value);
+            Assert.NotNull(t);
+            Assert.NotNull(n);
+            Assert.Equal("94200005", t.Literal);
             Assert.Equal(94200005, n.Value);
         }
     }

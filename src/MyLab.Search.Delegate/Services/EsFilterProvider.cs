@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using MyLab.Log;
 using MyLab.Search.Delegate.Models;
+using MyLab.Search.Delegate.Tools;
+using Nest;
 
 namespace MyLab.Search.Delegate.Services
 {
@@ -21,7 +23,7 @@ namespace MyLab.Search.Delegate.Services
             _options = options;
         }
 
-        public async Task<SearchFilter> ProvideAsync(string filterId, string ns)
+        public async Task<QueryContainer> ProvideAsync(string filterId, string ns, FilterArgs args = null)
         {
             var pathNs = Path.Combine(_options.FilterPath, ns, filterId + ".json");
             var pathBase = Path.Combine(_options.FilterPath, filterId + ".json");
@@ -47,10 +49,12 @@ namespace MyLab.Search.Delegate.Services
 
             var str = await File.ReadAllTextAsync(resultPath);
 
-            return new SearchFilter
+            if (args != null)
             {
-                Content = str
-            };
+                str = args.ApplyToRowFilter(str);
+            }
+
+            return await EsSerializer.Instance.DeserializeAsync<QueryContainer>(str);
         }
     }
 }

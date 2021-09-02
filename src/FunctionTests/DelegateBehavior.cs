@@ -5,14 +5,59 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using MyLab.Search.Delegate;
-using MyLab.Search.Delegate.Models;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace FunctionTests
 {
     public partial class DelegateBehavior
     {
+        [Theory]
+        [InlineData(DelegateOptions.QuerySearchStrategy.Should, 11)]
+        [InlineData(DelegateOptions.QuerySearchStrategy.Must, 1)]
+        public async Task ShouldSearchWithStrategy(DelegateOptions.QuerySearchStrategy strategy, int expectedFoundCount)
+        {
+            //Arrange
+            var cl = _searchClient.StartWithProxy(srv =>
+            {
+                srv.Configure<DelegateOptions>(o => o.QueryStrategy = strategy);
+            });
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", "Kw_Val_1 Val_10", limit: 20);
+
+            //Assert
+            Assert.Equal(expectedFoundCount, found.Entities.Length);
+        }
+
+        [Fact]
+        public async Task ShouldSearchWithStartOfKeyword()
+        {
+            //Arrange
+            var cl = _searchClient.StartWithProxy();
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", "Kw_Val_1", limit: 20);
+
+            //Assert
+            Assert.Equal(11, found.Entities.Length);
+        }
+
+        [Theory]
+        [InlineData("val_1")]
+        [InlineData("Val_1")]
+        [InlineData("VAL_1")]
+        public async Task ShouldSearchWithStartOfTextCaseInsensitive(string query)
+        {
+            //Arrange
+            var cl = _searchClient.StartWithProxy();
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", query, limit: 20);
+
+            //Assert
+            Assert.Equal(11, found.Entities.Length);
+        }
+
         [Fact]
         public async Task ShouldProvideTotalCount()
         {
@@ -286,7 +331,8 @@ namespace FunctionTests
                 .Select(i => new TestEntity
                 {
                     Id = i,
-                    Value = "val_" + i
+                    Value = "Val_" + i,
+                    Keyword = "Kw_Val_" + i
                 });
         }
     }

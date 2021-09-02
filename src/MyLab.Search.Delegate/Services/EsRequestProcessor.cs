@@ -14,7 +14,6 @@ using MyLab.Search.Delegate.Tools;
 using MyLab.Search.EsAdapter;
 using Nest;
 using Newtonsoft.Json;
-using SearchRequest = MyLab.Search.Delegate.Models.SearchRequest;
 
 namespace MyLab.Search.Delegate.Services
 {
@@ -24,7 +23,6 @@ namespace MyLab.Search.Delegate.Services
         private readonly IEsRequestBuilder _requestBuilder;
         private readonly ITokenService _tokenService;
         private readonly ElasticClient _esClient;
-        private readonly EsSearchRequestSerializer _esReqSerializer;
         private readonly IDslLogger _log;
 
         public EsRequestProcessor(
@@ -51,11 +49,10 @@ namespace MyLab.Search.Delegate.Services
             _tokenService = tokenService;
 
             _esClient = esClientProvider.Provide();
-            _esReqSerializer = new EsSearchRequestSerializer();
             _log = logger?.Dsl();
         }
 
-        public async Task<FoundEntities<FoundEntityContent>> ProcessSearchRequestAsync(SearchRequest request, string ns, string searchToken)
+        public async Task<FoundEntities<FoundEntityContent>> ProcessSearchRequestAsync(ClientSearchRequest clientRequest, string ns, string searchToken)
         {
             NamespaceSettings namespaceSettings = null;
 
@@ -71,9 +68,9 @@ namespace MyLab.Search.Delegate.Services
             if (nsOptions == null)
                 throw new InvalidOperationException("Namespace options not found");
 
-            var esRequest = await _requestBuilder.BuildAsync(request, ns, namespaceSettings?.Filters);
+            var esRequest = await _requestBuilder.BuildAsync(clientRequest, ns, namespaceSettings?.Filters);
 
-            var strReq = _esReqSerializer.Serialize(esRequest.Model);
+            var strReq = EsSerializer.Instance.SerializeToString(esRequest);
 
             _log?.Debug("Perform search request")
                 .AndFactIs("search-req", strReq)
@@ -118,7 +115,7 @@ namespace MyLab.Search.Delegate.Services
                 Entities = foundEntities.ToArray(),
                 Total = res.HitsMetadata.Total.Value,
                 EsRequest = _options.Debug 
-                    ? esRequest.Model
+                    ? esRequest
                     : null
             };
         }

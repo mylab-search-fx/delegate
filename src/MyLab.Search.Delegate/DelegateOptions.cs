@@ -10,6 +10,7 @@ namespace MyLab.Search.Delegate
         public Namespace[] Namespaces { get; set; }
         public Tokenizing Token { get; set; }
         public bool Debug { get; set; }
+        public QuerySearchStrategy QueryStrategy { get; set; } = QuerySearchStrategy.Should;
         
         public class Namespace
         {
@@ -18,6 +19,7 @@ namespace MyLab.Search.Delegate
             public string DefaultFilter { get; set; }
             public string DefaultSort { get; set; }
             public int? DefaultLimit { get; set; }
+            public QuerySearchStrategy QueryStrategy { get; set; }
         }
 
         public class Tokenizing
@@ -33,6 +35,13 @@ namespace MyLab.Search.Delegate
                 throw new InvalidOperationException("Namespace options not found");
 
             return nsOptions;
+        }
+
+        public enum QuerySearchStrategy
+        {
+            Undefined,
+            Should,
+            Must
         }
     }
 }

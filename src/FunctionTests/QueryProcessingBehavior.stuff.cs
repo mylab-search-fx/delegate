@@ -52,6 +52,7 @@ namespace FunctionTests
             {
                 srv.Configure<DelegateOptions>(o =>
                 {
+                    o.Debug = true;
                     o.Namespaces = new[]
                     {
                         new DelegateOptions.Namespace

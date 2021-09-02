@@ -2,6 +2,8 @@
 using MyLab.Search.Delegate;
 using MyLab.Search.Delegate.Models;
 using MyLab.Search.Delegate.Services;
+using MyLab.Search.Delegate.Tools;
+using Nest;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -12,12 +14,15 @@ namespace UnitTests
         [Theory]
         [InlineData("firstname middlename lastname 123")]
         [InlineData("Супер Иванович Администратор")]
-        [InlineData("Проверяющий Тест")]
+        [InlineData("Проверяющий Тест Тестович")]
+        [InlineData("Провер")]
+        [InlineData("942 Ефим")]
         public async Task ShouldBuildRequestByQuery(string query)
         {
             //Arrange
             var opt = new DelegateOptions
             {
+                QueryStrategy = DelegateOptions.QuerySearchStrategy.Must,
                 Namespaces = new []
                 {
                     new DelegateOptions.Namespace
@@ -32,22 +37,129 @@ namespace UnitTests
                 new TestFilterProvider(), 
                 new TestIndexMappingService()); 
 
-            var sReq = new SearchRequest
+            var sReq = new ClientSearchRequest
             {
-                Query = query
+                Query= query
             };
 
             //Act
             var esReq = await reqBuilder.BuildAsync(sReq, "test", null);
 
-            _output.WriteLine(JsonConvert.SerializeObject(esReq.Model, Formatting.Indented, 
-                new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore
-                }));
+            var str = await EsSerializer.Instance.SerializeAsync(esReq);
+
+            _output.WriteLine(str);
 
             //Assert
 
+        }
+
+        [Fact]
+        public async Task ShouldUseDefaultQueryStrategyOr()
+        {
+            //Arrange
+            var opt = new DelegateOptions
+            {
+                QueryStrategy = DelegateOptions.QuerySearchStrategy.Should,
+                Namespaces = new[]
+                {
+                    new DelegateOptions.Namespace
+                    {
+                        Name = "test"
+                    }
+                }
+            };
+
+            var reqBuilder = new EsRequestBuilder(opt,
+                new TestSortProvider(),
+                new TestFilterProvider(),
+                new TestIndexMappingService());
+
+            var sReq = new ClientSearchRequest
+            {
+                Query = "nomater"
+            };
+
+            //Act
+            var esReq = await reqBuilder.BuildAsync(sReq, "test", null);
+            var boolQuery = ((IQueryContainer)esReq.Query).Bool;
+
+
+            //Assert
+            Assert.NotNull(boolQuery.Should);
+            Assert.Null(boolQuery.Must);
+        }
+
+        [Fact]
+        public async Task ShouldUseDefaultQueryStrategyAnd()
+        {
+            //Arrange
+            var opt = new DelegateOptions
+            {
+                QueryStrategy = DelegateOptions.QuerySearchStrategy.Must,
+                Namespaces = new[]
+                {
+                    new DelegateOptions.Namespace
+                    {
+                        Name = "test"
+                    }
+                }
+            };
+
+            var reqBuilder = new EsRequestBuilder(opt,
+                new TestSortProvider(),
+                new TestFilterProvider(),
+                new TestIndexMappingService());
+
+            var sReq = new ClientSearchRequest
+            {
+                Query = "nomater"
+            };
+
+            //Act
+            var esReq = await reqBuilder.BuildAsync(sReq, "test", null);
+            var boolQuery = ((IQueryContainer)esReq.Query).Bool;
+
+
+            //Assert
+            Assert.NotNull(boolQuery.Must);
+            Assert.Null(boolQuery.Should);
+        }
+
+        [Fact]
+        public async Task ShouldUseNamespaceQueryStrategy()
+        {
+            //Arrange
+            var opt = new DelegateOptions
+            {
+                QueryStrategy = DelegateOptions.QuerySearchStrategy.Must,
+                Namespaces = new[]
+                {
+                    new DelegateOptions.Namespace
+                    {
+                        Name = "test",
+                        QueryStrategy = DelegateOptions.QuerySearchStrategy.Should
+                    }
+                }
+            };
+
+            var reqBuilder = new EsRequestBuilder(opt,
+                new TestSortProvider(),
+                new TestFilterProvider(),
+                new TestIndexMappingService());
+
+            var sReq = new ClientSearchRequest
+            {
+                Query = "nomater"
+            };
+
+            //Act
+            var esReq = await reqBuilder.BuildAsync(sReq, "test", null);
+            var boolQuery = ((IQueryContainer)esReq.Query).Bool;
+
+
+            //Assert
+            Assert.NotNull(boolQuery.Should);
+            Assert.Null(boolQuery.Must);
         }
     }
 }

@@ -6,10 +6,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MyLab.Log.Dsl;
 using MyLab.Search.Delegate.Models;
-using MyLab.Search.Delegate.QueryStuff;
-using MyLab.Search.Delegate.Tools;
+using MyLab.Search.Delegate.QueryTools;
 using Nest;
-using SearchRequest = MyLab.Search.Delegate.Models.SearchRequest;
 
 namespace MyLab.Search.Delegate.Services
 {
@@ -44,33 +42,30 @@ namespace MyLab.Search.Delegate.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<EsSearchRequest> BuildAsync(SearchRequest searchRequest, string ns, FiltersCall filtersCall)
+        public async Task<SearchRequest> BuildAsync(ClientSearchRequest clientSearchRequest, string ns, FiltersCall filtersCall)
         {
             var nsOptions = _options.GetNamespace(ns);
 
-            int limit = searchRequest.Limit > 0
-                ? searchRequest.Limit
+            int limit = clientSearchRequest.Limit > 0
+                ? clientSearchRequest.Limit
                 : nsOptions.DefaultLimit ?? 10;
 
-            var req = new EsSearchRequest
+            var req = new SearchRequest
             {
-                Model = new EsSearchModel
-                {
-                    From = searchRequest.Offset,
-                    Size = limit
-                }
+                From = clientSearchRequest.Offset,
+                Size = limit
             };
 
-            string sortId = searchRequest.Sort ?? nsOptions.DefaultSort;
+            string sortId = clientSearchRequest.Sort ?? nsOptions.DefaultSort;
             if (sortId != null)
             {
                 var sort = await _esSortProvider.ProvideAsync(sortId, ns);
-                req.Model.Sort = sort.Content;
+                req.Sort = new List<ISort>{ sort };
             }
 
-            var filtersToAdd = new List<SearchFilter>();
-
-            string selectedFilterId = searchRequest.Filter ?? nsOptions.DefaultFilter;
+            var filtersToAdd = new List<QueryContainer>();
+            
+            string selectedFilterId = clientSearchRequest.Filter ?? nsOptions.DefaultFilter;
 
             if (selectedFilterId != null)
             {
@@ -82,94 +77,47 @@ namespace MyLab.Search.Delegate.Services
             {
                 foreach (var filterCall in filtersCall)
                 {
-                    var filter = await _filterProvider.ProvideAsync(filterCall.Key, ns);
-                    var initiator= new FilterInitiator(filterCall.Value);
-                    initiator.InitFilter(filter);
-
+                    var filter = await _filterProvider.ProvideAsync(filterCall.Key, ns, filterCall.Value);
                     filtersToAdd.Add(filter);
                 }
             }
             
-            var query = SearchQuery.Parse(searchRequest.Query);
+            var queryProc = SearchQueryProcessor.Parse(clientSearchRequest.Query);
             var mapping = await _indexMappingService.GetIndexMappingAsync(ns);
 
-            var queryExpressions = GetQueryExpressions(query, mapping);
+            var queryExpressions = queryProc.Process(mapping).ToArray();
 
-            if (filtersToAdd.Count != 0 || queryExpressions.Length != 0)
+            bool hasFilters = filtersToAdd.Count != 0;
+            bool hasQueries = queryExpressions.Length != 0;
+
+            if (hasFilters || hasQueries)
             {
-                var boolModel = new EsSearchQueryBoolModel
-                {
-                    MinShouldMatch = query.IsEmpty ? null : (int?)1
-                };
+                var boolModel = new BoolQuery();
 
-                if (filtersToAdd.Count != 0)
-                    boolModel.Filter = filtersToAdd
-                        .Select(f => f.Content)
-                        .ToArray();
+                if (hasFilters)
+                    boolModel.Filter = filtersToAdd;
 
-                if (queryExpressions.Length != 0)
-                    boolModel.Should = queryExpressions;
-                
-                req.Model.Query = new EsSearchQueryModel
+                if (hasQueries)
                 {
-                    Bool = boolModel
-                };
+                    DelegateOptions.QuerySearchStrategy queryStrategy = nsOptions.QueryStrategy != DelegateOptions.QuerySearchStrategy.Undefined 
+                        ? nsOptions.QueryStrategy 
+                        : _options.QueryStrategy;
+
+                    if (queryStrategy == DelegateOptions.QuerySearchStrategy.Must)
+                    {
+                        boolModel.Must = queryExpressions;
+                    }
+                    else
+                    {
+                        boolModel.Should = queryExpressions;
+                        boolModel.MinimumShouldMatch = 1;
+                    }
+                }
+
+                req.Query = boolModel;
             }
 
             return req;
-        }
-
-        string[] GetQueryExpressions(SearchQuery query, IndexMapping indexMapping)
-        {
-            var expressions = new List<string>();
-
-            var unsupportedProperty = new List<IndexMappingProperty>();
-
-            foreach (var prop in indexMapping.Props)
-            {
-
-                IReadOnlyCollection<ISearchQueryParam> qParams = null;
-
-                switch (prop.Type)
-                {
-                    case "long":
-                    case "integer":
-                    case "short":
-                    case "byte":
-                    case "double":
-                    case "float":
-                    case "half_float":
-                    case "scaled_float":
-                    case "unsigned_long":
-                        qParams = query.NumericParams;
-                        break;
-                    case "date":
-                        qParams = query.DateTimeParams;
-                        break;
-                    case "text":
-                    case "keyword":
-                        qParams = query.TextParams;
-                        break;
-                }
-
-                if (qParams == null)
-                {
-                    unsupportedProperty.Add(prop);
-                }
-                else
-                {
-                    expressions.AddRange(qParams.Select(param => param.ToJson(prop.Name, prop.Type)));
-                }
-            }
-
-            if (unsupportedProperty.Count != 0)
-            {
-                _log?.Warning("Met unsupported property types")
-                    .AndFactIs("properties", unsupportedProperty)
-                    .Write();
-            }
-
-            return expressions.Where(e => e != null).ToArray();
         }
     }
 }

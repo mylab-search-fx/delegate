@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MyLab.Search.Delegate.Models;
 using MyLab.Search.Delegate.Services;
+using Nest;
 using Xunit.Abstractions;
 
 namespace UnitTests
@@ -17,7 +19,7 @@ namespace UnitTests
 
         private class TestSortProvider : IEsSortProvider
         {
-            public Task<SearchSort> ProvideAsync(string sortId, string ns)
+            public Task<ISort> ProvideAsync(string sortId, string ns)
             {
                 throw new NotImplementedException();
             }
@@ -25,7 +27,7 @@ namespace UnitTests
 
         private class TestFilterProvider : IEsFilterProvider
         {
-            public Task<SearchFilter> ProvideAsync(string filterId, string ns)
+            public Task<QueryContainer> ProvideAsync(string filterId, string ns, FilterArgs args = null)
             {
                 throw new NotImplementedException();
             }
@@ -33,22 +35,43 @@ namespace UnitTests
 
         private class TestIndexMappingService : IIndexMappingService
         {
-            public Task<IndexMapping> GetIndexMappingAsync(string ns)
+            public Task<TypeMapping> GetIndexMappingAsync(string ns)
             {
-                return Task.FromResult(new IndexMapping(new[]
+                var props = new List<KeyValuePair<PropertyName, IProperty>>
                 {
-                    new IndexMappingProperty("Blocked", "boolean"),
-                    new IndexMappingProperty("ChamberId", "keyword"),
-                    new IndexMappingProperty("ChamberName", "text"),
-                    new IndexMappingProperty("DeletedInEis", "boolean"),
-                    new IndexMappingProperty("DeletedInInfonot", "boolean"),
-                    new IndexMappingProperty("GivenName", "text"),
-                    new IndexMappingProperty("Id", "keyword"),
-                    new IndexMappingProperty("LastChangeDt", "date"),
-                    new IndexMappingProperty("LastName", "text"),
-                    new IndexMappingProperty("NotaryEnabled", "boolean"),
-                    new IndexMappingProperty("Type", "keyword"),
-                }));
+                    Prop<BooleanProperty>("Blocked"),
+                    Prop<BooleanProperty>("NotaryEnabled"),
+                    Prop<BooleanProperty>("DeletedInEis"),
+                    Prop<BooleanProperty>("DeletedInInfonot"),
+
+                    Prop<KeywordProperty>("ChamberId"),
+                    Prop<KeywordProperty>("Type"),
+                    Prop<KeywordProperty>("Id"),
+                    
+                    Prop<TextProperty>("ChamberName"),
+                    Prop<TextProperty>("GivenName"),
+                    Prop<TextProperty>("LastName"),
+                };
+
+
+                return Task.FromResult(new TypeMapping
+                {
+                    Properties = new Properties(
+                            new Dictionary<PropertyName, IProperty>(props)
+                    )
+                });
+
+                KeyValuePair<PropertyName, IProperty> Prop<TProp>(string name) 
+                    where TProp : IProperty, new()
+                {
+                    var propName = new PropertyName(name);
+                    IProperty prop = new TProp
+                    {
+                        Name = propName
+                    };
+
+                    return new KeyValuePair<PropertyName, IProperty>(propName, prop);
+                }
             }
         }
     }

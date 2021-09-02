@@ -2,7 +2,7 @@
 
 namespace MyLab.Search.Delegate.Models
 {
-    public class SearchRequest
+    public class ClientSearchRequest
     {
         [FromQuery(Name = "query")]
         public string Query { get; set; }
