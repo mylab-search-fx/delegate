@@ -220,9 +220,9 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 ### Запрос на сервере 
 
-#### Содержание запроса в ES
+#### Содержание запроса для ES
 
-После получения запроса от клиента, `Delegate` формирует на его основе запрос в `Elasticsearch`. Условный шаблон запроса выглядит на примере ниже:
+После получения запроса от клиента, `Delegate` формирует на его основе запрос в `Elasticsearch`.  Условный шаблон запроса выглядит на примере ниже:
 
 ```
 {
@@ -232,6 +232,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
     "bool": {
       "minimum_should_match": 1,
       "should": [ ... query from request ... ],
+      "must": [ ... query from request ... ],
       "filter": [ ... filters from requests and token ... ]
     }
   },
@@ -244,12 +245,29 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 * `offset` - если указан, берётся из запроса клиента;
 * `size` - если указан, берётся из запроса клиента (`limit`) или лимит по умолчанию из конфигурации или `10`;
-* `should` - список условий поиска, формируются на основе параметра `query` из запроса. Отсутствует при отсутствии параметра `query` в запросе клиента;
+* `should` - список условий поиска, если выбрана стратегия поиска `Should` формируются на основе параметра `query` из запроса;
+* `must` - список условий поиска, если выбрана стратегия поиска `Must` формируются на основе параметра `query` из запроса;
 * `filter` - загружается из локального файла из места, в соответствии с конфигурацией. Идентификатор фильтра берётся из запроса, если указан, или из конфигурации, как фильтр по умолчанию. Если в запросе передан токен поиска, то применяются и фильтры, указанные в нём. Если ни один фильтр не удалось определить, то этот узел в запросе отсутствует;
 * `sort` - загружается из локального файла из места, в соответствии с конфигурацией. Идентификатор сортировки берётся из запроса, если указан, или из конфигурации, как сортировка по умолчанию. Если ни одну сортировку не удалось определить, то этот узел в запросе отсутствует;
 * `minimum_should_match` - указывается если есть `should`. Фиксированное значение -1.
 
-#### Фильтры запроса в ES
+#### Формирование запроса для ES
+
+Запрос формируется следующим образом:
+
+* определяются параметры пейджинга;
+* определяется и загружается сортировка из запроса клиента или по умолчанию;
+* определяются, загружаются и инициализируются аргументами фильтры из токена поиска;
+* определяется и загружается фильтр из запроса клиента или по умолчанию;
+* применяется строка поиска:
+  * разбирается по условиям;
+  * формируются выражения поиска из условий, применённых к полям мэппинга индекса;
+  * выражения для каждого литерала строки поиска объединяются по условию [bool->should](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html) с минимальным количеством совпадений - `1`;
+  * консолидированные выражения литералов объединяются в соответствии с выбранной стратегией поиска по строке поиска:
+    *   [bool->should](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html) - если стратегия `Should` с минимальным количеством совпадений - `1`;
+    *   [bool->must](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html) - если стратегия `Must`;
+
+#### Фильтры запроса для ES
 
 ##### Загрузка фильтра
 
@@ -321,7 +339,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 * если в запросе не указан фильтр, то используется фильтр по умолчанию, указанный в конфигурации текущего пространства имён;
 * фильтры, указанные в токене поиска для текущего пространства имён.
 
-#### Сортировка запроса в ES
+#### Сортировка запроса для ES
 
 ##### Загрузка сортировки
 
@@ -380,15 +398,31 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
   * назначается вес литерала в соответствии с его порядком в строке поиска. Это значит, что найденная запись по условию с этим литералом будет иметь значение релевантности, равное весу этого литерала. Вес вычисляется как количество литералов в строке поиска минус порядковый номер литерала, начинающийся с `0`:
 
     ```
-    rank = length - 0index;
+    boost = literal_count - 0_index;
     ```
 
     Это означает, что совпадения по литералам ближе к началу строки поиска будут иметь большую релевантность, чем по литералом ближе к концу строки поиска;
 
-  * используется для условия по точному совпадению всего значения (условие [term](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html)) с полями типа [keyword](https://www.elastic.co/guide/en/elasticsearch/reference/current/keyword.html#keyword-field-type) (точное совпадение строк);
+  * определяется, как условие по регулярному выражению [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html) для полей типа [keyword](https://www.elastic.co/guide/en/elasticsearch/reference/current/keyword.html#keyword-field-type). Регулярное выражение формируется по правилу:
 
+    ```
+    norm_literal.*
+    ```
+  
+    , где `norm_literal` - нормализованная строка, где [служебные символы](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html#regexp-reserved-characters) экранированы;
+  
+  * определяется, как условие по регулярному выражению [regexp](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html) для полей типа  [text](https://www.elastic.co/guide/en/elasticsearch/reference/current/text.html#text-field-type). Регулярное выражение формируется по правилу:
+  
+    ```
+    norm_literal.*
+    ```
+  
+    , где `norm_literal` - нормализованная строка, переведённая в нижний регистр, где [служебные символы](https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html#regexp-reserved-characters) экранированы;
+  
+  * определяется как выражение для полнотекстового поиска [match](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html) по полям типа [text](https://www.elastic.co/guide/en/elasticsearch/reference/current/text.html#text-field-type);
+  
   * попытка определить числовое условие. Применяется с применением условия [range](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html);
-
+  
   * попытка определить условие по датам. Применяется с применением условия [range](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html);
 
 #### Определение числового диапазона
@@ -508,6 +542,9 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 * `Delegate` - настройки логики сервиса:
   * `SortPath` - путь по умолчанию к директории для хранения сортировок. Значение по умолчанию - `/etc/mylab-search-delegate/sort/`;
   * `FilterPath` - путь по умолчанию к директории для хранения фильтров. Значение по умолчанию - `/etc/mylab-search-delegate/filter/`;
+  * `QueryStrategy` - стратегия поиска по строке поиска. Значение по умолчанию - `Should`;
+  * `IndexNamePrefix` - префикс, который будет добавляться к имени индексов всех пространств имён;
+  * `IndexNamePostfix` - постфикс, который будет добавляться к имени индексов всех пространств имён;
   * `Token` - настройки использования токенов:
     * `ExpirySec` - (опционально) время жизни токена в секундах;
     * `SignKey` - текстовый ключ подписи токена. Должен быть не меньше 16 байт.
@@ -516,7 +553,9 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
     * `Index` - целевой индекс в `Elasticsearch`;
     * `DefaultFilter` - (опционально) литеральный идентификатор фильтра по умолчанию;
     * `DefaultSort`  - (опционально) литеральный идентификатор сортировки по умолчанию;
-    * `DefaultLimit`- (опционально) лимиты выборки по умолчанию.
+    * `DefaultLimit`- (опционально) лимиты выборки по умолчанию;
+    * `QueryStrategy` - стратегия поиска по строке поиска. Если указано, переопределяет общую стратегию. Значение по умолчанию - `Undefined`;
+  * `Debug` - флаг, определяющий добавление отладочной информации о поиске в `Elasticsearch` (см. [Отладка запросов поиска](#Отладка-запросов-поиска)) 
 
 Отсутствие узла `Delegate/Token` означает отключение функции использования токенов. Это приведёт к ошибкам при попытке запросить токен или осуществить поиск с запросом, снабжённым токеном.
 
@@ -524,3 +563,42 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 * в токен не будет добавляться поле с датой и временем экспирации `exp`;
 * при проверке токена не будет проверяться время его жизни.
+
+## Отладка
+
+### Отладка запросов поиска
+
+Для включения отладки запросов поиска, необходимо в настройках указать `Delegate__Debug: true` (на примере конфигурирования через переменные окружения).  
+
+При этом в ответ поиска будут включены:
+
+* поле `esRequest` - объект запроса в `Elasticsearch`. Подробнее про [объект запроса поиска](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-request-body).
+* поле `explanation` - для каждой найденной сущности, объект описания причины включения сущности в результат поиска. Подробнее про объекты [Explanation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-explain.html#search-explain-api-example).
+
+Ниже приведён пример ответа с данными отладки:
+
+```json
+{
+  "entities": [
+    {
+      "content": {
+        "Id": 1,
+        "Value": "val_1",
+        "Date": "0001-01-01T00:00:00"
+      },
+      "score": 1,
+      "explanation": {
+        "description": "*:*",
+        "details": [],
+        "value": 1
+      }
+    }
+  ],
+  "total": 20,
+  "esRequest": {
+    "trackScores": true,
+    "from": 0,
+    "size": 1
+  }
+}
+```

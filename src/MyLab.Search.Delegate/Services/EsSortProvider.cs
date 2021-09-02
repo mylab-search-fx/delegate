@@ -1,8 +1,9 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using MyLab.Search.Delegate.Models;
 using MyLab.Log;
+using MyLab.Search.Delegate.Tools;
+using Nest;
 
 namespace MyLab.Search.Delegate.Services
 {
@@ -21,7 +22,7 @@ namespace MyLab.Search.Delegate.Services
             _options = options;
         }
 
-        public async Task<SearchSort> ProvideAsync(string sortId, string ns)
+        public async Task<ISort> ProvideAsync(string sortId, string ns)
         {
             var pathNs = Path.Combine(_options.SortPath, ns, sortId + ".json");
             var pathBase = Path.Combine(_options.SortPath, sortId + ".json");
@@ -47,10 +48,7 @@ namespace MyLab.Search.Delegate.Services
 
             var str = await File.ReadAllTextAsync(resultPath);
 
-            return new SearchSort
-            {
-                Content = str
-            };
+            return await EsSerializer.Instance.DeserializeAsync<ISort>(str);
         }
     }
 }

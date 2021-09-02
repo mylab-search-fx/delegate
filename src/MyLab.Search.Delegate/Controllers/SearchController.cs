@@ -10,7 +10,6 @@ using MyLab.Search.Delegate.Models;
 using MyLab.Search.Delegate.Services;
 using MyLab.WebErrors;
 using Nest;
-using SearchRequest = MyLab.Search.Delegate.Models.SearchRequest;
 
 namespace MyLab.Search.Delegate.Controllers
 {
@@ -35,11 +34,11 @@ namespace MyLab.Search.Delegate.Controllers
         [ErrorToResponse(typeof(TokenizingDisabledException), HttpStatusCode.BadRequest)]
         [ErrorToResponse(typeof(ElasticsearchSearchException), HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Get(
-            [FromQuery]SearchRequest request, 
+            [FromQuery]ClientSearchRequest request, 
             [FromRoute(Name = "namespace")]string ns, 
             [FromHeader(Name = "X-Search-Token")]string searchToken)
         {
-            IEnumerable<EsIndexedEntity> result;
+            FoundEntities<FoundEntityContent> result;
 
             try
             {

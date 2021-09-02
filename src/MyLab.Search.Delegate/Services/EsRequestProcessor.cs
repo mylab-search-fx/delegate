@@ -14,7 +14,6 @@ using MyLab.Search.Delegate.Tools;
 using MyLab.Search.EsAdapter;
 using Nest;
 using Newtonsoft.Json;
-using SearchRequest = MyLab.Search.Delegate.Models.SearchRequest;
 
 namespace MyLab.Search.Delegate.Services
 {
@@ -24,7 +23,6 @@ namespace MyLab.Search.Delegate.Services
         private readonly IEsRequestBuilder _requestBuilder;
         private readonly ITokenService _tokenService;
         private readonly ElasticClient _esClient;
-        private readonly EsSearchRequestSerializer _esReqSerializer;
         private readonly IDslLogger _log;
 
         public EsRequestProcessor(
@@ -51,11 +49,10 @@ namespace MyLab.Search.Delegate.Services
             _tokenService = tokenService;
 
             _esClient = esClientProvider.Provide();
-            _esReqSerializer = new EsSearchRequestSerializer();
             _log = logger?.Dsl();
         }
 
-        public async Task<IEnumerable<EsIndexedEntity>> ProcessSearchRequestAsync(SearchRequest request, string ns, string searchToken)
+        public async Task<FoundEntities<FoundEntityContent>> ProcessSearchRequestAsync(ClientSearchRequest clientRequest, string ns, string searchToken)
         {
             NamespaceSettings namespaceSettings = null;
 
@@ -67,23 +64,26 @@ namespace MyLab.Search.Delegate.Services
                 namespaceSettings = _tokenService.ValidateAndExtractSettings(searchToken, ns);
             }
 
-            var nsOptions = _options.Namespaces?.FirstOrDefault(n => n.Name == ns);
-            if (nsOptions == null)
-                throw new InvalidOperationException("Namespace options not found");
+            var indexName = _options.GetIndexName(ns);
 
-            var esRequest = await _requestBuilder.BuildAsync(request, ns, namespaceSettings?.Filters);
+            var esRequest = await _requestBuilder.BuildAsync(clientRequest, ns, namespaceSettings?.Filters);
 
-            var strReq = _esReqSerializer.Serialize(esRequest.Model);
+            var strReq = EsSerializer.Instance.SerializeToString(esRequest);
 
             _log?.Debug("Perform search request")
                 .AndFactIs("search-req", strReq)
-                .AndFactIs("index", nsOptions.Index)
+                .AndFactIs("index", indexName)
                 .Write();
 
-            SearchResponse<EsIndexedEntityContent> res;
+            SearchResponse<FoundEntityContent> res;
+
+            var searchParams = _options.Debug
+                ? new DelegateSearchRequestParameters {Explain = true}
+                : null;
+            
             try
             {
-                res = await _esClient.LowLevel.SearchAsync<SearchResponse<EsIndexedEntityContent>>(nsOptions.Index, strReq);
+                res = await _esClient.LowLevel.SearchAsync<SearchResponse<FoundEntityContent>>(indexName, strReq, searchParams);
             }
             catch (UnexpectedElasticsearchClientException e)
             {
@@ -101,11 +101,21 @@ namespace MyLab.Search.Delegate.Services
                         : null); ;
             }
 
-            return res.Hits.Select(h => new EsIndexedEntity
+            var foundEntities = res.Hits.Select(h => new FoundEntity<FoundEntityContent>
             {
                 Content = h.Source,
-                Score = h.Score
+                Score = h.Score,
+                Explanation = h.Explanation
             });
+
+            return new FoundEntities<FoundEntityContent>
+            {
+                Entities = foundEntities.ToArray(),
+                Total = res.HitsMetadata.Total.Value,
+                EsRequest = _options.Debug 
+                    ? esRequest
+                    : null
+            };
         }
     }
 }

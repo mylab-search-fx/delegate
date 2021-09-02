@@ -9,6 +9,10 @@ namespace MyLab.Search.Delegate
         public string FilterPath { get; set; } = "/etc/mylab-search-delegate/filter/";
         public Namespace[] Namespaces { get; set; }
         public Tokenizing Token { get; set; }
+        public bool Debug { get; set; }
+        public QuerySearchStrategy QueryStrategy { get; set; } = QuerySearchStrategy.Should;
+        public string IndexNamePrefix { get; set; }
+        public string IndexNamePostfix { get; set; }
         
         public class Namespace
         {
@@ -17,6 +21,7 @@ namespace MyLab.Search.Delegate
             public string DefaultFilter { get; set; }
             public string DefaultSort { get; set; }
             public int? DefaultLimit { get; set; }
+            public QuerySearchStrategy QueryStrategy { get; set; }
         }
 
         public class Tokenizing
@@ -32,6 +37,19 @@ namespace MyLab.Search.Delegate
                 throw new InvalidOperationException("Namespace options not found");
 
             return nsOptions;
+        }
+
+        public string GetIndexName(string ns)
+        {
+            var nsOptions = GetNamespace(ns);
+            return $"{IndexNamePrefix ?? string.Empty}{nsOptions.Index}{IndexNamePostfix ?? string.Empty}";
+        }
+
+        public enum QuerySearchStrategy
+        {
+            Undefined,
+            Should,
+            Must
         }
     }
 }

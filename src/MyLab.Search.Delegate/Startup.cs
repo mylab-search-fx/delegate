@@ -35,7 +35,8 @@ namespace MyLab.Search.Delegate
                 .AddSingleton<ITokenService, TokenService>()
                 .AddEsTools(Configuration, "ES")
                 .Configure<DelegateOptions>(Configuration.GetSection("Delegate"))
-                .AddControllers(o => o.AddExceptionProcessing());
+                .AddControllers(o => o.AddExceptionProcessing())
+                .AddJsonOptions(jsonOpts => jsonOpts.JsonSerializerOptions.IgnoreNullValues = true);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

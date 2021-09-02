@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
+using Nest;
 
 namespace MyLab.Search.Delegate.Services
 {
     interface IIndexMappingService
     {
-        Task<IndexMapping> GetIndexMappingAsync(string ns);
+        Task<TypeMapping> GetIndexMappingAsync(string ns);
     }
 }
