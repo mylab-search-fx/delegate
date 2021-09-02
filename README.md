@@ -516,7 +516,8 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
     * `Index` - целевой индекс в `Elasticsearch`;
     * `DefaultFilter` - (опционально) литеральный идентификатор фильтра по умолчанию;
     * `DefaultSort`  - (опционально) литеральный идентификатор сортировки по умолчанию;
-    * `DefaultLimit`- (опционально) лимиты выборки по умолчанию.
+    * `DefaultLimit`- (опционально) лимиты выборки по умолчанию;
+  * `Debug` - флаг, определяющий добавление отладочной информации о поиске в `Elasticsearch` (см. [Отладка запросов поиска](#Отладка-запросов-поиска)) 
 
 Отсутствие узла `Delegate/Token` означает отключение функции использования токенов. Это приведёт к ошибкам при попытке запросить токен или осуществить поиск с запросом, снабжённым токеном.
 
@@ -524,3 +525,42 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 * в токен не будет добавляться поле с датой и временем экспирации `exp`;
 * при проверке токена не будет проверяться время его жизни.
+
+## Отладка
+
+### Отладка запросов поиска
+
+Для включения отладки запросов поиска, необходимо в настройках указать `Delegate__Debug: true` (на примере конфигурирования через переменные окружения).  
+
+При этом в ответ поиска будут включены:
+
+* поле `esRequest` - объект запроса в `Elasticsearch`. Подробнее про [объект запроса поиска](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-request-body).
+* поле `explanation` - для каждой найденной сущности, объект описания причины включения сущности в результат поиска. Подробнее про объекты [Explanation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-explain.html#search-explain-api-example).
+
+Ниже приведён пример ответа с данными отладки:
+
+```json
+{
+  "entities": [
+    {
+      "content": {
+        "Id": 1,
+        "Value": "val_1",
+        "Date": "0001-01-01T00:00:00"
+      },
+      "score": 1,
+      "explanation": {
+        "description": "*:*",
+        "details": [],
+        "value": 1
+      }
+    }
+  ],
+  "total": 20,
+  "esRequest": {
+    "trackScores": true,
+    "from": 0,
+    "size": 1
+  }
+}
+```
