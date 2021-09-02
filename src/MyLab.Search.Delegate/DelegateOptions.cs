@@ -11,6 +11,8 @@ namespace MyLab.Search.Delegate
         public Tokenizing Token { get; set; }
         public bool Debug { get; set; }
         public QuerySearchStrategy QueryStrategy { get; set; } = QuerySearchStrategy.Should;
+        public string IndexNamePrefix { get; set; }
+        public string IndexNamePostfix { get; set; }
         
         public class Namespace
         {
@@ -35,6 +37,12 @@ namespace MyLab.Search.Delegate
                 throw new InvalidOperationException("Namespace options not found");
 
             return nsOptions;
+        }
+
+        public string GetIndexName(string ns)
+        {
+            var nsOptions = GetNamespace(ns);
+            return $"{IndexNamePrefix ?? string.Empty}{nsOptions.Index}{IndexNamePostfix ?? string.Empty}";
         }
 
         public enum QuerySearchStrategy

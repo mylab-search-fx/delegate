@@ -64,9 +64,7 @@ namespace MyLab.Search.Delegate.Services
                 namespaceSettings = _tokenService.ValidateAndExtractSettings(searchToken, ns);
             }
 
-            var nsOptions = _options.Namespaces?.FirstOrDefault(n => n.Name == ns);
-            if (nsOptions == null)
-                throw new InvalidOperationException("Namespace options not found");
+            var indexName = _options.GetIndexName(ns);
 
             var esRequest = await _requestBuilder.BuildAsync(clientRequest, ns, namespaceSettings?.Filters);
 
@@ -74,7 +72,7 @@ namespace MyLab.Search.Delegate.Services
 
             _log?.Debug("Perform search request")
                 .AndFactIs("search-req", strReq)
-                .AndFactIs("index", nsOptions.Index)
+                .AndFactIs("index", indexName)
                 .Write();
 
             SearchResponse<FoundEntityContent> res;
@@ -82,10 +80,10 @@ namespace MyLab.Search.Delegate.Services
             var searchParams = _options.Debug
                 ? new DelegateSearchRequestParameters {Explain = true}
                 : null;
-
+            
             try
             {
-                res = await _esClient.LowLevel.SearchAsync<SearchResponse<FoundEntityContent>>(nsOptions.Index, strReq, searchParams);
+                res = await _esClient.LowLevel.SearchAsync<SearchResponse<FoundEntityContent>>(indexName, strReq, searchParams);
             }
             catch (UnexpectedElasticsearchClientException e)
             {

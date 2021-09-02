@@ -41,19 +41,19 @@ namespace MyLab.Search.Delegate.Services
             if (_nsToIndexMapping.TryGetValue(ns, out var currentMapping))
                 return currentMapping;
 
-            var nsOptions = _esOptions.GetNamespace(ns);
+            var indexName = _esOptions.GetIndexName(ns);
 
             var client = _esClientProvider.Provide();
 
-            var mappingResponse = await client.Indices.GetMappingAsync(new GetMappingRequest(nsOptions.Index));
+            var mappingResponse = await client.Indices.GetMappingAsync(new GetMappingRequest(indexName));
 
             _log.Debug("Get index mapping")
                 .AndFactIs("dump", ApiCallDumper.ApiCallToDump(mappingResponse.ApiCall))
                 .Write();
 
-            if (!mappingResponse.Indices.TryGetValue(nsOptions.Index, out var indexMapping))
+            if (!mappingResponse.Indices.TryGetValue(indexName, out var indexMapping))
                 throw new InvalidOperationException("Index mapping not found")
-                    .AndFactIs("index", nsOptions.Index);
+                    .AndFactIs("index", indexName);
 
             _nsToIndexMapping.TryAdd(ns, indexMapping.Mappings);
 
