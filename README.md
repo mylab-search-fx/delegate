@@ -182,7 +182,7 @@
 Запрос клиента осуществляется следующим запросом:
 
 ```http
-GET /v1/search/[namespace]?query=...&filter=...&sort=...$offset=...&limit=...
+GET /v1/search/[namespace]?query=...&filter=...&sort=...$offset=...&limit=...&query-mode=...
 
 X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe7pls5nsO8khWl6zHOnY4
 ```
@@ -194,6 +194,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 * `sort`- литеральный идентификатор сортировки;
 * `offset` - сдвиг выборки;
 * `limit` - ограничение размера выборки;
+* `query-mode` - `should`/`must` стратегия поиска по строке поиска; 
 * `X-Search-Token` - токен поиска.
 
 Все параметры из `query` части `url` - опциональны.
@@ -543,7 +544,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 * `Delegate` - настройки логики сервиса:
   * `SortPath` - путь по умолчанию к директории для хранения сортировок. Значение по умолчанию - `/etc/mylab-search-delegate/sort/`;
   * `FilterPath` - путь по умолчанию к директории для хранения фильтров. Значение по умолчанию - `/etc/mylab-search-delegate/filter/`;
-  * `QueryStrategy` - стратегия поиска по строке поиска. Значение по умолчанию - `Should`;
+  * `QueryStrategy` - стратегия поиска по строке поиска `should`/`must`. Определяет общую стратегию для  всех пространств имён. Значение по умолчанию - `should`;
   * `IndexNamePrefix` - префикс, который будет добавляться к имени индекса всех пространств имён;
   * `IndexNamePostfix` - постфикс, который будет добавляться к имени индекса всех пространств имён;
   * `Token` - настройки использования токенов:
@@ -555,7 +556,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
     * `DefaultFilter` - (опционально) литеральный идентификатор фильтра по умолчанию;
     * `DefaultSort`  - (опционально) литеральный идентификатор сортировки по умолчанию;
     * `DefaultLimit`- (опционально) лимиты выборки по умолчанию;
-    * `QueryStrategy` - стратегия поиска по строке поиска. Если указано, переопределяет общую стратегию. Значение по умолчанию - `Undefined`;
+    * `QueryStrategy` - стратегия поиска по строке поиска `should`/`must`. Если указано, переопределяет стратегию для пространства имён. Значение по умолчанию - `Undefined`;
   * `Debug` - флаг, определяющий добавление отладочной информации о поиске в `Elasticsearch` (см. [Отладка запросов поиска](#Отладка-запросов-поиска)) 
 
 Отсутствие узла `Delegate/Token` означает отключение функции использования токенов. Это приведёт к ошибкам при попытке запросить токен или осуществить поиск с запросом, снабжённым токеном.

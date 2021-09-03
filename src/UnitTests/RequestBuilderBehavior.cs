@@ -22,7 +22,7 @@ namespace UnitTests
             //Arrange
             var opt = new DelegateOptions
             {
-                QueryStrategy = DelegateOptions.QuerySearchStrategy.Must,
+                QueryStrategy = QuerySearchStrategy.Must,
                 Namespaces = new []
                 {
                     new DelegateOptions.Namespace
@@ -59,7 +59,7 @@ namespace UnitTests
             //Arrange
             var opt = new DelegateOptions
             {
-                QueryStrategy = DelegateOptions.QuerySearchStrategy.Should,
+                QueryStrategy = QuerySearchStrategy.Should,
                 Namespaces = new[]
                 {
                     new DelegateOptions.Namespace
@@ -95,7 +95,7 @@ namespace UnitTests
             //Arrange
             var opt = new DelegateOptions
             {
-                QueryStrategy = DelegateOptions.QuerySearchStrategy.Must,
+                QueryStrategy = QuerySearchStrategy.Must,
                 Namespaces = new[]
                 {
                     new DelegateOptions.Namespace
@@ -131,13 +131,13 @@ namespace UnitTests
             //Arrange
             var opt = new DelegateOptions
             {
-                QueryStrategy = DelegateOptions.QuerySearchStrategy.Must,
+                QueryStrategy = QuerySearchStrategy.Must,
                 Namespaces = new[]
                 {
                     new DelegateOptions.Namespace
                     {
                         Name = "test",
-                        QueryStrategy = DelegateOptions.QuerySearchStrategy.Should
+                        QueryStrategy = QuerySearchStrategy.Should
                     }
                 }
             };

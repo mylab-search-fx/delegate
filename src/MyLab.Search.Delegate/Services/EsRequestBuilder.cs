@@ -92,11 +92,9 @@ namespace MyLab.Search.Delegate.Services
 
                 if (hasQueries)
                 {
-                    DelegateOptions.QuerySearchStrategy queryStrategy = nsOptions.QueryStrategy != DelegateOptions.QuerySearchStrategy.Undefined 
-                        ? nsOptions.QueryStrategy 
-                        : _options.QueryStrategy;
+                    var queryStrategy = CalcSearchStrategy(clientSearchRequest, nsOptions);
 
-                    if (queryStrategy == DelegateOptions.QuerySearchStrategy.Must)
+                    if (queryStrategy == QuerySearchStrategy.Must)
                     {
                         boolModel.Must = queryExpressions;
                     }
@@ -129,6 +127,31 @@ namespace MyLab.Search.Delegate.Services
             }
 
             return req;
+        }
+
+        private QuerySearchStrategy CalcSearchStrategy(ClientSearchRequest clientSearchRequest, DelegateOptions.Namespace nsOptions)
+        {
+            QuerySearchStrategy queryStrategy;
+
+            if (clientSearchRequest.QuerySearchStrategy != default)
+            {
+                queryStrategy = clientSearchRequest.QuerySearchStrategy;
+            }
+            else
+            {
+                if (nsOptions.QueryStrategy != default)
+                {
+                    queryStrategy = nsOptions.QueryStrategy;
+                }
+                else
+                {
+                    queryStrategy = _options.QueryStrategy != default
+                        ? _options.QueryStrategy
+                        : QuerySearchStrategy.Should;
+                }
+            }
+
+            return queryStrategy;
         }
     }
 }

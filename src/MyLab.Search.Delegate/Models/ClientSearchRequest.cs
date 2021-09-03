@@ -14,5 +14,7 @@ namespace MyLab.Search.Delegate.Models
         public int Offset { get; set; }
         [FromQuery(Name = "limit")]
         public int Limit { get; set; }
+        [FromQuery(Name = "query-mode")]
+        public QuerySearchStrategy QuerySearchStrategy { get; set; }
     }
 }

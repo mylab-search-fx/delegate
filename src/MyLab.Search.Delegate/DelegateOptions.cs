@@ -52,12 +52,5 @@ namespace MyLab.Search.Delegate
 
             return $"{IndexNamePrefix ?? string.Empty}{nsOptions.Index}{IndexNamePostfix ?? string.Empty}";
         }
-
-        public enum QuerySearchStrategy
-        {
-            Undefined,
-            Should,
-            Must
-        }
     }
 }
