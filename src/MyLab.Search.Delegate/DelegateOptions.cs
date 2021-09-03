@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using MyLab.Search.EsAdapter;
+using MyLab.Log;
 
 namespace MyLab.Search.Delegate
 {
@@ -34,7 +36,8 @@ namespace MyLab.Search.Delegate
         {
             var nsOptions = Namespaces?.FirstOrDefault(n => n.Name == ns);
             if (nsOptions == null)
-                throw new InvalidOperationException("Namespace options not found");
+                throw new InvalidOperationException("Namespace options not found")
+                    .AndFactIs("ns", ns);
 
             return nsOptions;
         }
@@ -42,6 +45,11 @@ namespace MyLab.Search.Delegate
         public string GetIndexName(string ns)
         {
             var nsOptions = GetNamespace(ns);
+
+            if(nsOptions.Index == null)
+                throw new InvalidOperationException("Namespace index not defined")
+                    .AndFactIs("ns", ns);
+
             return $"{IndexNamePrefix ?? string.Empty}{nsOptions.Index}{IndexNamePostfix ?? string.Empty}";
         }
 

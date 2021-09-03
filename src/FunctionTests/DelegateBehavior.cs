@@ -3,14 +3,99 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using MyLab.Search.Delegate;
+using MyLab.Search.Delegate.Services;
+using MyLab.Search.EsAdapter.SearchEngine;
+using Nest;
 using Xunit;
 
 namespace FunctionTests
 {
     public partial class DelegateBehavior
     {
+        [Fact]
+        public async Task ShouldNotApplyScoreSortQuerySearchWithSort()
+        {
+            //Arrange
+            var sort = new FieldSort
+            {
+                Field = nameof(TestEntity.Id),
+                Order = SortOrder.Descending
+            };
+
+            var sp = new TestSortProvider(sort);
+
+            var cl = _searchClient.StartWithProxy(srv =>
+            {
+                srv.Configure<DelegateOptions>(o =>
+                {
+                    o.QueryStrategy = DelegateOptions.QuerySearchStrategy.Should;
+                    o.Namespaces = new[]
+                    {
+                        new DelegateOptions.Namespace
+                        {
+                            Index = _esFxt.IndexName,
+                            Name = "test",
+                        },
+                    };
+                });
+                srv.AddSingleton<IEsSortProvider>(sp);
+            });
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", "Kw_Val_1 >10", limit: 20, sort: "[nomater]");
+
+            //Assert
+            Assert.Equal(12, found.Entities.Length);
+            Assert.Equal(20, found.Entities[0].Content.Id);
+            Assert.Equal(19, found.Entities[1].Content.Id);
+            Assert.Equal(10, found.Entities[10].Content.Id);
+            Assert.Equal(1, found.Entities[11].Content.Id);
+        }
+
+        [Fact]
+        public async Task ShouldApplyScoreSortBeforeDefaultSortIfQuerySearch()
+        {
+            //Arrange
+            var sort = new FieldSort
+            {
+                Field = nameof(TestEntity.Id),
+                Order = SortOrder.Descending
+            };
+
+            var sp = new TestSortProvider(sort);
+
+            var cl = _searchClient.StartWithProxy(srv =>
+            {
+                srv.Configure<DelegateOptions>(o =>
+                {
+                    o.QueryStrategy = DelegateOptions.QuerySearchStrategy.Should;
+                    o.Namespaces = new[]
+                    {
+                        new DelegateOptions.Namespace
+                        {
+                            Index = _esFxt.IndexName,
+                            Name = "test",
+                            DefaultSort = "[nomater]"
+                        },
+                    };
+                });
+                srv.AddSingleton<IEsSortProvider>(sp);
+            });
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", "Kw_Val_1 >10", limit: 20);
+
+            //Assert
+            Assert.Equal(12, found.Entities.Length);
+            Assert.Equal(19, found.Entities[0].Content.Id);
+            Assert.Equal(18, found.Entities[1].Content.Id);
+            Assert.Equal(10, found.Entities[9].Content.Id);
+            Assert.Equal(1, found.Entities[10].Content.Id);
+        }
+
         [Theory]
         [InlineData(DelegateOptions.QuerySearchStrategy.Should, 11)]
         [InlineData(DelegateOptions.QuerySearchStrategy.Must, 1)]

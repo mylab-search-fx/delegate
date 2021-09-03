@@ -56,13 +56,6 @@ namespace MyLab.Search.Delegate.Services
                 Size = limit
             };
 
-            string sortId = clientSearchRequest.Sort ?? nsOptions.DefaultSort;
-            if (sortId != null)
-            {
-                var sort = await _esSortProvider.ProvideAsync(sortId, ns);
-                req.Sort = new List<ISort>{ sort };
-            }
-
             var filtersToAdd = new List<QueryContainer>();
             
             string selectedFilterId = clientSearchRequest.Filter ?? nsOptions.DefaultFilter;
@@ -115,6 +108,24 @@ namespace MyLab.Search.Delegate.Services
                 }
 
                 req.Query = boolModel;
+            }
+
+            string sortId = clientSearchRequest.Sort ?? nsOptions.DefaultSort;
+            if (sortId != null)
+            {
+                var sort = await _esSortProvider.ProvideAsync(sortId, ns);
+                var sorts = new List<ISort> { sort };
+
+                if (req.Query != null && clientSearchRequest.Sort == null)
+                {
+                    sorts.Insert(0, new FieldSort
+                    {
+                        Field = "_score",
+                        Order = SortOrder.Descending
+                    });
+                }
+                
+                req.Sort = sorts;
             }
 
             return req;
