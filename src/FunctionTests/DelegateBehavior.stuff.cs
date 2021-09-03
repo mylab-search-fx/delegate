@@ -1,13 +1,17 @@
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MyLab.ApiClient.Test;
 using MyLab.Search.Delegate;
 using MyLab.Search.Delegate.Client;
+using MyLab.Search.Delegate.Services;
 using MyLab.Search.EsAdapter;
 using MyLab.Search.EsTest;
+using Nest;
 using Xunit;
 using Xunit.Abstractions;
+using FilterArgs = MyLab.Search.Delegate.Models.FilterArgs;
 
 namespace FunctionTests
 {
@@ -72,6 +76,34 @@ namespace FunctionTests
             _searchClient.Dispose();
         }
 
+        class TestFilterProvider : IEsFilterProvider
+        {
+            private readonly QueryBase _query;
 
+            public TestFilterProvider(QueryBase query)
+            {
+                _query = query;
+            }
+
+            public Task<QueryContainer> ProvideAsync(string filterId, string ns, FilterArgs args = null)
+            {
+                return Task.FromResult(new QueryContainer(_query));
+            }
+        }
+
+        class TestSortProvider : IEsSortProvider
+        {
+            private readonly ISort _sort;
+
+            public TestSortProvider(ISort sort)
+            {
+                _sort = sort;
+            }
+
+            public Task<ISort> ProvideAsync(string sortId, string ns)
+            {
+                return Task.FromResult(_sort);
+            }
+        }
     }
 }

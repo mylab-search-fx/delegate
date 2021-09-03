@@ -56,13 +56,6 @@ namespace MyLab.Search.Delegate.Services
                 Size = limit
             };
 
-            string sortId = clientSearchRequest.Sort ?? nsOptions.DefaultSort;
-            if (sortId != null)
-            {
-                var sort = await _esSortProvider.ProvideAsync(sortId, ns);
-                req.Sort = new List<ISort>{ sort };
-            }
-
             var filtersToAdd = new List<QueryContainer>();
             
             string selectedFilterId = clientSearchRequest.Filter ?? nsOptions.DefaultFilter;
@@ -99,11 +92,9 @@ namespace MyLab.Search.Delegate.Services
 
                 if (hasQueries)
                 {
-                    DelegateOptions.QuerySearchStrategy queryStrategy = nsOptions.QueryStrategy != DelegateOptions.QuerySearchStrategy.Undefined 
-                        ? nsOptions.QueryStrategy 
-                        : _options.QueryStrategy;
+                    var queryStrategy = CalcSearchStrategy(clientSearchRequest, nsOptions);
 
-                    if (queryStrategy == DelegateOptions.QuerySearchStrategy.Must)
+                    if (queryStrategy == QuerySearchStrategy.Must)
                     {
                         boolModel.Must = queryExpressions;
                     }
@@ -117,7 +108,50 @@ namespace MyLab.Search.Delegate.Services
                 req.Query = boolModel;
             }
 
+            string sortId = clientSearchRequest.Sort ?? nsOptions.DefaultSort;
+            if (sortId != null)
+            {
+                var sort = await _esSortProvider.ProvideAsync(sortId, ns);
+                var sorts = new List<ISort> { sort };
+
+                if (req.Query != null && clientSearchRequest.Sort == null)
+                {
+                    sorts.Insert(0, new FieldSort
+                    {
+                        Field = "_score",
+                        Order = SortOrder.Descending
+                    });
+                }
+                
+                req.Sort = sorts;
+            }
+
             return req;
+        }
+
+        private QuerySearchStrategy CalcSearchStrategy(ClientSearchRequest clientSearchRequest, DelegateOptions.Namespace nsOptions)
+        {
+            QuerySearchStrategy queryStrategy;
+
+            if (clientSearchRequest.QuerySearchStrategy != default)
+            {
+                queryStrategy = clientSearchRequest.QuerySearchStrategy;
+            }
+            else
+            {
+                if (nsOptions.QueryStrategy != default)
+                {
+                    queryStrategy = nsOptions.QueryStrategy;
+                }
+                else
+                {
+                    queryStrategy = _options.QueryStrategy != default
+                        ? _options.QueryStrategy
+                        : QuerySearchStrategy.Should;
+                }
+            }
+
+            return queryStrategy;
         }
     }
 }

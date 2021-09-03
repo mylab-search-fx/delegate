@@ -3,18 +3,105 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using MyLab.Search.Delegate;
+using MyLab.Search.Delegate.Services;
+using MyLab.Search.EsAdapter.SearchEngine;
+using Nest;
 using Xunit;
+using ClientQuerySearchStrategy = MyLab.Search.Delegate.Client.QuerySearchStrategy;
+using ServerQuerySearchStrategy = MyLab.Search.Delegate.QuerySearchStrategy;
 
 namespace FunctionTests
 {
     public partial class DelegateBehavior
     {
+        [Fact]
+        public async Task ShouldNotApplyScoreSortQuerySearchWithSort()
+        {
+            //Arrange
+            var sort = new FieldSort
+            {
+                Field = nameof(TestEntity.Id),
+                Order = SortOrder.Descending
+            };
+
+            var sp = new TestSortProvider(sort);
+
+            var cl = _searchClient.StartWithProxy(srv =>
+            {
+                srv.Configure<DelegateOptions>(o =>
+                {
+                    o.QueryStrategy = ServerQuerySearchStrategy.Should;
+                    o.Namespaces = new[]
+                    {
+                        new DelegateOptions.Namespace
+                        {
+                            Index = _esFxt.IndexName,
+                            Name = "test",
+                        },
+                    };
+                });
+                srv.AddSingleton<IEsSortProvider>(sp);
+            });
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", "Kw_Val_1 >10", limit: 20, sort: "[nomater]");
+
+            //Assert
+            Assert.Equal(12, found.Entities.Length);
+            Assert.Equal(20, found.Entities[0].Content.Id);
+            Assert.Equal(19, found.Entities[1].Content.Id);
+            Assert.Equal(10, found.Entities[10].Content.Id);
+            Assert.Equal(1, found.Entities[11].Content.Id);
+        }
+
+        [Fact]
+        public async Task ShouldApplyScoreSortBeforeDefaultSortIfQuerySearch()
+        {
+            //Arrange
+            var sort = new FieldSort
+            {
+                Field = nameof(TestEntity.Id),
+                Order = SortOrder.Descending
+            };
+
+            var sp = new TestSortProvider(sort);
+
+            var cl = _searchClient.StartWithProxy(srv =>
+            {
+                srv.Configure<DelegateOptions>(o =>
+                {
+                    o.QueryStrategy = QuerySearchStrategy.Should;
+                    o.Namespaces = new[]
+                    {
+                        new DelegateOptions.Namespace
+                        {
+                            Index = _esFxt.IndexName,
+                            Name = "test",
+                            DefaultSort = "[nomater]"
+                        },
+                    };
+                });
+                srv.AddSingleton<IEsSortProvider>(sp);
+            });
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", "Kw_Val_1 >10", limit: 20);
+
+            //Assert
+            Assert.Equal(12, found.Entities.Length);
+            Assert.Equal(19, found.Entities[0].Content.Id);
+            Assert.Equal(18, found.Entities[1].Content.Id);
+            Assert.Equal(10, found.Entities[9].Content.Id);
+            Assert.Equal(1, found.Entities[10].Content.Id);
+        }
+
         [Theory]
-        [InlineData(DelegateOptions.QuerySearchStrategy.Should, 11)]
-        [InlineData(DelegateOptions.QuerySearchStrategy.Must, 1)]
-        public async Task ShouldSearchWithStrategy(DelegateOptions.QuerySearchStrategy strategy, int expectedFoundCount)
+        [InlineData(ServerQuerySearchStrategy.Should, 11)]
+        [InlineData(ServerQuerySearchStrategy.Must, 1)]
+        public async Task ShouldSearchWithStrategy(ServerQuerySearchStrategy strategy, int expectedFoundCount)
         {
             //Arrange
             var cl = _searchClient.StartWithProxy(srv =>
@@ -24,6 +111,21 @@ namespace FunctionTests
 
             //Act
             var found = await cl.SearchAsync<TestEntity>("test", "Kw_Val_1 Val_10", limit: 20);
+
+            //Assert
+            Assert.Equal(expectedFoundCount, found.Entities.Length);
+        }
+
+        [Theory]
+        [InlineData(ClientQuerySearchStrategy.Should, 11)]
+        [InlineData(ClientQuerySearchStrategy.Must, 1)]
+        public async Task ShouldSearchWithStrategyFromQuery(ClientQuerySearchStrategy strategy, int expectedFoundCount)
+        {
+            //Arrange
+            var cl = _searchClient.StartWithProxy();
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", "Kw_Val_1 Val_10", limit: 20, queryMode: strategy);
 
             //Assert
             Assert.Equal(expectedFoundCount, found.Entities.Length);
@@ -98,7 +200,7 @@ namespace FunctionTests
             var cl = _searchClient.Start();
 
             //Act
-            var resp = await cl.Call(s => s.SearchAsync<TestEntity>("test", null, "bad", null, 0, 0, null));
+            var resp = await cl.Call(s => s.SearchAsync<TestEntity>("test", null, "bad", null, 0, 0, MyLab.Search.Delegate.Client.QuerySearchStrategy.Undefined, null));
 
             //Assert
             Assert.Equal(HttpStatusCode.InternalServerError, resp.StatusCode);

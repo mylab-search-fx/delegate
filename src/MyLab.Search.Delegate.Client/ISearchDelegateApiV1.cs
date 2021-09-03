@@ -28,6 +28,7 @@ namespace MyLab.Search.Delegate.Client
         /// <param name="offset">paging offset</param>
         /// <param name="limit">paging limit</param>
         /// <param name="searchToken">search token</param>
+        /// <param name="queryMode">query search mode</param>
         [Get("search/{namespace}")]
         Task<FoundEntities<TRes>> SearchAsync<TRes>(
             [Path("namespace")] string ns,
@@ -36,6 +37,7 @@ namespace MyLab.Search.Delegate.Client
             [Query] string sort = null,
             [Query] int offset = 0,
             [Query] int limit = 0,
+            [Query("query-mode")] QuerySearchStrategy queryMode = QuerySearchStrategy.Undefined,
             [Header("X-Search-Token")] string searchToken = null);
     }
 }
