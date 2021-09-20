@@ -206,7 +206,7 @@
 Запрос клиента осуществляется следующим запросом:
 
 ```http
-POST /v1/search/[namespace]
+POST /v2/search/[namespace]
 
 X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe7pls5nsO8khWl6zHOnY4
 
