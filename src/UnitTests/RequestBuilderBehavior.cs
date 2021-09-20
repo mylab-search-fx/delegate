@@ -37,7 +37,7 @@ namespace UnitTests
                 new TestFilterProvider(), 
                 new TestIndexMappingService()); 
 
-            var sReq = new ClientSearchRequest
+            var sReq = new ClientSearchRequestV2()
             {
                 Query= query
             };
@@ -74,7 +74,7 @@ namespace UnitTests
                 new TestFilterProvider(),
                 new TestIndexMappingService());
 
-            var sReq = new ClientSearchRequest
+            var sReq = new ClientSearchRequestV2()
             {
                 Query = "nomater"
             };
@@ -110,7 +110,7 @@ namespace UnitTests
                 new TestFilterProvider(),
                 new TestIndexMappingService());
 
-            var sReq = new ClientSearchRequest
+            var sReq = new ClientSearchRequestV2()
             {
                 Query = "nomater"
             };
@@ -147,7 +147,7 @@ namespace UnitTests
                 new TestFilterProvider(),
                 new TestIndexMappingService());
 
-            var sReq = new ClientSearchRequest
+            var sReq = new ClientSearchRequestV2()
             {
                 Query = "nomater"
             };

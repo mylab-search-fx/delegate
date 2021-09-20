@@ -8,6 +8,7 @@ using MyLab.Log.Dsl;
 using MyLab.Search.Delegate.Models;
 using MyLab.Search.Delegate.QueryTools;
 using Nest;
+using FilterRef = MyLab.Search.Delegate.Models.FilterRef;
 
 namespace MyLab.Search.Delegate.Services
 {
@@ -42,7 +43,7 @@ namespace MyLab.Search.Delegate.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<SearchRequest> BuildAsync(ClientSearchRequest clientSearchRequest, string ns, FiltersCall filtersCall)
+        public async Task<SearchRequest> BuildAsync(ClientSearchRequestV2 clientSearchRequest, string ns, FilterRef[] filterRefs)
         {
             var nsOptions = _options.GetNamespace(ns);
 
@@ -56,31 +57,15 @@ namespace MyLab.Search.Delegate.Services
                 Size = limit
             };
 
-            var filtersToAdd = new List<QueryContainer>();
-            
-            string selectedFilterId = clientSearchRequest.Filter ?? nsOptions.DefaultFilter;
 
-            if (selectedFilterId != null)
-            {
-                var selectedFilter = await _filterProvider.ProvideAsync(selectedFilterId, ns);
-                filtersToAdd.Add(selectedFilter);
-            }
-
-            if (filtersCall != null)
-            {
-                foreach (var filterCall in filtersCall)
-                {
-                    var filter = await _filterProvider.ProvideAsync(filterCall.Key, ns, filterCall.Value);
-                    filtersToAdd.Add(filter);
-                }
-            }
+            var filtersToAdd = await LoadFilters(clientSearchRequest.Filters, filterRefs, nsOptions.DefaultFilter, ns);
             
             var queryProc = SearchQueryProcessor.Parse(clientSearchRequest.Query);
             var mapping = await _indexMappingService.GetIndexMappingAsync(ns);
 
             var queryExpressions = queryProc.Process(mapping).ToArray();
 
-            bool hasFilters = filtersToAdd.Count != 0;
+            bool hasFilters = filtersToAdd.Length != 0;
             bool hasQueries = queryExpressions.Length != 0;
 
             if (hasFilters || hasQueries)
@@ -129,7 +114,37 @@ namespace MyLab.Search.Delegate.Services
             return req;
         }
 
-        private QuerySearchStrategy CalcSearchStrategy(ClientSearchRequest clientSearchRequest, DelegateOptions.Namespace nsOptions)
+        private async Task<QueryContainer[]> LoadFilters(FilterRef[] requestFilters, FilterRef[] tokenFilters, string nsOptionsDefaultFilter, string ns)
+        {
+            var fc  =new List<FilterRef>();
+
+            if (tokenFilters != null && tokenFilters.Length != 0)
+            {
+                fc.AddRange(tokenFilters);
+            }
+
+            if (requestFilters != null && requestFilters.Length != 0)
+            {
+                fc.AddRange(requestFilters);
+            }
+            else
+            {
+                if(nsOptionsDefaultFilter != null)
+                    fc.Add(new FilterRef { Id = nsOptionsDefaultFilter});
+            }
+
+            var result = new List<QueryContainer>();
+
+            foreach (var fRef in fc)
+            {
+                var filter = await _filterProvider.ProvideAsync(fRef.Id, ns, fRef.Args);
+                result.Add(filter);
+            }
+
+            return result.ToArray();
+        }
+
+        private QuerySearchStrategy CalcSearchStrategy(ClientSearchRequestV2 clientSearchRequest, DelegateOptions.Namespace nsOptions)
         {
             QuerySearchStrategy queryStrategy;
 

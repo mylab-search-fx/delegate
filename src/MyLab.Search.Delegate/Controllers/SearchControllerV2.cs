@@ -2,41 +2,40 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 using MyLab.Log;
 using MyLab.Search.Delegate.Models;
 using MyLab.Search.Delegate.Services;
 using MyLab.WebErrors;
-using Nest;
 
 namespace MyLab.Search.Delegate.Controllers
 {
     [ApiController]
-    [Route("v1/[controller]")]
-    public class SearchController : ControllerBase
+    [Route("v2/search")]
+    public class SearchControllerV2 : ControllerBase
     {
         private readonly IEsRequestProcessor _requestProcessor;
-        private readonly ILogger<SearchController> _logger;
+        private readonly ILogger<SearchControllerV2> _logger;
 
-        public SearchController(
+        public SearchControllerV2(
             IEsRequestProcessor requestProcessor,
-            ILogger<SearchController> logger)
+            ILogger<SearchControllerV2> logger)
         {
             _requestProcessor = requestProcessor;
             _logger = logger;
         }
 
-        [HttpGet("{namespace}")]
+        [HttpPost("{namespace}")]
         [ErrorToResponse(typeof(ResourceNotFoundException), HttpStatusCode.BadRequest)]
         [ErrorToResponse(typeof(InvalidTokenException), HttpStatusCode.Forbidden)]
         [ErrorToResponse(typeof(TokenizingDisabledException), HttpStatusCode.BadRequest)]
         [ErrorToResponse(typeof(ElasticsearchSearchException), HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Get(
-            [FromQuery]ClientSearchRequest request, 
-            [FromRoute(Name = "namespace")]string ns, 
-            [FromHeader(Name = "X-Search-Token")]string searchToken)
+            [FromBody] ClientSearchRequestV2 request,
+            [FromRoute(Name = "namespace")] string ns,
+            [FromHeader(Name = "X-Search-Token")] string searchToken)
         {
             FoundEntities<FoundEntityContent> result;
 
@@ -50,7 +49,7 @@ namespace MyLab.Search.Delegate.Controllers
                     .AndFactIs("Request namespace", ns);
                 throw;
             }
-            
+
             return Ok(result);
         }
     }

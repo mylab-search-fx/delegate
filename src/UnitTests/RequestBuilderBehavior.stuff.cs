@@ -27,7 +27,7 @@ namespace UnitTests
 
         private class TestFilterProvider : IEsFilterProvider
         {
-            public Task<QueryContainer> ProvideAsync(string filterId, string ns, FilterArgs args = null)
+            public Task<QueryContainer> ProvideAsync(string filterId, string ns, IEnumerable<KeyValuePair<string,string>> args = null)
             {
                 throw new NotImplementedException();
             }

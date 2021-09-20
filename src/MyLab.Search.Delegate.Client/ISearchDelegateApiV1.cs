@@ -1,22 +1,24 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using MyLab.ApiClient;
 
 namespace MyLab.Search.Delegate.Client
 {
     /// <summary>
-    /// Specify token-api
+    /// Describe delegate APIv1
     /// </summary>
     /// <remarks>
     /// Contract key = `search-delegate`
     /// </remarks>
     [Api("v1", Key = "search-delegate")]
+    [Obsolete]
     public interface ISearchDelegateApiV1
     {
         /// <summary>
         /// Creates new search token
         /// </summary>
         [Post("token")]
-        Task<string> CreateSearchTokenAsync([JsonContent] TokenRequest tokenRequest);
+        Task<string> CreateSearchTokenAsync([JsonContent] TokenRequestV1 tokenRequest);
 
         /// <summary>
         /// Performs searching
