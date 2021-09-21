@@ -1,5 +1,5 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MyLab.ApiClient.Test;
@@ -11,9 +11,8 @@ using MyLab.Search.EsTest;
 using Nest;
 using Xunit;
 using Xunit.Abstractions;
-using FilterArgs = MyLab.Search.Delegate.Models.FilterArgs;
 
-namespace FunctionTests
+namespace FunctionTests.V2
 {
     public partial class DelegateBehavior :
         IClassFixture<EsIndexFixture<TestEntity, TestConnectionProvider>>,
@@ -21,7 +20,7 @@ namespace FunctionTests
     {
         private readonly EsIndexFixture<TestEntity, TestConnectionProvider> _esFxt;
         private readonly ITestOutputHelper _output;
-        private readonly TestApi<Startup, ISearchDelegateApiV1> _searchClient;
+        private readonly TestApi<Startup, ISearchDelegateApiV2> _searchClient;
 
         public DelegateBehavior(EsIndexFixture<TestEntity, TestConnectionProvider> esFxt, ITestOutputHelper output)
         {
@@ -30,7 +29,7 @@ namespace FunctionTests
 
             _output = output;
 
-            _searchClient = new TestApi<Startup, ISearchDelegateApiV1>()
+            _searchClient = new TestApi<Startup, ISearchDelegateApiV2>()
             {
                 ServiceOverrider = ServiceOverrider,
                 Output = output
@@ -85,7 +84,7 @@ namespace FunctionTests
                 _query = query;
             }
 
-            public Task<QueryContainer> ProvideAsync(string filterId, string ns, FilterArgs args = null)
+            public Task<QueryContainer> ProvideAsync(string filterId, string ns, IEnumerable<KeyValuePair<string, string>> args = null)
             {
                 return Task.FromResult(new QueryContainer(_query));
             }

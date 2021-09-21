@@ -52,9 +52,9 @@ namespace MyLab.Search.Delegate.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<FoundEntities<FoundEntityContent>> ProcessSearchRequestAsync(ClientSearchRequest clientRequest, string ns, string searchToken)
+        public async Task<FoundEntities<FoundEntityContent>> ProcessSearchRequestAsync(ClientSearchRequestV2 clientRequest, string ns, string searchToken)
         {
-            NamespaceSettings namespaceSettings = null;
+            NamespaceSettingsV2 namespaceSettings = null;
 
             if (_tokenService.IsEnabled())
             {

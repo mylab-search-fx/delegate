@@ -38,7 +38,7 @@ namespace MyLab.Search.Delegate.Services
             return _options.Token != null;
         }
 
-        public string CreateSearchToken(TokenRequest request)
+        public string CreateSearchToken(TokenRequestV2 request)
         {
             if(!IsEnabled())
                 throw new TokenizingDisabledException("Token factoring disabled");
@@ -59,7 +59,7 @@ namespace MyLab.Search.Delegate.Services
             }
         }
 
-        public NamespaceSettings ValidateAndExtractSettings(string token, string ns)
+        public NamespaceSettingsV2 ValidateAndExtractSettings(string token, string ns)
         {
             if (!IsEnabled())
                 throw new TokenizingDisabledException("Token factoring disabled");
@@ -98,28 +98,40 @@ namespace MyLab.Search.Delegate.Services
                 throw new InvalidTokenException("Namespaces Claim not found in the Search Token");
             }
 
-            NamespaceSettings namespaceSettings;
+            NamespaceSettingsV2 namespaceSettings;
             try
             {
-                var nss = JsonConvert.DeserializeObject<NamespaceSettingsMap>(namespacedClaim.Value);
+                var normVal = namespacedClaim.Value.Trim();
 
-                nss.TryGetValue(ns, out namespaceSettings);
+                NamespaceSettingsV2[] nss;
+                    
+                if(normVal.StartsWith("["))
+                {
+                    nss = JsonConvert.DeserializeObject<NamespaceSettingsV2[]>(namespacedClaim.Value);
+                }
+                else
+                {
+                    var nsSingle = JsonConvert.DeserializeObject<NamespaceSettingsV2>(namespacedClaim.Value);
+                    nss = new[] {nsSingle};
+                }
+
+                namespaceSettings = nss.FirstOrDefault(n => n.Name == ns);
             }
             catch (JsonException e)
             {
-                throw new InvalidTokenException("namespaces claim from Search Token has wrong format", e)
+                throw new InvalidTokenException("Namespaces claim from Search Token has wrong format", e)
                     .AndFactIs("token", namespacedClaim.Value);
             }
 
             return namespaceSettings;
         }
 
-        private JwtPayload BuildPayload(TokenRequest request, string namespaceSettings)
+        private JwtPayload BuildPayload(TokenRequestV2 request, string namespaceSettings)
         {
-            var payloadLines = new List<string>();
-
-            payloadLines.Add($"\"{NamespaceSettingsClaimName}\": {namespaceSettings}");
-
+            var payloadLines = new List<string>
+            {
+                $"\"{NamespaceSettingsClaimName}\": {namespaceSettings}"
+            };
 
             if (_options.Token.ExpirySec.HasValue)
             {
@@ -129,7 +141,7 @@ namespace MyLab.Search.Delegate.Services
 
             if (request.Namespaces != null)
             {
-                var namespaceNames = request.Namespaces.Select(ns => "\"" + ns.Key + "\"");
+                var namespaceNames = request.Namespaces.Select(ns => "\"" + ns.Name + "\"");
                 payloadLines.Add($"\"aud\": [{string.Join(',', namespaceNames)}]");
             }
 

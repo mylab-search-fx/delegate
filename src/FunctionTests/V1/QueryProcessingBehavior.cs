@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Xunit;
 
-namespace FunctionTests
+namespace FunctionTests.V1
 {
     public partial class QueryProcessingBehavior 
     {

@@ -10,7 +10,7 @@ using MyLab.Search.EsTest;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FunctionTests
+namespace FunctionTests.V1
 {
     partial class QueryProcessingBehavior :
         IClassFixture<EsFixture<TestConnectionProvider>>,

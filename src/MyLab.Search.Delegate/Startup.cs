@@ -9,6 +9,7 @@ using MyLab.Search.Delegate.Services;
 using MyLab.Search.EsAdapter;
 using MyLab.StatusProvider;
 using MyLab.WebErrors;
+using Newtonsoft.Json;
 
 namespace MyLab.Search.Delegate
 {
@@ -36,7 +37,10 @@ namespace MyLab.Search.Delegate
                 .AddEsTools(Configuration, "ES")
                 .Configure<DelegateOptions>(Configuration.GetSection("Delegate"))
                 .AddControllers(o => o.AddExceptionProcessing())
-                .AddJsonOptions(jsonOpts => jsonOpts.JsonSerializerOptions.IgnoreNullValues = true);
+                    .AddNewtonsoftJson(opt =>
+                {
+                    opt.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

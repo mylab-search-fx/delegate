@@ -2,7 +2,7 @@
 
 `Docker` образ: [![Docker image](https://img.shields.io/static/v1?label=docker&style=flat&logo=docker&message=image&color=blue)](https://github.com/mylab-search-fx/Delegate/pkgs/container/Delegate)
 
-Спецификация `API`: [![API specification](https://img.shields.io/badge/OAS3-oas3%20specifiecation-green)](https://app.swaggerhub.com/apis/ozzy/mylab-search-delegate-api/1)
+Спецификация `API` : [![API specification](https://img.shields.io/badge/OAS3-v2 (actual)-green)](https://app.swaggerhub.com/apis/ozzy/mylab-search-delegate-api/2) [![OAS v1 (deprecated)](https://img.shields.io/badge/OAS3-v1 (deprecated)-lightgrey)](https://app.swaggerhub.com/apis/ozzy/mylab-search-delegate-api/1) 
 
 Клиент [![NuGet](https://img.shields.io/nuget/v/MyLab.Search.Delegate.Client.svg)](https://www.nuget.org/packages/MyLab.Search.Delegate.Client/)
 
@@ -96,46 +96,64 @@
 
 ```json
 {
-  "namespaces": {
-    "orders": {
-      "filters": {
-        "id-filter": {
-          "from": "6",
-          "to": "8"
+  "namespaces": [
+    {
+      "name": "orders",
+      "filters": [
+        {
+          "id": "id-filter",
+          "args": {
+            "from": "6",
+            "to": "8"
+          }
         }
-      }
+      ]
     },
-    "users": {
-      "filters": {
-        "my-region": {
-          "region": "1022"
+    {
+      "name": "users",
+      "filters": [
+        {
+          "id": "my-region",
+          "args": {
+            "region": "1022"
+          }
         },
-        "enabled-only": {}
-      }
+        {
+          "id": "enabled-only"
+        }
+      ]
     }
-  }
+  ]
 }
 ```
 
 В этом примере:
 
 * `namespces` - настройки пространств имён;
-  * `orders` - настройки пространства имён `orders`:
+  * `[0]` - настройки пространства имён `orders`
+    * `name` - имя пространства имён
     * `filters` - настройки фильтров:
-      * `id-filter` - настройки фильтра с идентификатором `id-filter`:
-        * `from` - значение аргумента`from`;
-        * `to` - значение аргумента`to`;
-  * `users` - настройки пространства имён `users`:
+      * `[0]` - настройки фильтра с идентификатором `id-filter`:
+        * `id` - идентификатор фильтра;
+        * `args` - аргументы фильтра:
+          * `from` - значение аргумента`from`;
+          * `to` - значение аргумента`to`;
+  * `[1]` - настройки пространства имён `users`:
+    * `name` - имя пространства имён
     * `filters` - настройки фильтров:
-      * `my-region` - настройки фильтра с идентификатором `my-region`:
-        * `region` - значение аргумента`region`;
-      * `enabled-only` - настройки фильтра с идентификатором `enabled-only` (без аргументов).
+      * `[0]` - настройки фильтра с идентификатором `my-region`:
+        * `id` - идентификатор фильтра  `my-region`:
+        * `args` - аргументы фильтра:
+          * `region` - значение аргумента `region`;
+      * `[1]` настройки фильтра с идентификатором `enabled-only`:
+        * `id` - идентификатор фильтра `enabled-only`.
 
 ### Токен доступа
 
 Токен поиска - это [JWT](https://jwt.io/) токен, содержащий следующие поля:
 
 * `exp` -  дата+время экспирации (опционально);
+* `aud` - пространства имён к которым имеет доступ клиент;
 * `mylab:search-dlgt:filters` - список фильтров и аргументов к ним.
 
 Пример содержательной части токена в `json`:
@@ -147,18 +165,22 @@
     "users",
     "orders"
   ],
-  "mylab:search-dlgt:namespaces": {
-    "users": {
-      "filters": {}
+  "mylab:search-dlgt:namespaces": [
+    {
+      "name": "users"
     },
-    "orders": {
-      "filters": {
-          "only_my_orders": {
-              "user": "user@domain.com"
+    {
+      "name": "orders",
+      "filters": [
+        {
+          "id": "only_my_orders",
+          "args": {
+            "user": "user@domain.com"
           }
-      }
+        }
+      ]
     }
-  }
+  ]
 }
 ```
 
@@ -167,13 +189,15 @@
 * `aud` - список пространств имён, к которым разрешает доступ токен;
 * `exp` - дата и время истечения срока действия токена в секундах от начала эпохи (1970-01-01);
 * `mylab:search-dlgt:namespaces` - настройки сервиса `Delegate`:
-  * `users` - настройки доступа к пространству имён `users`:
-    * `filters` - список фильтров, которые необходимо дополнительно применять при поиске в пространстве имён `users` (нет фильтров, т.е. без дополнительных ограничений);
-  * `orders` - настройки доступа к пространству имён `orders`:
+  * `[0]` - настройки доступа к пространству имён `users` (нет фильтров, т.е. без дополнительных ограничений):
+    * `name` - имя пространства имён `users`;
+  * `[1]` - настройки доступа к пространству имён `orders`:
+    * `name` - имя пространства имён `orders`;
     * `filters` - список фильтров, которые необходимо дополнительно применять при поиске в пространстве имён `orders`:
-      * `only_my_orders` - литеральный идентификатор фильтра
-        * `user` - аргумент фильтра (определяется в содержании фильтра)
-          * `user@domain.com` - значение аргумента, которое будет добавлено в фильтр.
+      * `[0]`:
+        * `id` - литеральный идентификатор фильтра `only_my_orders`
+        * `args` - аргументы фильтра:
+          * `user` - значение аргумента `user`, которое будет добавлено в фильтр.
 
 ## Запрос поиска
 
@@ -182,15 +206,35 @@
 Запрос клиента осуществляется следующим запросом:
 
 ```http
-GET /v1/search/[namespace]?query=...&filter=...&sort=...$offset=...&limit=...&query-mode=...
+POST /v2/search/[namespace]
 
 X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe7pls5nsO8khWl6zHOnY4
+
+{
+  "query": "something I want to search",
+  "sort": "early_first",
+  "offset": 0,
+  "limit": 10,
+  "queryMode": "should",
+  "filters": [
+    {
+      "id": "only_my",
+      "args": {
+        "user": "user@host.ru",
+        "less_then": 10
+      }
+    },
+    {
+      "id": "filter_without_args"
+    }
+  ]
+}
 ```
 
 , где
 
 * `namespace` (обязательный параметр) - пространство имён. Характеризует целевую сущность для поиска . Например, `orders`;
-* `filter` - литеральный идентификатор фильтра;
+* `filters` - список фильтров;
 * `sort`- литеральный идентификатор сортировки;
 * `offset` - сдвиг выборки;
 * `limit` - ограничение размера выборки;
@@ -201,7 +245,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 Результат поиска - список объектов, описывающих найденные сущности. 
 
-```
+```json
 [
   {
     "content": { ... },
@@ -225,7 +269,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 После получения запроса от клиента, `Delegate` формирует на его основе запрос в `Elasticsearch`.  Условный шаблон запроса выглядит на примере ниже:
 
-```
+```json
 {
   "from": 0,
   "size": 10,
@@ -319,7 +363,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 Пример фильтра:
 
-```
+```json
 {
   "range": {
     "Id": {
