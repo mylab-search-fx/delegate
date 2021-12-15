@@ -67,6 +67,8 @@ namespace FunctionTests.V2
 
         string CreateIndexName() => "test-" + Guid.NewGuid().ToString("N");
 
+        Task<IAsyncDisposable> CreateIndexAsync(string indexName) => _esFxt.Manager.CreateIndexAsync(indexName, c => c.Map<TestEntity>(m => m.AutoMap()));
+
         public async Task InitializeAsync()
         {
         }
