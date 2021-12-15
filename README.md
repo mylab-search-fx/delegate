@@ -1,10 +1,12 @@
 # MyLab.Search.Delegate
 
-`Docker` образ: [![Docker image](https://img.shields.io/static/v1?label=docker&style=flat&logo=docker&message=image&color=blue)](https://github.com/mylab-search-fx/Delegate/pkgs/container/Delegate)
+`Docker` образ сервиса:[![Docker image](https://img.shields.io/static/v1?label=docker&style=flat&logo=docker&message=image&color=blue)](https://github.com/mylab-search-fx/Delegate/pkgs/container/Delegate)
 
-Спецификация `API` : [![API specification](https://img.shields.io/badge/OAS3-v2 (actual)-green)](https://app.swaggerhub.com/apis/ozzy/mylab-search-delegate-api/2) [![OAS v1 (deprecated)](https://img.shields.io/badge/OAS3-v1 (deprecated)-lightgrey)](https://app.swaggerhub.com/apis/ozzy/mylab-search-delegate-api/1) 
+Спецификация `API`: [![API specification](https://img.shields.io/badge/OAS3-v2%20(actual)-green)](https://app.swaggerhub.com/apis/ozzy/mylab-search-delegate-api/2) [![OAS v1 (deprecated)](https://img.shields.io/badge/OAS3-v1%20(deprecated)-lightgrey)](https://app.swaggerhub.com/apis/ozzy/mylab-search-delegate-api/1) 
 
-Клиент [![NuGet](https://img.shields.io/nuget/v/MyLab.Search.Delegate.Client.svg)](https://www.nuget.org/packages/MyLab.Search.Delegate.Client/)
+Клиент на `.NETCore 3.1`: [![NuGet](https://img.shields.io/nuget/v/MyLab.Search.Delegate.Client.svg)](https://www.nuget.org/packages/MyLab.Search.Delegate.Client/)
+
+Лицензия:  [![License](https://img.shields.io/github/license/mylab-search-fx/delegate)](./LICENSE)
 
 ## Обзор
 
