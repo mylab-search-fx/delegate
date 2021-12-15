@@ -295,7 +295,7 @@ namespace FunctionTests.V2
         }
 
         [Fact]
-        public async Task ShouldFindTextWithDash()
+        public async Task ShouldFindTextWithDashInKeywords()
         {
             //Arrange
             var indexName = CreateIndexName();
@@ -306,9 +306,9 @@ namespace FunctionTests.V2
 
             await indexer.IndexManyAsync(new[]
             {
-                new TestEntity{ Id = 1, Value = "foo"},
-                new TestEntity{ Id = 2, Value = "bar"},
-                new TestEntity{ Id = 3, Value = "foo-bar"}
+                new TestEntity{ Id = 1, Keyword = "foo"},
+                new TestEntity{ Id = 2, Keyword  = "bar"},
+                new TestEntity{ Id = 3, Keyword  = "foo-bar"}
             });
             await Task.Delay(2000);
 
@@ -323,6 +323,35 @@ namespace FunctionTests.V2
             Assert.NotNull(found);
             Assert.Single(found.Entities);
             Assert.Equal(3, found.Entities[0].Content.Id);
+        }
+
+        [Fact]
+        public async Task ShouldFindPartOfTextWithDashInText()
+        {
+            //Arrange
+            var indexName = CreateIndexName();
+
+            await using var disposer = await CreateIndexAsync(indexName);
+
+            var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
+
+            await indexer.IndexManyAsync(new[]
+            {
+                new TestEntity{ Id = 1, Value = "foo"},
+                new TestEntity{ Id = 2, Value  = "bar"}
+            });
+            await Task.Delay(2000);
+
+            var api = StartApi(indexName);
+
+            var req = new ClientSearchRequestV2 { Query = "foo-bar" };
+
+            //Act
+            var found = await api.SearchAsync<TestEntity>("test", req);
+
+            //Assert
+            Assert.NotNull(found);
+            Assert.Empty(found.Entities);
         }
 
     }
