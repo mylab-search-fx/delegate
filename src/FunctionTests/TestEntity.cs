@@ -12,7 +12,7 @@ namespace FunctionTests
         [Keyword(Name = "Keyword")]
         public string Keyword { get; set; }
 
-        [Text(Name = "Value")]
+        [Text(Name = "Value", Analyzer = "whitespace")]
         public string Value { get; set; }
 
         [Date(Name = "Date")]

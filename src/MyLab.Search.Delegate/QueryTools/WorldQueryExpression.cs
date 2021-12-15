@@ -41,6 +41,7 @@ namespace MyLab.Search.Delegate.QueryTools
                         {
                             Field = property.Name.Name,
                             Query = Literal,
+                            Analyzer = "whitespace"
                         },
                         new RegexpQuery
                         {

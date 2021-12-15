@@ -13,7 +13,7 @@ namespace FunctionTests.V2
             //Arrange
             var indexName = CreateIndexName();
 
-            await using var disposer = await _esFxt.Manager.CreateIndexAsync(indexName);
+            await using var disposer = await CreateIndexAsync(indexName);
 
             var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
 
@@ -44,7 +44,7 @@ namespace FunctionTests.V2
             //Arrange
             var indexName = CreateIndexName();
 
-            await using var disposer = await _esFxt.Manager.CreateIndexAsync(indexName);
+            await using var disposer = await CreateIndexAsync(indexName);
 
             var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
 
@@ -78,7 +78,7 @@ namespace FunctionTests.V2
             //Arrange
             var indexName = CreateIndexName();
 
-            await using var disposer = await _esFxt.Manager.CreateIndexAsync(indexName);
+            await using var disposer = await CreateIndexAsync(indexName);
 
             var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
 
@@ -111,7 +111,7 @@ namespace FunctionTests.V2
             //Arrange
             var indexName = CreateIndexName();
 
-            await using var disposer = await _esFxt.Manager.CreateIndexAsync(indexName);
+            await using var disposer = await CreateIndexAsync(indexName);
 
             var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
 
@@ -145,7 +145,7 @@ namespace FunctionTests.V2
             //Arrange
             var indexName = CreateIndexName();
 
-            await using var disposer = await _esFxt.Manager.CreateIndexAsync(indexName);
+            await using var disposer = await CreateIndexAsync(indexName);
 
             var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
 
@@ -179,7 +179,7 @@ namespace FunctionTests.V2
             //Arrange
             var indexName = CreateIndexName();
 
-            await using var disposer = await _esFxt.Manager.CreateIndexAsync(indexName);
+            await using var disposer = await CreateIndexAsync(indexName);
 
             var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
 
@@ -215,7 +215,7 @@ namespace FunctionTests.V2
             //Arrange
             var indexName = CreateIndexName();
 
-            await using var disposer = await _esFxt.Manager.CreateIndexAsync(indexName);
+            await using var disposer = await CreateIndexAsync(indexName);
 
             var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
 
@@ -259,7 +259,7 @@ namespace FunctionTests.V2
             //Arrange
             var indexName = CreateIndexName();
 
-            await using var disposer = await _esFxt.Manager.CreateIndexAsync(indexName);
+            await using var disposer = await CreateIndexAsync(indexName);
 
             var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
 
@@ -292,6 +292,37 @@ namespace FunctionTests.V2
             Assert.Equal(4123, found.Entities[0].Content.Id);
             Assert.Equal(3123, found.Entities[1].Content.Id);
             Assert.Equal(2123, found.Entities[2].Content.Id);
+        }
+
+        [Fact]
+        public async Task ShouldFindTextWithDash()
+        {
+            //Arrange
+            var indexName = CreateIndexName();
+
+            await using var disposer = await CreateIndexAsync(indexName);
+
+            var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
+
+            await indexer.IndexManyAsync(new[]
+            {
+                new TestEntity{ Id = 1, Value = "foo"},
+                new TestEntity{ Id = 2, Value = "bar"},
+                new TestEntity{ Id = 3, Value = "foo-bar"}
+            });
+            await Task.Delay(2000);
+
+            var api = StartApi(indexName);
+
+            var req = new ClientSearchRequestV2 { Query = "foo-bar" };
+
+            //Act
+            var found = await api.SearchAsync<TestEntity>("test", req);
+
+            //Assert
+            Assert.NotNull(found);
+            Assert.Single(found.Entities);
+            Assert.Equal(3, found.Entities[0].Content.Id);
         }
 
     }
