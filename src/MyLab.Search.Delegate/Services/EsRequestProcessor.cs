@@ -14,6 +14,7 @@ using MyLab.Search.Delegate.Tools;
 using MyLab.Search.EsAdapter;
 using Nest;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MyLab.Search.Delegate.Services
 {
@@ -113,7 +114,7 @@ namespace MyLab.Search.Delegate.Services
                 Entities = foundEntities.ToArray(),
                 Total = res.HitsMetadata.Total.Value,
                 EsRequest = _options.Debug 
-                    ? esRequest
+                    ? JObject.Parse(strReq)
                     : null
             };
         }

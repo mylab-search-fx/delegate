@@ -231,6 +231,7 @@ namespace FunctionTests.V2
             var request = new ClientSearchRequestV2
             {
                 Limit = 1,
+                Query = "Val_1"
             };
 
             //Act
