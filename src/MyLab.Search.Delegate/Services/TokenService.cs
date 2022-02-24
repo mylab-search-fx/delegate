@@ -91,39 +91,39 @@ namespace MyLab.Search.Delegate.Services
                 throw new InvalidTokenException("Search token validation failed", e);
             }
 
-            var namespacedClaim = tokenPrincipal.Claims.FirstOrDefault(c => c.Type == NamespaceSettingsClaimName);
+            var namespaceClaims = tokenPrincipal.Claims
+                .Where(c => c.Type == NamespaceSettingsClaimName)
+                .Select(ParseClaim)
+                .ToArray();
 
-            if (namespacedClaim == null)
+            if (namespaceClaims.Length == 0)
             {
-                throw new InvalidTokenException("Namespaces Claim not found in the Search Token");
+                throw new InvalidTokenException("Namespace claims not found in the Search Token");
             }
 
-            NamespaceSettingsV2 namespaceSettings;
-            try
-            {
-                var normVal = namespacedClaim.Value.Trim();
+            var foundNs = namespaceClaims.FirstOrDefault(c => c.Name == ns);
 
-                NamespaceSettingsV2[] nss;
-                    
-                if(normVal.StartsWith("["))
+            if (foundNs == null)
+            {
+                throw new InvalidTokenException("Context namespace claim not found in the Search Token");
+            }
+
+            return foundNs;
+
+            NamespaceSettingsV2 ParseClaim(Claim claim)
+            {
+                try
                 {
-                    nss = JsonConvert.DeserializeObject<NamespaceSettingsV2[]>(namespacedClaim.Value);
+                    var normVal = claim.Value.Trim();
+
+                    return JsonConvert.DeserializeObject<NamespaceSettingsV2>(normVal);
                 }
-                else
+                catch (JsonException e)
                 {
-                    var nsSingle = JsonConvert.DeserializeObject<NamespaceSettingsV2>(namespacedClaim.Value);
-                    nss = new[] {nsSingle};
+                    throw new InvalidTokenException("Namespaces claim from Search Token has wrong format", e)
+                        .AndFactIs("token", claim.Value);
                 }
-
-                namespaceSettings = nss.FirstOrDefault(n => n.Name == ns);
             }
-            catch (JsonException e)
-            {
-                throw new InvalidTokenException("Namespaces claim from Search Token has wrong format", e)
-                    .AndFactIs("token", namespacedClaim.Value);
-            }
-
-            return namespaceSettings;
         }
 
         private JwtPayload BuildPayload(TokenRequestV2 request, string namespaceSettings)
