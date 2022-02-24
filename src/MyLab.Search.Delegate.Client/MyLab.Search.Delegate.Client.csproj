@@ -7,9 +7,9 @@
     <Copyright>Copyright (c) 2021 Andrey Osintsev &lt;ozzy.ext@gmail.com&gt;</Copyright>
     <Product>MyLab.Search.Delegate.Client</Product>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.4.4</Version>
-    <AssemblyVersion>1.4.4.1612</AssemblyVersion>
-    <FileVersion>1.4.4.1612</FileVersion>
+    <Version>1.4.5</Version>
+    <AssemblyVersion>1.4.5.2402</AssemblyVersion>
+    <FileVersion>1.4.5.2402</FileVersion>
     <PackageProjectUrl>https://github.com/mylab-search-fx/delegate</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mylab-search-fx/delegate.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
