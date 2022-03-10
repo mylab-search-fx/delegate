@@ -78,9 +78,7 @@ namespace MyLab.Search.Delegate.Services
                     {
                         if (!_options.Token.ExpirySec.HasValue)
                             return true;
-
-                        var now = DateTime.Now;
-                        return expires >= now;
+                        return expires >= DateTime.UtcNow;
                     },
                     IssuerSigningKey = _securityKey.Value,
                     ValidAudience = ns
@@ -135,7 +133,7 @@ namespace MyLab.Search.Delegate.Services
 
             if (_options.Token.ExpirySec.HasValue)
             {
-                var expDt = (long)(DateTime.Now.AddSeconds(_options.Token.ExpirySec.Value) - _epoch).TotalSeconds;
+                var expDt = (long)(DateTime.UtcNow.AddSeconds(_options.Token.ExpirySec.Value) - _epoch).TotalSeconds;
                 payloadLines.Add($"\"exp\": {expDt}");
             }
 
