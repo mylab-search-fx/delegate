@@ -27,7 +27,7 @@ namespace MyLab.Search.Delegate.Client
         [Post("search/{namespace}")]
         Task<FoundEntities<TRes>> SearchAsync<TRes>(
             [Path("namespace")] string ns,
-            [JsonContent] ClientSearchRequestV2 searchRequest,
+            [JsonContent] ClientSearchRequestV3 searchRequest,
             [Header("X-Search-Token")] string searchToken = null);
     }
 }

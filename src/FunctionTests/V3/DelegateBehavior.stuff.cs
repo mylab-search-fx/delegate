@@ -99,7 +99,7 @@ namespace FunctionTests.V3
                 _sort = sort;
             }
 
-            public Task<ISort> ProvideAsync(string sortId, string ns)
+            public Task<ISort> ProvideAsync(string sortId, string ns, IEnumerable<KeyValuePair<string, string>> args = null)
             {
                 return Task.FromResult(_sort);
             }
