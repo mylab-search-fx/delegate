@@ -93,12 +93,13 @@ namespace MyLab.Search.Delegate.Services
                 req.Query = boolModel;
             }
 
+            var sorts = new List<ISort>();
+
             string sortId = clientSearchRequest.Sort?.Id ?? nsOptions.DefaultSort;
 
             if (sortId != null)
             {
                 var sort = await _esSortProvider.ProvideAsync(sortId, ns, clientSearchRequest.Sort?.Args);
-                var sorts = new List<ISort> { sort };
 
                 if (req.Query != null && clientSearchRequest.Sort == null)
                 {
@@ -107,10 +108,15 @@ namespace MyLab.Search.Delegate.Services
                         Field = "_score",
                         Order = SortOrder.Descending
                     });
+
                 }
-                
-                req.Sort = sorts;
+
+                sorts.Add(sort);
             }
+
+            req.Sort = sorts;
+
+            
 
             return req;
         }

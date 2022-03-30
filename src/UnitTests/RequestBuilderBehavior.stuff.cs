@@ -19,7 +19,7 @@ namespace UnitTests
 
         private class TestSortProvider : IEsSortProvider
         {
-            public Task<ISort> ProvideAsync(string sortId, string ns)
+            public Task<ISort> ProvideAsync(string sortId, string ns, IEnumerable<KeyValuePair<string, string>> args = null)
             {
                 throw new NotImplementedException();
             }

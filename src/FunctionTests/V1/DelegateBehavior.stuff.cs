@@ -69,7 +69,7 @@ namespace FunctionTests.V1
         {
             await _esFxt.Indexer.IndexManyAsync(CreateTestEntities());
 
-            await Task.Delay(2000);
+            await Task.Delay(1000);
         }
 
         public async Task DisposeAsync()

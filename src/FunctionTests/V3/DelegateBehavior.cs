@@ -541,6 +541,45 @@ namespace FunctionTests.V3
             }
         }
 
+        [Fact]
+        public async Task ShouldApplySortingParameters()
+        {
+            //Arrange
+            var cl = _searchClient.StartWithProxy();
+
+            var ascSort = new SortingRef
+            {
+                Id = "idOrderParam",
+                Args = new Dictionary<string, string>
+                {
+                    { "direction", "asc" }
+                }
+            };
+
+            var descSort = new SortingRef
+            {
+                Id = "idOrderParam",
+                Args = new Dictionary<string, string>
+                {
+                    { "direction", "desc" }
+                }
+            };
+
+            //Act
+
+            var ascFound = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV3{ Sort = ascSort });
+            var descFound = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV3{ Sort = descSort });
+
+            //Assert
+            Assert.NotNull(ascSort);
+            Assert.NotEmpty(ascFound.Entities);
+            Assert.Equal(1, ascFound.Entities[0].Content.Id);
+
+            Assert.NotNull(descFound);
+            Assert.NotEmpty(descFound.Entities);
+            Assert.Equal(20, descFound.Entities[0].Content.Id);
+        }
+
         private IEnumerable<TestEntity> CreateTestEntities()
         {
             return Enumerable

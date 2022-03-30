@@ -26,10 +26,9 @@ namespace MyLab.Search.Delegate.Models
                 Query = Query,
                 QuerySearchStrategy = QuerySearchStrategy,
                 Offset = Offset,
-                Sort = new SortingRef
-                {
-                    Id = Sort
-                },
+                Sort = Sort != null
+                    ? new SortingRef { Id = Sort }
+                    : null,
                 Limit = Limit
             };
 
