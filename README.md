@@ -2,7 +2,7 @@
 
 `Docker` образ сервиса:[![Docker image](https://img.shields.io/static/v1?label=docker&style=flat&logo=docker&message=image&color=blue)](https://github.com/mylab-search-fx/Delegate/pkgs/container/Delegate)
 
-Спецификация `API`: [![API specification](https://img.shields.io/badge/OAS3-v2%20(actual)-green)](https://app.swaggerhub.com/apis/ozzy/mylab-search-delegate-api/2) [![OAS v1 (deprecated)](https://img.shields.io/badge/OAS3-v1%20(deprecated)-lightgrey)](https://app.swaggerhub.com/apis/ozzy/mylab-search-delegate-api/1) 
+Спецификация `API`: [![API specification](https://img.shields.io/badge/OAS3-v3%20(actual)-green)](https://app.swaggerhub.com/apis/ozzy/mylab-search-delegate-api/3) [![OAS v1 (deprecated)](https://img.shields.io/badge/OAS3-v2%20(deprecated)-lightgrey)](https://app.swaggerhub.com/apis/ozzy/mylab-search-delegate-api/2) [![OAS v1 (deprecated)](https://img.shields.io/badge/OAS3-v1%20(deprecated)-lightgrey)](https://app.swaggerhub.com/apis/ozzy/mylab-search-delegate-api/1) 
 
 Клиент на `.NETCore 3.1`: [![NuGet](https://img.shields.io/nuget/v/MyLab.Search.Delegate.Client.svg)](https://www.nuget.org/packages/MyLab.Search.Delegate.Client/)
 
@@ -208,13 +208,15 @@
 Запрос клиента осуществляется следующим запросом:
 
 ```http
-POST /v2/search/[namespace]
+POST /v3/search/[namespace]
 
 X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe7pls5nsO8khWl6zHOnY4
 
 {
   "query": "something I want to search",
-  "sort": "early_first",
+  "sort": {
+  	"id": "early_first"
+  },
   "offset": 0,
   "limit": 10,
   "queryMode": "should",
@@ -357,8 +359,6 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 ##### Инициализация фильтра
 
-Поддерживается только для фильтров, указанных в токене поиска.
-
 После загрузки, фильтр инициализируется аргументами. Аргументы - список именованных значений.
 
 Инициализация фильтра заключается в том, что в `json` фильтра заменяются тэги с именами аргументов на их значения.
@@ -423,6 +423,24 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 ```
 
 В этом примере сортировка описывает очерёдность по полю `Id` в обратном порядке.
+
+##### Инициализация сортировки
+
+После загрузки, сортировка инициализируется аргументами. Аргументы - список именованных значений.
+
+Инициализация сортировки заключается в том, что в `json` сотрировки заменяются тэги с именами аргументов на их значения.
+
+Пример фильтра:
+
+```json
+{
+  "Id": {
+     "order": "{direction}"
+  }
+}
+```
+
+В этом фильтре обозначен аргумент `direction`, который можно указать как `asc`, так и `desc`.
 
 ##### Порядок сортировок
 

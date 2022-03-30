@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using MyLab.Log;
@@ -22,7 +23,7 @@ namespace MyLab.Search.Delegate.Services
             _options = options;
         }
 
-        public async Task<ISort> ProvideAsync(string sortId, string ns)
+        public async Task<ISort> ProvideAsync(string sortId, string ns, IEnumerable<KeyValuePair<string, string>> args = null)
         {
             var pathNs = Path.Combine(_options.SortPath, ns, sortId + ".json");
             var pathBase = Path.Combine(_options.SortPath, sortId + ".json");
@@ -48,7 +49,24 @@ namespace MyLab.Search.Delegate.Services
 
             var str = await File.ReadAllTextAsync(resultPath);
 
+            if (args != null)
+            {
+                str = ApplyToRawSorting(args, str);
+            }
+
             return await EsSerializer.Instance.DeserializeAsync<ISort>(str);
+        }
+
+        static string ApplyToRawSorting(IEnumerable<KeyValuePair<string, string>> args, string rawSorting)
+        {
+            var str = rawSorting;
+
+            foreach (var sortingArg in args)
+            {
+                str = str.Replace("{" + sortingArg.Key + "}", sortingArg.Value);
+            }
+
+            return str;
         }
     }
 }

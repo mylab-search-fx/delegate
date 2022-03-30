@@ -40,7 +40,7 @@ namespace MyLab.Search.Delegate.Controllers
 
             try
             {
-                result = await _requestProcessor.ProcessSearchRequestAsync(request.ToV2(), ns, searchToken);
+                result = await _requestProcessor.ProcessSearchRequestAsync(request.ToV3(), ns, searchToken);
             }
             catch (Exception e)
             {

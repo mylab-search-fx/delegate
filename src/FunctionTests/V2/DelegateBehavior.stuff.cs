@@ -67,7 +67,7 @@ namespace FunctionTests.V2
         {
             await _esFxt.Indexer.IndexManyAsync(CreateTestEntities());
 
-            await Task.Delay(2000);
+            await Task.Delay(1000);
         }
 
         public async Task DisposeAsync()
@@ -99,7 +99,7 @@ namespace FunctionTests.V2
                 _sort = sort;
             }
 
-            public Task<ISort> ProvideAsync(string sortId, string ns)
+            public Task<ISort> ProvideAsync(string sortId, string ns, IEnumerable<KeyValuePair<string, string>> args = null)
             {
                 return Task.FromResult(_sort);
             }

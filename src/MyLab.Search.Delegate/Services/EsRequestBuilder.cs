@@ -43,7 +43,7 @@ namespace MyLab.Search.Delegate.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<SearchRequest> BuildAsync(ClientSearchRequestV2 clientSearchRequest, string ns, FilterRef[] filterRefs)
+        public async Task<SearchRequest> BuildAsync(ClientSearchRequestV3 clientSearchRequest, string ns, FilterRef[] filterRefs)
         {
             var nsOptions = _options.GetNamespace(ns);
 
@@ -93,11 +93,13 @@ namespace MyLab.Search.Delegate.Services
                 req.Query = boolModel;
             }
 
-            string sortId = clientSearchRequest.Sort ?? nsOptions.DefaultSort;
+            var sorts = new List<ISort>();
+
+            string sortId = clientSearchRequest.Sort?.Id ?? nsOptions.DefaultSort;
+
             if (sortId != null)
             {
-                var sort = await _esSortProvider.ProvideAsync(sortId, ns);
-                var sorts = new List<ISort> { sort };
+                var sort = await _esSortProvider.ProvideAsync(sortId, ns, clientSearchRequest.Sort?.Args);
 
                 if (req.Query != null && clientSearchRequest.Sort == null)
                 {
@@ -106,10 +108,15 @@ namespace MyLab.Search.Delegate.Services
                         Field = "_score",
                         Order = SortOrder.Descending
                     });
+
                 }
-                
-                req.Sort = sorts;
+
+                sorts.Add(sort);
             }
+
+            req.Sort = sorts;
+
+            
 
             return req;
         }
@@ -144,7 +151,7 @@ namespace MyLab.Search.Delegate.Services
             return result.ToArray();
         }
 
-        private QuerySearchStrategy CalcSearchStrategy(ClientSearchRequestV2 clientSearchRequest, DelegateOptions.Namespace nsOptions)
+        private QuerySearchStrategy CalcSearchStrategy(ClientSearchRequestV3 clientSearchRequest, DelegateOptions.Namespace nsOptions)
         {
             QuerySearchStrategy queryStrategy;
 
