@@ -93,10 +93,11 @@ namespace MyLab.Search.Delegate.Services
                 req.Query = boolModel;
             }
 
-            string sortId = clientSearchRequest.Sort ?? nsOptions.DefaultSort;
+            string sortId = clientSearchRequest.Sort?.Id ?? nsOptions.DefaultSort;
+
             if (sortId != null)
             {
-                var sort = await _esSortProvider.ProvideAsync(sortId, ns);
+                var sort = await _esSortProvider.ProvideAsync(sortId, ns, clientSearchRequest.Sort?.Args);
                 var sorts = new List<ISort> { sort };
 
                 if (req.Query != null && clientSearchRequest.Sort == null)

@@ -31,6 +31,7 @@
     <Compile Include="..\MyLab.Search.Delegate\Models\FilterRef.cs" Link="FilterRef.cs" />
     <Compile Include="..\MyLab.Search.Delegate\Models\FiltersCall.cs" Link="FiltersCall.cs" />
     <Compile Include="..\MyLab.Search.Delegate\Models\FoundEntity.cs" Link="FoundEntity.cs" />
+    <Compile Include="..\MyLab.Search.Delegate\Models\SortingRef.cs" Link="SortingRef.cs" />
     <Compile Include="..\MyLab.Search.Delegate\Models\TokenRequestV1.cs" Link="TokenRequestV1.cs" />
     <Compile Include="..\MyLab.Search.Delegate\Models\TokenRequestV2.cs" Link="TokenRequestV2.cs" />
     <Compile Include="..\MyLab.Search.Delegate\Models\TokenRequestV3.cs" Link="TokenRequestV3.cs" />

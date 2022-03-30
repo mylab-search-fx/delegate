@@ -14,7 +14,7 @@ namespace MyLab.Search.Delegate.Models
         [JsonProperty("filters")]
         public FilterRef[] Filters { get; set; }
         [JsonProperty("sort")]
-        public string Sort { get; set; }
+        public SortingRef Sort { get; set; }
         [JsonProperty("offset")]
         public int Offset { get; set; }
         [JsonProperty("limit")]

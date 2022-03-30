@@ -26,7 +26,10 @@ namespace MyLab.Search.Delegate.Models
                 Query = Query,
                 QuerySearchStrategy = QuerySearchStrategy,
                 Offset = Offset,
-                Sort = Sort,
+                Sort = new SortingRef
+                {
+                    Id = Sort
+                },
                 Limit = Limit
             };
 

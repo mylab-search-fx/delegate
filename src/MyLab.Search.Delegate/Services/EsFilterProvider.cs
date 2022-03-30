@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using MyLab.Log;
-using MyLab.Search.Delegate.Models;
 using MyLab.Search.Delegate.Tools;
 using Nest;
 
@@ -52,13 +51,13 @@ namespace MyLab.Search.Delegate.Services
 
             if (args != null)
             {
-                str = ApplyToRowFilter(args, str);
+                str = ApplyToRawFilter(args, str);
             }
 
             return await EsSerializer.Instance.DeserializeAsync<QueryContainer>(str);
         }
 
-        static string ApplyToRowFilter(IEnumerable<KeyValuePair<string,string>> args, string rawFilter)
+        static string ApplyToRawFilter(IEnumerable<KeyValuePair<string,string>> args, string rawFilter)
         {
             var str = rawFilter;
 
