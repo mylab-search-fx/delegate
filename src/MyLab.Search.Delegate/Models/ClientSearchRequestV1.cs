@@ -19,9 +19,9 @@ namespace MyLab.Search.Delegate.Models
         [FromQuery(Name = "query-mode")]
         public QuerySearchStrategy QuerySearchStrategy { get; set; }
 
-        public ClientSearchRequestV2 ToV2()
+        public ClientSearchRequestV3 ToV3()
         {
-            var r = new ClientSearchRequestV2
+            var r = new ClientSearchRequestV3
             {
                 Query = Query,
                 QuerySearchStrategy = QuerySearchStrategy,

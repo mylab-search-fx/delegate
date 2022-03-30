@@ -7,21 +7,21 @@ using MyLab.WebErrors;
 namespace MyLab.Search.Delegate.Controllers
 {
     [ApiController]
-    [Route("v2/token")]
-    public class TokenControllerV2 : ControllerBase
+    [Route("v3/token")]
+    public class TokenControllerV3 : ControllerBase
     {
         private readonly ITokenService _tokenService;
 
-        public TokenControllerV2(ITokenService tokenService)
+        public TokenControllerV3(ITokenService tokenService)
         {
             _tokenService = tokenService;
         }
 
         [HttpPost]
         [ErrorToResponse(typeof(TokenizingDisabledException), HttpStatusCode.Locked)]
-        public IActionResult Post([FromBody] TokenRequestV2 tokenRequest)
+        public IActionResult Post([FromBody] TokenRequestV3 tokenRequest)
         {
-            return Ok(_tokenService.CreateSearchToken(tokenRequest.ToV3()));
+            return Ok(_tokenService.CreateSearchToken(tokenRequest));
         }
     }
 }

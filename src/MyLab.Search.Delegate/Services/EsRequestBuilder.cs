@@ -43,7 +43,7 @@ namespace MyLab.Search.Delegate.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<SearchRequest> BuildAsync(ClientSearchRequestV2 clientSearchRequest, string ns, FilterRef[] filterRefs)
+        public async Task<SearchRequest> BuildAsync(ClientSearchRequestV3 clientSearchRequest, string ns, FilterRef[] filterRefs)
         {
             var nsOptions = _options.GetNamespace(ns);
 
@@ -144,7 +144,7 @@ namespace MyLab.Search.Delegate.Services
             return result.ToArray();
         }
 
-        private QuerySearchStrategy CalcSearchStrategy(ClientSearchRequestV2 clientSearchRequest, DelegateOptions.Namespace nsOptions)
+        private QuerySearchStrategy CalcSearchStrategy(ClientSearchRequestV3 clientSearchRequest, DelegateOptions.Namespace nsOptions)
         {
             QuerySearchStrategy queryStrategy;
 

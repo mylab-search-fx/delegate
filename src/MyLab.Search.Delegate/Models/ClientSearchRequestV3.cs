@@ -1,5 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 #if IS_CLIENT
@@ -8,8 +7,7 @@ namespace MyLab.Search.Delegate.Client
 namespace MyLab.Search.Delegate.Models
 #endif
 {
-    [Obsolete]
-    public class ClientSearchRequestV2
+    public class ClientSearchRequestV3
     {
         [JsonProperty("query")]
         public string Query { get; set; }
@@ -24,18 +22,5 @@ namespace MyLab.Search.Delegate.Models
         [JsonProperty("queryMode")]
         [JsonConverter(typeof(StringEnumConverter))]
         public QuerySearchStrategy QuerySearchStrategy { get; set; }
-
-        public ClientSearchRequestV3 ToV3()
-        {
-            return new ClientSearchRequestV3
-            {
-                Query = Query,
-                QuerySearchStrategy = QuerySearchStrategy,
-                Offset = Offset,
-                Sort = Sort,
-                Limit = Limit,
-                Filters = Filters
-            };
-        }
     }
 }

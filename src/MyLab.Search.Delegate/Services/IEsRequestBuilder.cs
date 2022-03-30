@@ -7,6 +7,6 @@ namespace MyLab.Search.Delegate.Services
 {
     interface IEsRequestBuilder
     {
-        Task<SearchRequest> BuildAsync(ClientSearchRequestV2 clientSearchRequest, string ns, FilterRef[] filterRefs);
+        Task<SearchRequest> BuildAsync(ClientSearchRequestV3 clientSearchRequest, string ns, FilterRef[] filterRefs);
     }
 }

@@ -38,7 +38,7 @@ namespace MyLab.Search.Delegate.Services
             return _options.Token != null;
         }
 
-        public string CreateSearchToken(TokenRequestV2 request)
+        public string CreateSearchToken(TokenRequestV3 request)
         {
             if(!IsEnabled())
                 throw new TokenizingDisabledException("Token factoring disabled");
@@ -59,7 +59,7 @@ namespace MyLab.Search.Delegate.Services
             }
         }
 
-        public NamespaceSettingsV2 ValidateAndExtractSettings(string token, string ns)
+        public NamespaceSettingsV3 ValidateAndExtractSettings(string token, string ns)
         {
             if (!IsEnabled())
                 throw new TokenizingDisabledException("Token factoring disabled");
@@ -108,13 +108,13 @@ namespace MyLab.Search.Delegate.Services
 
             return foundNs;
 
-            NamespaceSettingsV2 ParseClaim(Claim claim)
+            NamespaceSettingsV3 ParseClaim(Claim claim)
             {
                 try
                 {
                     var normVal = claim.Value.Trim();
 
-                    return JsonConvert.DeserializeObject<NamespaceSettingsV2>(normVal);
+                    return JsonConvert.DeserializeObject<NamespaceSettingsV3>(normVal);
                 }
                 catch (JsonException e)
                 {
@@ -124,7 +124,7 @@ namespace MyLab.Search.Delegate.Services
             }
         }
 
-        private JwtPayload BuildPayload(TokenRequestV2 request, string namespaceSettings)
+        private JwtPayload BuildPayload(TokenRequestV3 request, string namespaceSettings)
         {
             var payloadLines = new List<string>
             {

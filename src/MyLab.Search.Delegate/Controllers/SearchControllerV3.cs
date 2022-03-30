@@ -13,15 +13,15 @@ using MyLab.WebErrors;
 namespace MyLab.Search.Delegate.Controllers
 {
     [ApiController]
-    [Route("v2/search")]
-    public class SearchControllerV2 : ControllerBase
+    [Route("v3/search")]
+    public class SearchControllerV3 : ControllerBase
     {
         private readonly IEsRequestProcessor _requestProcessor;
-        private readonly ILogger<SearchControllerV2> _logger;
+        private readonly ILogger<SearchControllerV3> _logger;
 
-        public SearchControllerV2(
+        public SearchControllerV3(
             IEsRequestProcessor requestProcessor,
-            ILogger<SearchControllerV2> logger)
+            ILogger<SearchControllerV3> logger)
         {
             _requestProcessor = requestProcessor;
             _logger = logger;
@@ -33,7 +33,7 @@ namespace MyLab.Search.Delegate.Controllers
         [ErrorToResponse(typeof(TokenizingDisabledException), HttpStatusCode.BadRequest)]
         [ErrorToResponse(typeof(ElasticsearchSearchException), HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Get(
-            [FromBody] ClientSearchRequestV2 request,
+            [FromBody] ClientSearchRequestV3 request,
             [FromRoute(Name = "namespace")] string ns,
             [FromHeader(Name = "X-Search-Token")] string searchToken)
         {
@@ -41,7 +41,7 @@ namespace MyLab.Search.Delegate.Controllers
 
             try
             {
-                result = await _requestProcessor.ProcessSearchRequestAsync(request.ToV3(), ns, searchToken);
+                result = await _requestProcessor.ProcessSearchRequestAsync(request, ns, searchToken);
             }
             catch (Exception e)
             {

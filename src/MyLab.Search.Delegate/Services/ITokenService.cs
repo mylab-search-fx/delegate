@@ -5,7 +5,7 @@ namespace MyLab.Search.Delegate.Services
     public interface ITokenService
     {
         bool IsEnabled();
-        string CreateSearchToken(TokenRequestV2 request);
-        NamespaceSettingsV2 ValidateAndExtractSettings(string token, string ns);
+        string CreateSearchToken(TokenRequestV3 request);
+        NamespaceSettingsV3 ValidateAndExtractSettings(string token, string ns);
     }
 }

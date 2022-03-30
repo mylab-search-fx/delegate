@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
 #if IS_CLIENT
@@ -9,15 +8,13 @@ namespace MyLab.Search.Delegate.Models
 #endif
 
 {
-    [Obsolete]
-    public class TokenRequestV2
+    public class TokenRequestV3
     {
         [JsonProperty("namespaces")]
-        public NamespaceSettingsV2[] Namespaces { get; set; }
+        public NamespaceSettingsV3[] Namespaces { get; set; }
     }
 
-    [Obsolete]
-    public class NamespaceSettingsV2
+    public class NamespaceSettingsV3
     {
         [JsonProperty("name")]
         public string Name { get; set; }

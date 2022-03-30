@@ -17,15 +17,15 @@ namespace UnitTests
         private readonly ITestOutputHelper _output;
         private const string TestNamespace = "test";
         private const string TestNamespace2 = "test2";
-        static readonly TokenRequestV2 TokenRequest = new TokenRequestV2
+        static readonly TokenRequestV3 TokenRequest = new TokenRequestV3
         {
             Namespaces = new []
             {
-                new NamespaceSettingsV2()
+                new NamespaceSettingsV3()
                 {
                     Name = TestNamespace
                 },
-                new NamespaceSettingsV2()
+                new NamespaceSettingsV3()
                 {
                     Name = TestNamespace2
                 }
@@ -196,7 +196,7 @@ namespace UnitTests
             return key;
         }
 
-        string CreateSearchToken(TokenService srv, TokenRequestV2 request)
+        string CreateSearchToken(TokenService srv, TokenRequestV3 request)
         {
             var token = srv.CreateSearchToken(request);
 
