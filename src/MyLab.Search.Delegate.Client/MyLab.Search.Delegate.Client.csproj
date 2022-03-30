@@ -4,12 +4,12 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>MyLab.Search.Delegate.Client</PackageId>
     <Authors>Andrey O.</Authors>
-    <Copyright>Copyright (c) 2021 Andrey Osintsev &lt;ozzy.ext@gmail.com&gt;</Copyright>
+    <Copyright>Copyright (c) 2022 Andrey Osintsev &lt;ozzy.ext@gmail.com&gt;</Copyright>
     <Product>MyLab.Search.Delegate.Client</Product>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.4.6</Version>
-    <AssemblyVersion>1.4.6.1003</AssemblyVersion>
-    <FileVersion>1.4.6.1003</FileVersion>
+    <Version>1.5.6</Version>
+    <AssemblyVersion>1.5.6.3003</AssemblyVersion>
+    <FileVersion>1.5.6.3003</FileVersion>
     <PackageProjectUrl>https://github.com/mylab-search-fx/delegate</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mylab-search-fx/delegate.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
