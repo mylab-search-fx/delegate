@@ -4,6 +4,18 @@
 
 Формат лога изменений базируется на [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.6.7] - 2022-05-18
+
+### Изменено
+
+* название проекта на `MyLab.Search.Searcher`
+* адрес `nuget` https://www.nuget.org/packages/MyLab.Search.Searcher.Client
+* адрес `docker` образа https://github.com/mylab-search-fx/searcher/pkgs/container/searcher
+* имя `docker` образа `ghcr.io/mylab-search-fx/searcher`
+* имя корневого узла конфигурации `Delegate` -> `Searcher`, что в т.ч. влияет и на переменные окружения для конфигурирования
+* путь к файлам-сортировкам по умолчанию `/etc/mylab-search-searcher/sort/`
+* путь к файлам-фильтрам по умолчанию `/etc/mylab-search-searcher/filter/`
+
 ## [1.5.7] - 2022-04-06
 
 ### Изменено

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MyLab.Search.Delegate.Models;
-using MyLab.Search.Delegate.Services;
+using MyLab.Search.Searcher.Services;
 using Nest;
 using Xunit.Abstractions;
 
