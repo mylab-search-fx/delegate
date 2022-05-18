@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using MyLab.Search.Delegate;
+using MyLab.Search.Searcher;
 using Xunit;
 
 namespace UnitTests
@@ -20,11 +20,11 @@ namespace UnitTests
                 .Build();
 
             var srv = new ServiceCollection()
-                .Configure<DelegateOptions>(config.GetSection("Delegate"))
+                .Configure<SearcherOptions>(config.GetSection("Searcher"))
                 .BuildServiceProvider();
 
             //Act
-            var opts = srv.GetService<IOptions<DelegateOptions>>();
+            var opts = srv.GetService<IOptions<SearcherOptions>>();
 
             //Assert
             Assert.NotNull(opts);

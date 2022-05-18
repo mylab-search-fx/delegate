@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MyLab.Search.Delegate\MyLab.Search.Delegate.csproj" />
+    <ProjectReference Include="..\MyLab.Search.Searcher\MyLab.Search.Searcher.csproj" />
   </ItemGroup>
 
   <ItemGroup>

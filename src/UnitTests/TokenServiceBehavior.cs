@@ -2,9 +2,9 @@
 using System;
 using System.Linq;
 using System.Text;
-using MyLab.Search.Delegate;
-using MyLab.Search.Delegate.Models;
-using MyLab.Search.Delegate.Services;
+using MyLab.Search.Searcher;
+using MyLab.Search.Searcher.Models;
+using MyLab.Search.Searcher.Services;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -41,7 +41,7 @@ namespace UnitTests
         public void ShouldNotCreateWhenNoTokenizingConfig()
         {
             //Arrange
-            var opt = new DelegateOptions();
+            var opt = new SearcherOptions();
             var srv = new TokenService(opt);
 
             //Act & Assert
@@ -55,7 +55,7 @@ namespace UnitTests
         public void ShouldNotValidateWhenNoTokenizingConfig()
         {
             //Arrange
-            var opt = new DelegateOptions();
+            var opt = new SearcherOptions();
             var srv = new TokenService(opt);
 
             //Act & Assert
@@ -69,9 +69,9 @@ namespace UnitTests
         public void ShouldValidateTokenBySign()
         {
             //Arrange
-            var opt = new DelegateOptions
+            var opt = new SearcherOptions
             {
-                Token = new DelegateOptions.Tokenizing
+                Token = new SearcherOptions.Tokenizing
                 {
                     SignKey = CreateKey()
                 }
@@ -91,17 +91,17 @@ namespace UnitTests
         public void ShouldNotValidateInvalidTokenBySign()
         {
             //Arrange
-            var opt = new DelegateOptions
+            var opt = new SearcherOptions
             {
-                Token = new DelegateOptions.Tokenizing
+                Token = new SearcherOptions.Tokenizing
                 {
                     SignKey = CreateKey()
                 }
             };
 
-            var opt2 = new DelegateOptions
+            var opt2 = new SearcherOptions
             {
-                Token = new DelegateOptions.Tokenizing
+                Token = new SearcherOptions.Tokenizing
                 {
                     SignKey = CreateKey()
                 }
@@ -122,9 +122,9 @@ namespace UnitTests
         public void ShouldValidateTokenByExpiry()
         {
             //Arrange
-            var opt = new DelegateOptions
+            var opt = new SearcherOptions
             {
-                Token = new DelegateOptions.Tokenizing
+                Token = new SearcherOptions.Tokenizing
                 {
                     SignKey = CreateKey(),
                     ExpirySec = 10
@@ -145,9 +145,9 @@ namespace UnitTests
         public void ShouldNotValidateInvalidTokenByExpiry()
         {
             //Arrange
-            var opt = new DelegateOptions
+            var opt = new SearcherOptions
             {
-                Token = new DelegateOptions.Tokenizing
+                Token = new SearcherOptions.Tokenizing
                 {
                     SignKey = CreateKey(),
                     ExpirySec = -1
@@ -168,9 +168,9 @@ namespace UnitTests
         public void ShouldNotValidateIfWrongAudience()
         {
             //Arrange
-            var opt = new DelegateOptions
+            var opt = new SearcherOptions
             {
-                Token = new DelegateOptions.Tokenizing
+                Token = new SearcherOptions.Tokenizing
                 {
                     SignKey = CreateKey()
                 }

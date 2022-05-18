@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using MyLab.Search.Delegate.QueryTools;
+using MyLab.Search.Searcher.QueryTools;
 using Xunit;
 
 namespace UnitTests

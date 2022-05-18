@@ -3,33 +3,34 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MyLab.ApiClient.Test;
-using MyLab.Search.Delegate;
-using MyLab.Search.Delegate.Client;
-using MyLab.Search.Delegate.Services;
+using MyLab.Search.Searcher;
+using MyLab.Search.Searcher.Client;
 using MyLab.Search.EsAdapter;
 using MyLab.Search.EsTest;
+using MyLab.Search.Searcher;
+using MyLab.Search.Searcher.Services;
 using Nest;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace FunctionTests.V3
 {
-    public partial class DelegateBehavior :
+    public partial class SearcherBehavior :
         IClassFixture<EsIndexFixture<TestEntity, TestConnectionProvider>>,
         IAsyncLifetime
     {
         private readonly EsIndexFixture<TestEntity, TestConnectionProvider> _esFxt;
         private readonly ITestOutputHelper _output;
-        private readonly TestApi<Startup, ISearchDelegateApiV3> _searchClient;
+        private readonly TestApi<Startup, ISearcherApiV3> _searchClient;
 
-        public DelegateBehavior(EsIndexFixture<TestEntity, TestConnectionProvider> esFxt, ITestOutputHelper output)
+        public SearcherBehavior(EsIndexFixture<TestEntity, TestConnectionProvider> esFxt, ITestOutputHelper output)
         {
             _esFxt = esFxt;
             //_esFxt.Output = output;
 
             _output = output;
 
-            _searchClient = new TestApi<Startup, ISearchDelegateApiV3>()
+            _searchClient = new TestApi<Startup, ISearcherApiV3>()
             {
                 ServiceOverrider = ServiceOverrider,
                 Output = output
@@ -45,13 +46,13 @@ namespace FunctionTests.V3
                 {
                     o.Url = "http://localhost:9200";
                 })
-                .Configure<DelegateOptions>(o =>
+                .Configure<SearcherOptions>(o =>
                 {
                     o.FilterPath = "files/filter";
                     o.SortPath = "files/sort";
                     o.Namespaces = new[]
                     {
-                        new DelegateOptions.Namespace
+                        new SearcherOptions.Namespace
                         {
                             Name = "test",
                             Index = _esFxt.IndexName

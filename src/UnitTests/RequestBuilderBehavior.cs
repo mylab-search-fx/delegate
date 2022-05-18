@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using MyLab.Search.Delegate;
-using MyLab.Search.Delegate.Models;
-using MyLab.Search.Delegate.Services;
-using MyLab.Search.Delegate.Tools;
+using MyLab.Search.Searcher;
+using MyLab.Search.Searcher.Models;
+using MyLab.Search.Searcher.Services;
+using MyLab.Search.Searcher.Tools;
 using Nest;
 using Newtonsoft.Json;
 using Xunit;
@@ -20,12 +20,12 @@ namespace UnitTests
         public async Task ShouldBuildRequestByQuery(string query)
         {
             //Arrange
-            var opt = new DelegateOptions
+            var opt = new SearcherOptions
             {
                 QueryStrategy = QuerySearchStrategy.Must,
                 Namespaces = new []
                 {
-                    new DelegateOptions.Namespace
+                    new SearcherOptions.Namespace
                     {
                         Name = "test"
                     } 
@@ -57,12 +57,12 @@ namespace UnitTests
         public async Task ShouldUseDefaultQueryStrategyOr()
         {
             //Arrange
-            var opt = new DelegateOptions
+            var opt = new SearcherOptions
             {
                 QueryStrategy = QuerySearchStrategy.Should,
                 Namespaces = new[]
                 {
-                    new DelegateOptions.Namespace
+                    new SearcherOptions.Namespace
                     {
                         Name = "test"
                     }
@@ -93,12 +93,12 @@ namespace UnitTests
         public async Task ShouldUseDefaultQueryStrategyAnd()
         {
             //Arrange
-            var opt = new DelegateOptions
+            var opt = new SearcherOptions
             {
                 QueryStrategy = QuerySearchStrategy.Must,
                 Namespaces = new[]
                 {
-                    new DelegateOptions.Namespace
+                    new SearcherOptions.Namespace
                     {
                         Name = "test"
                     }
@@ -129,12 +129,12 @@ namespace UnitTests
         public async Task ShouldUseNamespaceQueryStrategy()
         {
             //Arrange
-            var opt = new DelegateOptions
+            var opt = new SearcherOptions
             {
                 QueryStrategy = QuerySearchStrategy.Must,
                 Namespaces = new[]
                 {
-                    new DelegateOptions.Namespace
+                    new SearcherOptions.Namespace
                     {
                         Name = "test",
                         QueryStrategy = QuerySearchStrategy.Should
