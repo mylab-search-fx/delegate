@@ -7,9 +7,9 @@
     <Copyright>Copyright (c) 2022 Andrey Osintsev &lt;ozzy.ext@gmail.com&gt;</Copyright>
     <Product>MyLab.Search.Searcher.Client</Product>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.6.7</Version>
-    <AssemblyVersion>1.6.7.1805</AssemblyVersion>
-    <FileVersion>1.6.7.1805</FileVersion>
+    <Version>1.7.7</Version>
+    <AssemblyVersion>1.7.7.2605</AssemblyVersion>
+    <FileVersion>1.7.7.2605</FileVersion>
     <PackageProjectUrl>https://github.com/mylab-search-fx/searcher</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mylab-search-fx/searcher.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
