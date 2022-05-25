@@ -3,11 +3,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MyLab.Search.Searcher;
+using MyLab.Search.Searcher.Options;
 using Xunit;
 
 namespace UnitTests
 {
-    public class NamespaceConfigurationBehavior
+    public class IndexConfigurationBehavior
     {
         [Theory]
         [InlineData("appsettings-tabs.json")]
@@ -29,8 +30,8 @@ namespace UnitTests
             //Assert
             Assert.NotNull(opts);
             Assert.NotNull(opts.Value);
-            Assert.NotNull(opts.Value.Namespaces);
-            Assert.Contains(opts.Value.Namespaces, ns => ns.Name == "addressees");
+            Assert.NotNull(opts.Value.Indexes);
+            Assert.Contains(opts.Value.Indexes, idx => idx.Id == "addressees");
         }
     }
 }

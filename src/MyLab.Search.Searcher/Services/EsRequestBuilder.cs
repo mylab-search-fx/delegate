@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MyLab.Log.Dsl;
 using MyLab.Search.Searcher.Models;
+using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.QueryTools;
 using Nest;
 using FilterRef = MyLab.Search.Searcher.Models.FilterRef;
@@ -43,13 +44,24 @@ namespace MyLab.Search.Searcher.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<SearchRequest> BuildAsync(ClientSearchRequestV3 clientSearchRequest, string ns, FilterRef[] filterRefs)
+        public async Task<SearchRequest> BuildAsync(ClientSearchRequestV3 clientSearchRequest, string idxId, FilterRef[] filterRefs)
         {
-            var nsOptions = _options.GetNamespace(ns);
+            IdxOptions idxOptions;
+
+            try
+            {
+                idxOptions = _options.GetIndexOptions(idxId);
+            }
+            catch (NamespaceConfigException e)
+            {
+                idxOptions = e.IndexOptionsFromNamespaceOptions;
+
+                _log?.Warning(e).Write();
+            }
 
             int limit = clientSearchRequest.Limit > 0
                 ? clientSearchRequest.Limit
-                : nsOptions.DefaultLimit ?? 10;
+                : idxOptions.DefaultLimit ?? 10;
 
             var req = new SearchRequest
             {
@@ -58,10 +70,10 @@ namespace MyLab.Search.Searcher.Services
             };
 
 
-            var filtersToAdd = await LoadFilters(clientSearchRequest.Filters, filterRefs, nsOptions.DefaultFilter, ns);
+            var filtersToAdd = await LoadFilters(clientSearchRequest.Filters, filterRefs, idxOptions.DefaultFilter, idxId);
             
             var queryProc = SearchQueryProcessor.Parse(clientSearchRequest.Query);
-            var mapping = await _indexMappingService.GetIndexMappingAsync(ns);
+            var mapping = await _indexMappingService.GetIndexMappingAsync(idxId);
 
             var queryExpressions = queryProc.Process(mapping).ToArray();
 
@@ -77,7 +89,7 @@ namespace MyLab.Search.Searcher.Services
 
                 if (hasQueries)
                 {
-                    var queryStrategy = CalcSearchStrategy(clientSearchRequest, nsOptions);
+                    var queryStrategy = CalcSearchStrategy(clientSearchRequest, idxOptions);
 
                     if (queryStrategy == QuerySearchStrategy.Must)
                     {
@@ -95,11 +107,11 @@ namespace MyLab.Search.Searcher.Services
 
             var sorts = new List<ISort>();
 
-            string sortId = clientSearchRequest.Sort?.Id ?? nsOptions.DefaultSort;
+            string sortId = clientSearchRequest.Sort?.Id ?? idxOptions.DefaultSort;
 
             if (sortId != null)
             {
-                var sort = await _esSortProvider.ProvideAsync(sortId, ns, clientSearchRequest.Sort?.Args);
+                var sort = await _esSortProvider.ProvideAsync(sortId, idxId, clientSearchRequest.Sort?.Args);
 
                 if (req.Query != null && clientSearchRequest.Sort == null)
                 {
@@ -151,7 +163,7 @@ namespace MyLab.Search.Searcher.Services
             return result.ToArray();
         }
 
-        private QuerySearchStrategy CalcSearchStrategy(ClientSearchRequestV3 clientSearchRequest, SearcherOptions.Namespace nsOptions)
+        private QuerySearchStrategy CalcSearchStrategy(ClientSearchRequestV3 clientSearchRequest, IdxOptions idxOptions)
         {
             QuerySearchStrategy queryStrategy;
 
@@ -161,9 +173,9 @@ namespace MyLab.Search.Searcher.Services
             }
             else
             {
-                if (nsOptions.QueryStrategy != default)
+                if (idxOptions.QueryStrategy != default)
                 {
-                    queryStrategy = nsOptions.QueryStrategy;
+                    queryStrategy = idxOptions.QueryStrategy;
                 }
                 else
                 {

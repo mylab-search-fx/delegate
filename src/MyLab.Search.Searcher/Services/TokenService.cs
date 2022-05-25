@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MyLab.Log;
 using MyLab.Search.Searcher.Models;
+using MyLab.Search.Searcher.Options;
 using Newtonsoft.Json;
 
 namespace MyLab.Search.Searcher.Services
@@ -19,7 +20,7 @@ namespace MyLab.Search.Searcher.Services
         readonly Lazy<SymmetricSecurityKey> _securityKey;
         readonly DateTime _epoch = new DateTime(1970, 1, 1);
 
-        private const string NamespaceSettingsClaimName = "mylab:searcher:namespaces";
+        private const string IndexSettingsClaimName = "mylab:searcher:indexes";
 
         public TokenService(IOptions<SearcherOptions> options)
         :this(options.Value)
@@ -90,7 +91,7 @@ namespace MyLab.Search.Searcher.Services
             }
 
             var namespaceClaims = tokenPrincipal.Claims
-                .Where(c => c.Type == NamespaceSettingsClaimName)
+                .Where(c => c.Type == IndexSettingsClaimName)
                 .Select(ParseClaim)
                 .ToArray();
 
@@ -128,7 +129,7 @@ namespace MyLab.Search.Searcher.Services
         {
             var payloadLines = new List<string>
             {
-                $"\"{NamespaceSettingsClaimName}\": {namespaceSettings}"
+                $"\"{IndexSettingsClaimName}\": {namespaceSettings}"
             };
 
             if (_options.Token.ExpirySec.HasValue)

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MyLab.HttpMetrics;
 using MyLab.Search.EsAdapter;
+using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Services;
 using MyLab.StatusProvider;
 using MyLab.WebErrors;

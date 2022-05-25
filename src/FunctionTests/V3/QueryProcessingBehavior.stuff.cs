@@ -8,6 +8,7 @@ using MyLab.Search.Searcher.Client;
 using MyLab.Search.EsAdapter;
 using MyLab.Search.EsTest;
 using MyLab.Search.Searcher;
+using MyLab.Search.Searcher.Options;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -54,12 +55,12 @@ namespace FunctionTests.V3
                 srv.Configure<SearcherOptions>(o =>
                 {
                     o.Debug = true;
-                    o.Namespaces = new[]
+                    o.Indexes = new[]
                     {
-                        new SearcherOptions.Namespace
+                        new IdxOptions
                         {
-                            Name = "test",
-                            Index = indexName
+                            Id = "test",
+                            EsIndex= indexName
                         }
                     };
                 });

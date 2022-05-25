@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using MyLab.Search.Searcher;
 using MyLab.Search.Searcher.Models;
+using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Services;
 using MyLab.Search.Searcher.Tools;
 using Nest;
@@ -23,11 +24,11 @@ namespace UnitTests
             var opt = new SearcherOptions
             {
                 QueryStrategy = QuerySearchStrategy.Must,
-                Namespaces = new []
+                Indexes = new []
                 {
-                    new SearcherOptions.Namespace
+                    new IdxOptions
                     {
-                        Name = "test"
+                        Id = "test"
                     } 
                 }
             };
@@ -60,11 +61,11 @@ namespace UnitTests
             var opt = new SearcherOptions
             {
                 QueryStrategy = QuerySearchStrategy.Should,
-                Namespaces = new[]
+                Indexes = new[]
                 {
-                    new SearcherOptions.Namespace
+                    new IdxOptions
                     {
-                        Name = "test"
+                        Id = "test"
                     }
                 }
             };
@@ -96,11 +97,11 @@ namespace UnitTests
             var opt = new SearcherOptions
             {
                 QueryStrategy = QuerySearchStrategy.Must,
-                Namespaces = new[]
+                Indexes = new[]
                 {
-                    new SearcherOptions.Namespace
+                    new IdxOptions
                     {
-                        Name = "test"
+                        Id = "test"
                     }
                 }
             };
@@ -132,11 +133,11 @@ namespace UnitTests
             var opt = new SearcherOptions
             {
                 QueryStrategy = QuerySearchStrategy.Must,
-                Namespaces = new[]
+                Indexes = new[]
                 {
-                    new SearcherOptions.Namespace
+                    new IdxOptions
                     {
-                        Name = "test",
+                        Id = "test",
                         QueryStrategy = QuerySearchStrategy.Should
                     }
                 }

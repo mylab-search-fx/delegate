@@ -8,6 +8,7 @@ using MyLab.Search.Searcher.Client;
 using MyLab.Search.EsAdapter;
 using MyLab.Search.EsTest;
 using MyLab.Search.Searcher;
+using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Services;
 using Nest;
 using Xunit;
@@ -50,12 +51,12 @@ namespace FunctionTests.V3
                 {
                     o.FilterPath = "files/filter";
                     o.SortPath = "files/sort";
-                    o.Namespaces = new[]
+                    o.Indexes = new[]
                     {
-                        new SearcherOptions.Namespace
+                        new IdxOptions
                         {
-                            Name = "test",
-                            Index = _esFxt.IndexName
+                            Id = "test",
+                            EsIndex = _esFxt.IndexName
                         }
                     };  
                 })

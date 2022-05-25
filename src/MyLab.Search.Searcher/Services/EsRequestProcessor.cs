@@ -8,6 +8,7 @@ using MyLab.Log;
 using MyLab.Log.Dsl;
 using MyLab.Search.EsAdapter;
 using MyLab.Search.Searcher.Models;
+using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Tools;
 using Nest;
 using Newtonsoft.Json.Linq;
@@ -61,7 +62,7 @@ namespace MyLab.Search.Searcher.Services
                 namespaceSettings = _tokenService.ValidateAndExtractSettings(searchToken, ns);
             }
 
-            var indexName = _options.GetIndexName(ns);
+            var indexName = _options.CreateEsIndexName(ns);
 
             var esRequest = await _requestBuilder.BuildAsync(clientRequest, ns, namespaceSettings?.Filters);
 

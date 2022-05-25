@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MyLab.Search.Searcher;
 using MyLab.Search.Searcher.Models;
+using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Services;
 using Xunit;
 using Xunit.Abstractions;
@@ -15,19 +16,19 @@ namespace UnitTests
         readonly Random _rnd = new Random(DateTime.Now.Millisecond);
 
         private readonly ITestOutputHelper _output;
-        private const string TestNamespace = "test";
-        private const string TestNamespace2 = "test2";
+        private const string TestIndex = "test";
+        private const string TestIndex2 = "test2";
         static readonly TokenRequestV3 TokenRequest = new TokenRequestV3
         {
             Namespaces = new []
             {
                 new NamespaceSettingsV3()
                 {
-                    Name = TestNamespace
+                    Name = TestIndex
                 },
                 new NamespaceSettingsV3()
                 {
-                    Name = TestNamespace2
+                    Name = TestIndex2
                 }
             }
         };
@@ -61,7 +62,7 @@ namespace UnitTests
             //Act & Assert
             AssertThrows<TokenizingDisabledException>(() =>
             {
-                srv.ValidateAndExtractSettings("token", TestNamespace);
+                srv.ValidateAndExtractSettings("token", TestIndex);
             });
         }
 
@@ -71,7 +72,7 @@ namespace UnitTests
             //Arrange
             var opt = new SearcherOptions
             {
-                Token = new SearcherOptions.Tokenizing
+                Token = new TokenizingOptions
                 {
                     SignKey = CreateKey()
                 }
@@ -81,7 +82,7 @@ namespace UnitTests
             var token = CreateSearchToken(srv, TokenRequest);
 
             //Act
-            srv.ValidateAndExtractSettings(token, TestNamespace);
+            srv.ValidateAndExtractSettings(token, TestIndex);
 
             //Assert
 
@@ -93,7 +94,7 @@ namespace UnitTests
             //Arrange
             var opt = new SearcherOptions
             {
-                Token = new SearcherOptions.Tokenizing
+                Token = new TokenizingOptions
                 {
                     SignKey = CreateKey()
                 }
@@ -101,7 +102,7 @@ namespace UnitTests
 
             var opt2 = new SearcherOptions
             {
-                Token = new SearcherOptions.Tokenizing
+                Token = new TokenizingOptions
                 {
                     SignKey = CreateKey()
                 }
@@ -114,7 +115,7 @@ namespace UnitTests
             //Act & Assert
             AssertThrows<InvalidTokenException>(() =>
             {
-                srv2.ValidateAndExtractSettings(token, TestNamespace);
+                srv2.ValidateAndExtractSettings(token, TestIndex);
             });
         }
 
@@ -124,7 +125,7 @@ namespace UnitTests
             //Arrange
             var opt = new SearcherOptions
             {
-                Token = new SearcherOptions.Tokenizing
+                Token = new TokenizingOptions
                 {
                     SignKey = CreateKey(),
                     ExpirySec = 10
@@ -135,7 +136,7 @@ namespace UnitTests
             var token = CreateSearchToken(srv, TokenRequest);
 
             //Act
-            srv.ValidateAndExtractSettings(token, TestNamespace);
+            srv.ValidateAndExtractSettings(token, TestIndex);
 
             //Assert
 
@@ -147,7 +148,7 @@ namespace UnitTests
             //Arrange
             var opt = new SearcherOptions
             {
-                Token = new SearcherOptions.Tokenizing
+                Token = new TokenizingOptions
                 {
                     SignKey = CreateKey(),
                     ExpirySec = -1
@@ -160,7 +161,7 @@ namespace UnitTests
             //Act & Assert
             AssertThrows<InvalidTokenException>(() =>
             {
-                srv.ValidateAndExtractSettings(token, TestNamespace);
+                srv.ValidateAndExtractSettings(token, TestIndex);
             });
         }
 
@@ -170,7 +171,7 @@ namespace UnitTests
             //Arrange
             var opt = new SearcherOptions
             {
-                Token = new SearcherOptions.Tokenizing
+                Token = new TokenizingOptions
                 {
                     SignKey = CreateKey()
                 }

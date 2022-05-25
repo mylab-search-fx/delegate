@@ -9,6 +9,7 @@ using MyLab.Search.Searcher;
 using MyLab.Search.Searcher.Client;
 using MyLab.Search.EsAdapter.SearchEngine;
 using MyLab.Search.Searcher;
+using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Services;
 using Nest;
 using Xunit;
@@ -36,12 +37,12 @@ namespace FunctionTests.V3
                 srv.Configure<SearcherOptions>(o =>
                 {
                     o.QueryStrategy = ServerQuerySearchStrategy.Should;
-                    o.Namespaces = new[]
+                    o.Indexes = new[]
                     {
-                        new SearcherOptions.Namespace
+                        new IdxOptions
                         {
-                            Index = _esFxt.IndexName,
-                            Name = "test",
+                            EsIndex = _esFxt.IndexName,
+                            Id = "test",
                         },
                     };
                 });
@@ -86,12 +87,12 @@ namespace FunctionTests.V3
                 srv.Configure<SearcherOptions>(o =>
                 {
                     o.QueryStrategy = ServerQuerySearchStrategy.Should;
-                    o.Namespaces = new[]
+                    o.Indexes = new[]
                     {
-                        new SearcherOptions.Namespace
+                        new IdxOptions
                         {
-                            Index = _esFxt.IndexName,
-                            Name = "test",
+                            EsIndex = _esFxt.IndexName,
+                            Id = "test",
                             DefaultSort = "[nomater]"
                         },
                     };
@@ -286,7 +287,7 @@ namespace FunctionTests.V3
             var cl = _searchClient.StartWithProxy(srv => srv
                 .Configure<SearcherOptions>(o =>
                 {
-                    o.Namespaces.First(n => n.Name == "test").DefaultLimit = 5;
+                    o.Indexes.First(n => n.Id == "test").DefaultLimit = 5;
                 }));
 
             //Act
@@ -323,7 +324,7 @@ namespace FunctionTests.V3
             var cl = _searchClient.StartWithProxy(srv => srv
                 .Configure<SearcherOptions>(o =>
                 {
-                    o.Namespaces.First(n => n.Name == "test").DefaultSort = "revert";
+                    o.Indexes.First(n => n.Id == "test").DefaultSort = "revert";
                 }));
 
             //Act
@@ -380,7 +381,7 @@ namespace FunctionTests.V3
             var cl = _searchClient.StartWithProxy(srv => srv
                 .Configure<SearcherOptions>(o =>
                 {
-                    o.Namespaces.First(n => n.Name == "test").DefaultFilter = "from5to15";
+                    o.Indexes.First(n => n.Id == "test").DefaultFilter = "from5to15";
                 })
             );
 
@@ -443,7 +444,7 @@ namespace FunctionTests.V3
         }
 
         [Fact]
-        public async Task ShouldUseFilterFromNamespace()
+        public async Task ShouldUseFilterFromIndex()
         {
             //Arrange
             var cl = _searchClient.StartWithProxy();
@@ -471,7 +472,7 @@ namespace FunctionTests.V3
             //Arrange
             var cl = _searchClient.StartWithProxy(srv => srv.Configure<SearcherOptions>(o =>
             {
-                o.Token = new SearcherOptions.Tokenizing
+                o.Token = new TokenizingOptions
                 {
                     SignKey = string.Join(';', Enumerable.Repeat(Guid.NewGuid().ToString("N"), 10))
                 };
