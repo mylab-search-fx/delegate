@@ -12,7 +12,7 @@
 
 ### Изменено
 
-* замена термина `namespace` на `index`
+* замена термина `namespace` на `index` с обратной совместимостью
 * переименован узел конфигурации `Searcher/Namespaces` -> `Searcher/Indexes`
 * переименован узел конфигурации `Searcher/Namespaces/Name` -> `Searcher/Index/Id`
 * переименован узел конфигурации `Searcher/Namespaces/Index` -> `Searcher/Index/EsIndex`
