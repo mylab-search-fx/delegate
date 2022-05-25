@@ -44,7 +44,7 @@ namespace MyLab.Search.Searcher.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<SearchRequest> BuildAsync(ClientSearchRequestV3 clientSearchRequest, string idxId, FilterRef[] filterRefs)
+        public async Task<SearchRequest> BuildAsync(ClientSearchRequestV4 clientSearchRequest, string idxId, FilterRef[] filterRefs)
         {
             IdxOptions idxOptions;
 
@@ -163,7 +163,7 @@ namespace MyLab.Search.Searcher.Services
             return result.ToArray();
         }
 
-        private QuerySearchStrategy CalcSearchStrategy(ClientSearchRequestV3 clientSearchRequest, IdxOptions idxOptions)
+        private QuerySearchStrategy CalcSearchStrategy(ClientSearchRequestV4 clientSearchRequest, IdxOptions idxOptions)
         {
             QuerySearchStrategy queryStrategy;
 

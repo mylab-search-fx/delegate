@@ -50,21 +50,21 @@ namespace MyLab.Search.Searcher.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<FoundEntities<FoundEntityContent>> ProcessSearchRequestAsync(ClientSearchRequestV3 clientRequest, string ns, string searchToken)
+        public async Task<FoundEntities<FoundEntityContent>> ProcessSearchRequestAsync(ClientSearchRequestV4 clientRequest, string idxId, string searchToken)
         {
-            NamespaceSettingsV3 namespaceSettings = null;
+            IndexSettingsV4 idxSettings = null;
 
             if (_tokenService.IsEnabled())
             {
                 if (searchToken == null)
                     throw new InvalidTokenException("Search Token required");
 
-                namespaceSettings = _tokenService.ValidateAndExtractSettings(searchToken, ns);
+                idxSettings = _tokenService.ValidateAndExtractSettings(searchToken, idxId);
             }
 
-            var indexName = _options.CreateEsIndexName(ns);
+            var indexName = _options.CreateEsIndexName(idxId);
 
-            var esRequest = await _requestBuilder.BuildAsync(clientRequest, ns, namespaceSettings?.Filters);
+            var esRequest = await _requestBuilder.BuildAsync(clientRequest, idxId, idxSettings?.Filters);
 
             var strReq = EsSerializer.Instance.SerializeToString(esRequest);
 

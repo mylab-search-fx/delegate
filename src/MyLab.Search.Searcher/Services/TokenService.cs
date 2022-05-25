@@ -39,14 +39,14 @@ namespace MyLab.Search.Searcher.Services
             return _options.Token != null;
         }
 
-        public string CreateSearchToken(TokenRequestV3 request)
+        public string CreateSearchToken(TokenRequestV4 request)
         {
             if(!IsEnabled())
                 throw new TokenizingDisabledException("Token factoring disabled");
             
-            var namespaceSettings = JsonConvert.SerializeObject(request.Namespaces);
+            var idxSettings = JsonConvert.SerializeObject(request.Indexes);
 
-            var payload = BuildPayload(request, namespaceSettings);
+            var payload = BuildPayload(request, idxSettings);
 
             var header = new JwtHeader(new SigningCredentials(_securityKey.Value, "HS256"));
             
@@ -60,7 +60,7 @@ namespace MyLab.Search.Searcher.Services
             }
         }
 
-        public NamespaceSettingsV3 ValidateAndExtractSettings(string token, string ns)
+        public IndexSettingsV4 ValidateAndExtractSettings(string token, string idxId)
         {
             if (!IsEnabled())
                 throw new TokenizingDisabledException("Token factoring disabled");
@@ -82,7 +82,7 @@ namespace MyLab.Search.Searcher.Services
                         return expires >= DateTime.UtcNow;
                     },
                     IssuerSigningKey = _securityKey.Value,
-                    ValidAudience = ns
+                    ValidAudience = idxId
                 }, out _);
             }
             catch (Exception e)
@@ -90,46 +90,46 @@ namespace MyLab.Search.Searcher.Services
                 throw new InvalidTokenException("Search token validation failed", e);
             }
 
-            var namespaceClaims = tokenPrincipal.Claims
+            var idxClaims = tokenPrincipal.Claims
                 .Where(c => c.Type == IndexSettingsClaimName)
                 .Select(ParseClaim)
                 .ToArray();
 
-            if (namespaceClaims.Length == 0)
+            if (idxClaims.Length == 0)
             {
-                throw new InvalidTokenException("Namespace claims not found in the Search Token");
+                throw new InvalidTokenException("Index claims not found in the Search Token");
             }
 
-            var foundNs = namespaceClaims.FirstOrDefault(c => c.Name == ns);
+            var foundIdx = idxClaims.FirstOrDefault(c => c.Id == idxId);
 
-            if (foundNs == null)
+            if (foundIdx == null)
             {
-                throw new InvalidTokenException("Context namespace claim not found in the Search Token");
+                throw new InvalidTokenException("Context index claim not found in the Search Token");
             }
 
-            return foundNs;
+            return foundIdx;
 
-            NamespaceSettingsV3 ParseClaim(Claim claim)
+            IndexSettingsV4 ParseClaim(Claim claim)
             {
                 try
                 {
                     var normVal = claim.Value.Trim();
 
-                    return JsonConvert.DeserializeObject<NamespaceSettingsV3>(normVal);
+                    return JsonConvert.DeserializeObject<IndexSettingsV4>(normVal);
                 }
                 catch (JsonException e)
                 {
-                    throw new InvalidTokenException("Namespaces claim from Search Token has wrong format", e)
+                    throw new InvalidTokenException("Indexes claim from Search Token has wrong format", e)
                         .AndFactIs("token", claim.Value);
                 }
             }
         }
 
-        private JwtPayload BuildPayload(TokenRequestV3 request, string namespaceSettings)
+        private JwtPayload BuildPayload(TokenRequestV4 request, string idxSettings)
         {
             var payloadLines = new List<string>
             {
-                $"\"{IndexSettingsClaimName}\": {namespaceSettings}"
+                $"\"{IndexSettingsClaimName}\": {idxSettings}"
             };
 
             if (_options.Token.ExpirySec.HasValue)
@@ -138,10 +138,10 @@ namespace MyLab.Search.Searcher.Services
                 payloadLines.Add($"\"exp\": {expDt}");
             }
 
-            if (request.Namespaces != null)
+            if (request.Indexes != null)
             {
-                var namespaceNames = request.Namespaces.Select(ns => "\"" + ns.Name + "\"");
-                payloadLines.Add($"\"aud\": [{string.Join(',', namespaceNames)}]");
+                var idxIds = request.Indexes.Select(idx => "\"" + idx.Id + "\"");
+                payloadLines.Add($"\"aud\": [{string.Join(',', idxIds)}]");
             }
 
             string payloadJson = "{" + string.Join(',', payloadLines) + "}";
