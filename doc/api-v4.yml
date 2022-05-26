@@ -1,0 +1,217 @@
+openapi: 3.0.0
+info:
+  title: MyLab.Search.Searcher API
+  version: '4'
+servers:
+  - url: https://api.example.com/v4
+paths:
+  '/indexes/{index}/searcher':
+    post:
+      tags:
+      - Search
+      summary: Searches for index entities
+      parameters:
+      - name: index
+        in: path
+        required: true
+        description: Resource index
+        schema:
+          type: string
+        example: 'orders'
+      - name: X-Search-Token
+        in: header
+        required: false
+        description: Search token
+        schema: 
+          type: string
+          format: jwt
+        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2Mjg3MTE4MzcsImF1ZCI6WyJ1c2VycyIsIm9yZGVycyJdLCJteWxhYjpzZWFyY2hlcjppbmRleGVzIjp7InVzZXJzIjp7ImZpbHRlcnMiOnt9fSwib3JkZXJzIjp7ImZpbHRlcnMiOnsib25seV9teV9vcmRlcnMiOnsidXNlciI6InVzZXJAZG9tYWluLmNvbSJ9fX19fQ.4lizDb7NwrOHf3PjqW-icamzoLgCuoFYmQT-sIxwG14'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Search result
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/SearchResult'
+        '400':
+          description: Request error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: 'Filter not found'
+        '403':
+          description: Search token validation error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: 'Wrong audience'
+                
+  '/token':
+    post:
+      tags:
+      - Token
+      summary: Creates search token
+      requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchTokenRequest' 
+      responses:
+        '200':
+          description: Search token issued
+          content:
+            text/plain:
+              schema:
+                type: string
+                format: jwt
+              example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2Mjg3MTE4MzcsImF1ZCI6WyJ1c2VycyIsIm9yZGVycyJdLCJteWxhYjpzZWFyY2hlcjppbmRleGVzIjp7InVzZXJzIjp7ImZpbHRlcnMiOnt9fSwib3JkZXJzIjp7ImZpbHRlcnMiOnsib25seV9teV9vcmRlcnMiOnsidXNlciI6InVzZXJAZG9tYWluLmNvbSJ9fX19fQ.4lizDb7NwrOHf3PjqW-icamzoLgCuoFYmQT-sIxwG14'
+        '423':
+          description: Token issuing is disabled
+                
+
+components:
+      
+  schemas:
+  
+    SearchRequest:
+      type: object
+      description: Searh parameters
+      properties:
+        query:
+          description: Query string 
+          type: string
+          example: 'something I want to search'
+        sort:
+          $ref: '#/components/schemas/SortingCall'
+        offset:
+          description: Paging offset
+          type: integer
+          example: 0
+        limit:
+          description: Paging size
+          type: integer
+          example: 10
+        queryMode:
+          $ref: '#/components/schemas/QuerySearchMode'
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/FiltersCall'
+  
+    QuerySearchMode:
+      type: string
+      description: Query search mode
+      enum:
+      - should
+      - must
+  
+    SearchResult:
+      type: object
+      description: Search result
+      properties:
+        entites:
+          type: array
+          description: Found entities
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+        total:
+          type: integer
+          description: Number of result items without paging
+          example: 1000
+        esRequest:
+          type: object
+          description: Result ElasticSearch search request (only in debug mode)
+            
+    SearchResultItem:
+      type: object
+      description: Search result
+      properties:
+        content:
+          type: object
+          description: Indexed entity
+          example: {"id": 10, "Value": "payload"}
+        score:
+          type: number
+          format: float
+          description: Relevation value
+          example: 1.1
+        explanation:
+          type: object
+          description: Request explanation (only in debug mode)
+          properties:
+            description: 
+              type: string
+              example: '*:*'
+            details:
+              type: object
+            value:
+              type: integer
+      
+    SearchTokenRequest:
+      type: object
+      description: Search token request
+      properties:
+        namespaces:
+            $ref: '#/components/schemas/IndexSettingsMap'
+    
+    IndexSettingsMap:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/IndexSettings'
+      example: 
+        orders:
+          only_my:
+            user: user@host.ru
+            less_then: 10
+            
+    IndexSettings:
+      type: object
+      properties:
+        filters:
+          $ref: '#/components/schemas/FiltersCall'
+        
+    FiltersCall:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Filter identifier
+          example: only_my
+        args:
+          $ref: '#/components/schemas/FilterArgs'
+      required:
+      - id
+          
+    FilterArgs:
+      type: object
+      additionalProperties:
+        type: string
+      example:
+        user: user@host.ru
+        less_then: 10
+        
+    SortingCall:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Sorting identifier
+          example: id_order
+        args:
+          $ref: '#/components/schemas/SortingArgs'
+      required:
+      - id
+          
+    SortingArgs:
+      type: object
+      additionalProperties:
+        type: string
+      example:
+        direction: desc

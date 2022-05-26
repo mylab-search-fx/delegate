@@ -21,7 +21,7 @@ namespace MyLab.Search.Searcher.Controllers
         [ErrorToResponse(typeof(TokenizingDisabledException), HttpStatusCode.Locked)]
         public IActionResult Post([FromBody] TokenRequestV3 tokenRequest)
         {
-            return Ok(_tokenService.CreateSearchToken(tokenRequest));
+            return Ok(_tokenService.CreateSearchToken(tokenRequest.ToV4()));
         }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MyLab.Log;
 using MyLab.Search.Searcher.Models;
+using MyLab.Search.Searcher.Options;
 using Newtonsoft.Json;
 
 namespace MyLab.Search.Searcher.Services
@@ -19,7 +20,7 @@ namespace MyLab.Search.Searcher.Services
         readonly Lazy<SymmetricSecurityKey> _securityKey;
         readonly DateTime _epoch = new DateTime(1970, 1, 1);
 
-        private const string NamespaceSettingsClaimName = "mylab:searcher:namespaces";
+        private const string IndexSettingsClaimName = "mylab:searcher:indexes";
 
         public TokenService(IOptions<SearcherOptions> options)
         :this(options.Value)
@@ -38,14 +39,14 @@ namespace MyLab.Search.Searcher.Services
             return _options.Token != null;
         }
 
-        public string CreateSearchToken(TokenRequestV3 request)
+        public string CreateSearchToken(TokenRequestV4 request)
         {
             if(!IsEnabled())
                 throw new TokenizingDisabledException("Token factoring disabled");
             
-            var namespaceSettings = JsonConvert.SerializeObject(request.Namespaces);
+            var idxSettings = JsonConvert.SerializeObject(request.Indexes);
 
-            var payload = BuildPayload(request, namespaceSettings);
+            var payload = BuildPayload(request, idxSettings);
 
             var header = new JwtHeader(new SigningCredentials(_securityKey.Value, "HS256"));
             
@@ -59,76 +60,83 @@ namespace MyLab.Search.Searcher.Services
             }
         }
 
-        public NamespaceSettingsV3 ValidateAndExtractSettings(string token, string ns)
+        public IndexSettingsV4 ValidateAndExtractSettings(string token, string idxId)
         {
             if (!IsEnabled())
                 throw new TokenizingDisabledException("Token factoring disabled");
 
             ClaimsPrincipal tokenPrincipal;
+
+            var tokenValidationParams = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateTokenReplay = false,
+                ValidateActor = false,
+                ValidateAudience = true,
+                ValidateLifetime = _options.Token.ExpirySec.HasValue,
+                LifetimeValidator = ValidateLifetime,
+                IssuerSigningKey = _securityKey.Value,
+                ValidAudience = idxId,
+                AudienceValidator = ValidateAudience
+            };
+
             try
             {
-                tokenPrincipal = _tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuer = false,
-                    ValidateTokenReplay = false,
-                    ValidateActor = false,
-                    ValidateAudience = true,
-                    ValidateLifetime = _options.Token.ExpirySec.HasValue,
-                    LifetimeValidator= (before, expires, securityToken, parameters) =>
-                    {
-                        if (!_options.Token.ExpirySec.HasValue)
-                            return true;
-                        return expires >= DateTime.UtcNow;
-                    },
-                    IssuerSigningKey = _securityKey.Value,
-                    ValidAudience = ns
-                }, out _);
+                tokenPrincipal = _tokenHandler.ValidateToken(token, tokenValidationParams, out _);
             }
             catch (Exception e)
             {
                 throw new InvalidTokenException("Search token validation failed", e);
             }
 
-            var namespaceClaims = tokenPrincipal.Claims
-                .Where(c => c.Type == NamespaceSettingsClaimName)
+            var idxClaims = tokenPrincipal.Claims
+                .Where(c => c.Type == IndexSettingsClaimName)
                 .Select(ParseClaim)
                 .ToArray();
+            
+            var targetClaim = idxClaims.FirstOrDefault(c => c.Id == idxId);
 
-            if (namespaceClaims.Length == 0)
-            {
-                throw new InvalidTokenException("Namespace claims not found in the Search Token");
-            }
+            return targetClaim ?? idxClaims.FirstOrDefault(c => c.Id == "*");
 
-            var foundNs = namespaceClaims.FirstOrDefault(c => c.Name == ns);
-
-            if (foundNs == null)
-            {
-                throw new InvalidTokenException("Context namespace claim not found in the Search Token");
-            }
-
-            return foundNs;
-
-            NamespaceSettingsV3 ParseClaim(Claim claim)
+            IndexSettingsV4 ParseClaim(Claim claim)
             {
                 try
                 {
                     var normVal = claim.Value.Trim();
 
-                    return JsonConvert.DeserializeObject<NamespaceSettingsV3>(normVal);
+                    return JsonConvert.DeserializeObject<IndexSettingsV4>(normVal);
                 }
                 catch (JsonException e)
                 {
-                    throw new InvalidTokenException("Namespaces claim from Search Token has wrong format", e)
+                    throw new InvalidTokenException("Indexes claim from Search Token has wrong format", e)
                         .AndFactIs("token", claim.Value);
                 }
             }
         }
 
-        private JwtPayload BuildPayload(TokenRequestV3 request, string namespaceSettings)
+        private bool ValidateAudience(IEnumerable<string> audiences, SecurityToken securitytoken, TokenValidationParameters validationparameters)
+        {
+            var auds = audiences.ToArray();
+
+            if (auds.Contains("*"))
+            {
+                return true;
+            }
+
+            return auds.Contains(validationparameters.ValidAudience);
+        }
+
+        private bool ValidateLifetime(DateTime? before, DateTime? expires, SecurityToken securityToken, TokenValidationParameters parameters)
+        {
+            if (!_options.Token.ExpirySec.HasValue) return true;
+            return expires >= DateTime.UtcNow;
+        }
+
+        private JwtPayload BuildPayload(TokenRequestV4 request, string idxSettings)
         {
             var payloadLines = new List<string>
             {
-                $"\"{NamespaceSettingsClaimName}\": {namespaceSettings}"
+                $"\"{IndexSettingsClaimName}\": {idxSettings}"
             };
 
             if (_options.Token.ExpirySec.HasValue)
@@ -137,10 +145,10 @@ namespace MyLab.Search.Searcher.Services
                 payloadLines.Add($"\"exp\": {expDt}");
             }
 
-            if (request.Namespaces != null)
+            if (request.Indexes != null)
             {
-                var namespaceNames = request.Namespaces.Select(ns => "\"" + ns.Name + "\"");
-                payloadLines.Add($"\"aud\": [{string.Join(',', namespaceNames)}]");
+                var idxIds = request.Indexes.Select(idx => "\"" + idx.Id + "\"");
+                payloadLines.Add($"\"aud\": [{string.Join(',', idxIds)}]");
             }
 
             string payloadJson = "{" + string.Join(',', payloadLines) + "}";

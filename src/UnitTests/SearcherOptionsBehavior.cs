@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MyLab.Search.Searcher;
+using MyLab.Search.Searcher.Options;
 using Xunit;
 
 namespace UnitTests
@@ -35,31 +36,31 @@ namespace UnitTests
         }
 
         [Fact]
-        public void ShouldProvideNamespace()
+        public void ShouldProvideIndexOpts()
         {
             //Arrange
             var opts = new SearcherOptions
             {
-                Namespaces = new []
+                Indexes = new []
                 {
-                    new SearcherOptions.Namespace
+                    new IdxOptions
                     {
-                        Name = "foo",
-                        Index = "foo-index"
+                        Id = "foo",
+                        EsIndex = "foo-index"
                     },
-                    new SearcherOptions.Namespace
+                    new IdxOptions
                     {
-                        Name = "bar",
-                        Index = "bar-index"
+                        Id = "bar",
+                        EsIndex = "bar-index"
                     },
                 }
             };
 
             //Act
-            var foundNs = opts.GetNamespace("foo");
+            var foundNs = opts.GetIndexOptions("foo");
 
             //Assert
-            Assert.Equal("foo-index", foundNs.Index);
+            Assert.Equal("foo-index", foundNs.EsIndex);
         }
 
         [Fact]
@@ -68,18 +69,18 @@ namespace UnitTests
             //Arrange
             var opts = new SearcherOptions
             {
-                Namespaces = new[]
+                Indexes = new[]
                 {
-                    new SearcherOptions.Namespace
+                    new IdxOptions
                     {
-                        Name = "bar",
-                        Index = "bar-index"
+                        Id = "bar",
+                        EsIndex = "bar-index"
                     },
                 }
             };
 
             //Act & Assert
-            Assert.Throws<InvalidOperationException>(() => opts.GetNamespace("foo"));
+            Assert.Throws<IndexOptionsNotFoundException>(() => opts.GetIndexOptions("foo"));
         }
 
         [Theory]
@@ -87,25 +88,25 @@ namespace UnitTests
         [InlineData("prefix_", null, "prefix_foo")]
         [InlineData("prefix_", "_postfix", "prefix_foo_postfix")]
         [InlineData(null, "_postfix", "foo_postfix")]
-        public void ShouldProvideIndexName(string prefix, string postfix, string expectedResult)
+        public void ShouldCreateEsIndexName(string prefix, string postfix, string expectedResult)
         {
             //Arrange
             var opts = new SearcherOptions
             {
-                IndexNamePrefix = prefix,
-                IndexNamePostfix = postfix,
-                Namespaces = new[]
+                EsIndexNamePrefix = prefix,
+                EsIndexNamePostfix = postfix,
+                Indexes = new[]
                 {
-                    new SearcherOptions.Namespace
+                    new IdxOptions
                     {
-                        Name = "bar",
-                        Index = "foo"
+                        Id = "bar",
+                        EsIndex = "foo"
                     }
                 }
             };
 
             //Act
-            var indexName = opts.GetIndexName("bar");
+            var indexName = opts.CreateEsIndexName("bar");
 
             //Assert
             Assert.Equal(expectedResult, indexName);
@@ -117,18 +118,18 @@ namespace UnitTests
             //Arrange
             var opts = new SearcherOptions
             {
-                Namespaces = new[]
+                Indexes = new[]
                 {
-                    new SearcherOptions.Namespace
+                    new IdxOptions
                     {
-                        Name = "bar",
-                        Index = "bar-index"
+                        Id = "bar",
+                        EsIndex = "bar-index"
                     },
                 }
             };
 
             //Act & Assert
-            Assert.Throws<InvalidOperationException>(() => opts.GetIndexName("foo"));
+            Assert.Throws<IndexOptionsNotFoundException>(() => opts.CreateEsIndexName("foo"));
         }
     }
 }

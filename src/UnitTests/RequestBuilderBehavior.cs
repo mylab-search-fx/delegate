@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using MyLab.Search.Searcher;
 using MyLab.Search.Searcher.Models;
+using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Services;
 using MyLab.Search.Searcher.Tools;
 using Nest;
@@ -23,11 +24,11 @@ namespace UnitTests
             var opt = new SearcherOptions
             {
                 QueryStrategy = QuerySearchStrategy.Must,
-                Namespaces = new []
+                Indexes = new []
                 {
-                    new SearcherOptions.Namespace
+                    new IdxOptions
                     {
-                        Name = "test"
+                        Id = "test"
                     } 
                 }
             };
@@ -37,7 +38,7 @@ namespace UnitTests
                 new TestFilterProvider(), 
                 new TestIndexMappingService()); 
 
-            var sReq = new ClientSearchRequestV3()
+            var sReq = new ClientSearchRequestV4()
             {
                 Query= query
             };
@@ -60,11 +61,11 @@ namespace UnitTests
             var opt = new SearcherOptions
             {
                 QueryStrategy = QuerySearchStrategy.Should,
-                Namespaces = new[]
+                Indexes = new[]
                 {
-                    new SearcherOptions.Namespace
+                    new IdxOptions
                     {
-                        Name = "test"
+                        Id = "test"
                     }
                 }
             };
@@ -74,7 +75,7 @@ namespace UnitTests
                 new TestFilterProvider(),
                 new TestIndexMappingService());
 
-            var sReq = new ClientSearchRequestV3()
+            var sReq = new ClientSearchRequestV4()
             {
                 Query = "nomater"
             };
@@ -96,11 +97,11 @@ namespace UnitTests
             var opt = new SearcherOptions
             {
                 QueryStrategy = QuerySearchStrategy.Must,
-                Namespaces = new[]
+                Indexes = new[]
                 {
-                    new SearcherOptions.Namespace
+                    new IdxOptions
                     {
-                        Name = "test"
+                        Id = "test"
                     }
                 }
             };
@@ -110,7 +111,7 @@ namespace UnitTests
                 new TestFilterProvider(),
                 new TestIndexMappingService());
 
-            var sReq = new ClientSearchRequestV3()
+            var sReq = new ClientSearchRequestV4()
             {
                 Query = "nomater"
             };
@@ -132,11 +133,11 @@ namespace UnitTests
             var opt = new SearcherOptions
             {
                 QueryStrategy = QuerySearchStrategy.Must,
-                Namespaces = new[]
+                Indexes = new[]
                 {
-                    new SearcherOptions.Namespace
+                    new IdxOptions
                     {
-                        Name = "test",
+                        Id = "test",
                         QueryStrategy = QuerySearchStrategy.Should
                     }
                 }
@@ -147,7 +148,7 @@ namespace UnitTests
                 new TestFilterProvider(),
                 new TestIndexMappingService());
 
-            var sReq = new ClientSearchRequestV3()
+            var sReq = new ClientSearchRequestV4()
             {
                 Query = "nomater"
             };

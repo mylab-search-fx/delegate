@@ -11,40 +11,40 @@ using MyLab.WebErrors;
 namespace MyLab.Search.Searcher.Controllers
 {
     [ApiController]
-    [Route("v2/search")]
-    public class SearchControllerV2 : ControllerBase
+    [Route("v4/indexes")]
+    public class SearchControllerV4 : ControllerBase
     {
         private readonly IEsRequestProcessor _requestProcessor;
-        private readonly ILogger<SearchControllerV2> _logger;
+        private readonly ILogger<SearchControllerV4> _logger;
 
-        public SearchControllerV2(
+        public SearchControllerV4(
             IEsRequestProcessor requestProcessor,
-            ILogger<SearchControllerV2> logger)
+            ILogger<SearchControllerV4> logger)
         {
             _requestProcessor = requestProcessor;
             _logger = logger;
         }
 
-        [HttpPost("{namespace}")]
+        [HttpPost("{index}/searcher")]
         [ErrorToResponse(typeof(ResourceNotFoundException), HttpStatusCode.BadRequest)]
         [ErrorToResponse(typeof(InvalidTokenException), HttpStatusCode.Forbidden)]
         [ErrorToResponse(typeof(TokenizingDisabledException), HttpStatusCode.BadRequest)]
         [ErrorToResponse(typeof(ElasticsearchSearchException), HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> Get(
-            [FromBody] ClientSearchRequestV2 request,
-            [FromRoute(Name = "namespace")] string ns,
+        public async Task<IActionResult> Search(
+            [FromBody] ClientSearchRequestV4 request,
+            [FromRoute(Name = "index")] string index,
             [FromHeader(Name = "X-Search-Token")] string searchToken)
         {
             FoundEntities<FoundEntityContent> result;
 
             try
             {
-                result = await _requestProcessor.ProcessSearchRequestAsync(request.ToV3(), ns, searchToken);
+                result = await _requestProcessor.ProcessSearchRequestAsync(request, index, searchToken);
             }
             catch (Exception e)
             {
                 e.AndFactIs("Initial request", request)
-                    .AndFactIs("Request namespace", ns);
+                    .AndFactIs("index-id", index);
                 throw;
             }
 

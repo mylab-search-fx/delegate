@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using MyLab.Log;
+using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Tools;
 using Nest;
 

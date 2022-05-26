@@ -4,6 +4,22 @@
 
 Формат лога изменений базируется на [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.7.7] - 2022-05-26
+
+### Добавлено
+
+*  [API v4](https://app.swaggerhub.com/apis/ozzy/mylab-search-searcher/4)
+*  поддержка `woldcard`(`*`) идентификаторов индексов в запросе токена поиска
+
+### Изменено
+
+* замена термина `namespace` на `index` с обратной совместимостью
+* переименован узел конфигурации `Searcher/Namespaces` -> `Searcher/Indexes`
+* переименован узел конфигурации `Searcher/Namespaces/Name` -> `Searcher/Index/Id`
+* переименован узел конфигурации `Searcher/Namespaces/Index` -> `Searcher/Index/EsIndex`
+* переименован узел конфигурации `Searcher/IndexNamePrefix` -> `Searcher/EsIndexNamePrefix`
+* переименован узел конфигурации `Searcher/IndexNamePostfix` -> `Searcher/EsIndexNamePostfix`
+
 ## [1.6.7] - 2022-05-18
 
 ### Изменено

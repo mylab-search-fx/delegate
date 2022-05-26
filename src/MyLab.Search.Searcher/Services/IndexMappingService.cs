@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using MyLab.Log;
 using MyLab.Log.Dsl;
 using MyLab.Search.EsAdapter;
+using MyLab.Search.Searcher.Options;
 using Nest;
 
 namespace MyLab.Search.Searcher.Services
@@ -41,7 +42,7 @@ namespace MyLab.Search.Searcher.Services
             if (_nsToIndexMapping.TryGetValue(ns, out var currentMapping))
                 return currentMapping;
 
-            var indexName = _esOptions.GetIndexName(ns);
+            var indexName = _esOptions.CreateEsIndexName(ns);
 
             var client = _esClientProvider.Provide();
 

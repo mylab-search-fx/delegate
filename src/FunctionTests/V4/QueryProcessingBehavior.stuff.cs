@@ -12,7 +12,7 @@ using MyLab.Search.Searcher.Options;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FunctionTests.V3
+namespace FunctionTests.V4
 {
     partial class QueryProcessingBehavior :
         IClassFixture<EsFixture<TestConnectionProvider>>,
@@ -20,7 +20,7 @@ namespace FunctionTests.V3
     {
         private readonly EsFixture<TestConnectionProvider> _esFxt;
         private readonly ITestOutputHelper _output;
-        private readonly TestApi<Startup, ISearcherApiV3> _client;
+        private readonly TestApi<Startup, ISearcherApiV4> _client;
 
         public QueryProcessingBehavior(EsFixture<TestConnectionProvider> esFxt,
             ITestOutputHelper output)
@@ -29,7 +29,7 @@ namespace FunctionTests.V3
 
             _output = output;
 
-            _client = new TestApi<Startup, ISearcherApiV3>()
+            _client = new TestApi<Startup, ISearcherApiV4>()
             {
                 ServiceOverrider = srv => srv
                     .Configure<ElasticsearchOptions>(o =>
@@ -48,7 +48,7 @@ namespace FunctionTests.V3
             };
         }
 
-        ISearcherApiV3 StartApi(string indexName)
+        ISearcherApiV4 StartApi(string indexName)
         {
             return _client.StartWithProxy(srv =>
             {

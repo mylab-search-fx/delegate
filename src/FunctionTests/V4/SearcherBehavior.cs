@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
-using MyLab.Search.Searcher;
+using MyLab.ApiClient;
 using MyLab.Search.Searcher.Client;
-using MyLab.Search.EsAdapter.SearchEngine;
-using MyLab.Search.Searcher;
 using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Services;
 using Nest;
@@ -16,7 +13,7 @@ using Xunit;
 using ClientQuerySearchStrategy = MyLab.Search.Searcher.Client.QuerySearchStrategy;
 using ServerQuerySearchStrategy = MyLab.Search.Searcher.QuerySearchStrategy;
 
-namespace FunctionTests.V3
+namespace FunctionTests.V4
 {
     public partial class SearcherBehavior
     {
@@ -49,7 +46,7 @@ namespace FunctionTests.V3
                 srv.AddSingleton<IEsSortProvider>(sp);
             });
 
-            var request = new ClientSearchRequestV3
+            var request = new ClientSearchRequestV4
             {
                 Query = "Kw_Val_1 >10",
                 Limit = 20,
@@ -100,7 +97,7 @@ namespace FunctionTests.V3
                 srv.AddSingleton<IEsSortProvider>(sp);
             });
 
-            var request = new ClientSearchRequestV3
+            var request = new ClientSearchRequestV4
             {
                 Query = "Kw_Val_1 >10",
                 Limit = 20
@@ -128,7 +125,7 @@ namespace FunctionTests.V3
                 srv.Configure<SearcherOptions>(o => o.QueryStrategy = strategy);
             });
 
-            var request = new ClientSearchRequestV3
+            var request = new ClientSearchRequestV4
             {
                 Query = "Kw_Val_1 Val_10",
                 Limit = 20,
@@ -149,7 +146,7 @@ namespace FunctionTests.V3
             //Arrange
             var cl = _searchClient.StartWithProxy();
 
-            var request = new ClientSearchRequestV3
+            var request = new ClientSearchRequestV4
             {
                 Query = "Kw_Val_1 Val_10",
                 Limit = 20,
@@ -169,7 +166,7 @@ namespace FunctionTests.V3
             //Arrange
             var cl = _searchClient.StartWithProxy();
 
-            var request = new ClientSearchRequestV3
+            var request = new ClientSearchRequestV4
             {
                 Query = "Kw_Val_1",
                 Limit = 20,
@@ -191,7 +188,7 @@ namespace FunctionTests.V3
             //Arrange
             var cl = _searchClient.StartWithProxy();
 
-            var request = new ClientSearchRequestV3
+            var request = new ClientSearchRequestV4
             {
                 Query = query,
                 Limit = 20,
@@ -210,7 +207,7 @@ namespace FunctionTests.V3
             //Arrange
             var cl = _searchClient.StartWithProxy();
 
-            var request = new ClientSearchRequestV3
+            var request = new ClientSearchRequestV4
             {
                 Limit = 1,
             };
@@ -233,7 +230,7 @@ namespace FunctionTests.V3
                     o.Debug = true;
                 }));
 
-            var request = new ClientSearchRequestV3
+            var request = new ClientSearchRequestV4
             {
                 Limit = 1,
                 Query = "Val_1"
@@ -254,7 +251,7 @@ namespace FunctionTests.V3
             //Arrange
             var cl = _searchClient.Start();
 
-            var request = new ClientSearchRequestV3
+            var request = new ClientSearchRequestV4
             {
                 Filters = new []{ new MyLab.Search.Searcher.Client.FilterRef { Id="bad" }  }
             };
@@ -273,7 +270,7 @@ namespace FunctionTests.V3
             var cl = _searchClient.StartWithProxy();
 
             //Act
-            var found = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV3());
+            var found = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV4());
 
             //Assert
             Assert.NotNull(found);
@@ -291,7 +288,7 @@ namespace FunctionTests.V3
                 }));
 
             //Act
-            var found = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV3());
+            var found = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV4());
 
             //Assert
             Assert.NotNull(found);
@@ -304,7 +301,7 @@ namespace FunctionTests.V3
             //Arrange
             var cl = _searchClient.StartWithProxy();
 
-            var req = new ClientSearchRequestV3
+            var req = new ClientSearchRequestV4
             {
                 Limit = 3
             };
@@ -328,7 +325,7 @@ namespace FunctionTests.V3
                 }));
 
             //Act
-            var found = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV3());
+            var found = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV4());
 
             //Assert
             Assert.NotNull(found);
@@ -341,7 +338,7 @@ namespace FunctionTests.V3
             //Arrange
             var cl = _searchClient.StartWithProxy();
 
-            var req = new ClientSearchRequestV3
+            var req = new ClientSearchRequestV4
             {
                 Sort = new SortingRef{Id = "revert"}
             };
@@ -360,7 +357,7 @@ namespace FunctionTests.V3
             //Arrange
             var cl = _searchClient.StartWithProxy();
 
-            var req = new ClientSearchRequestV3
+            var req = new ClientSearchRequestV4
             {
                 Sort = new SortingRef { Id = "revert" },
                 Offset = 1
@@ -386,7 +383,7 @@ namespace FunctionTests.V3
             );
 
             //Act
-            var found = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV3());
+            var found = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV4());
 
             //Assert
             Assert.NotNull(found);
@@ -403,7 +400,7 @@ namespace FunctionTests.V3
             //Arrange
             var cl = _searchClient.StartWithProxy();
 
-            var req = new ClientSearchRequestV3
+            var req = new ClientSearchRequestV4
             {
                 Filters = new []{ new MyLab.Search.Searcher.Client.FilterRef { Id = "from5to15" } }
             };
@@ -426,7 +423,7 @@ namespace FunctionTests.V3
             //Arrange
             var cl = _searchClient.StartWithProxy();
 
-            var req = new ClientSearchRequestV3
+            var req = new ClientSearchRequestV4
             {
                 Filters = new[] { new MyLab.Search.Searcher.Client.FilterRef { Id = "from5to15" } },
                 Sort = new SortingRef { Id = "revert" },
@@ -449,7 +446,7 @@ namespace FunctionTests.V3
             //Arrange
             var cl = _searchClient.StartWithProxy();
 
-            var req = new ClientSearchRequestV3
+            var req = new ClientSearchRequestV4
             {
                 Filters = new[] { new MyLab.Search.Searcher.Client.FilterRef { Id = "from2to5" } }
             };
@@ -467,50 +464,6 @@ namespace FunctionTests.V3
         }
 
         [Fact]
-        public async Task ShouldUseFilterFromToken()
-        {
-            //Arrange
-            var cl = _searchClient.StartWithProxy(srv => srv.Configure<SearcherOptions>(o =>
-            {
-                o.Token = new TokenizingOptions
-                {
-                    SignKey = string.Join(';', Enumerable.Repeat(Guid.NewGuid().ToString("N"), 10))
-                };
-            }));
-
-            var tokenRequest = new MyLab.Search.Searcher.Client.TokenRequestV3()
-            {
-                Namespaces = new []
-                {
-                    new MyLab.Search.Searcher.Client.NamespaceSettingsV3
-                    {
-                        Name = "test",
-                        Filters = new []
-                        {
-                            new MyLab.Search.Searcher.Client.FilterRef
-                            {
-                                Id = "from5to15"
-                            }
-                        }
-                    }
-                }
-            };
-
-            //Act
-            string token = await cl.CreateSearchTokenAsync(tokenRequest);
-
-            var found = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV3(), token);
-
-            //Assert
-            Assert.NotNull(found);
-            Assert.Equal(10, found.Entities.Length);
-            foreach (var i in Enumerable.Range(5, 10))
-            {
-                Assert.Contains(found.Entities, f => f.Content.Id == i);
-            }
-        }
-
-        [Fact]
         public async Task ShouldApplyFilterParameters()
         {
             //Arrange
@@ -518,7 +471,7 @@ namespace FunctionTests.V3
 
             //Act
 
-            var found = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV3
+            var found = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV4
             {
                 Filters = new[]
                 {
@@ -569,8 +522,8 @@ namespace FunctionTests.V3
 
             //Act
 
-            var ascFound = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV3{ Sort = ascSort });
-            var descFound = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV3{ Sort = descSort });
+            var ascFound = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV4{ Sort = ascSort });
+            var descFound = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV4{ Sort = descSort });
 
             //Assert
             Assert.NotNull(ascSort);

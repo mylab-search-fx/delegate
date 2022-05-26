@@ -39,7 +39,7 @@ namespace MyLab.Search.Searcher.Controllers
 
             try
             {
-                result = await _requestProcessor.ProcessSearchRequestAsync(request, ns, searchToken);
+                result = await _requestProcessor.ProcessSearchRequestAsync(request.ToV4(), ns, searchToken);
             }
             catch (Exception e)
             {

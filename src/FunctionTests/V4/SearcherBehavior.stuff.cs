@@ -14,7 +14,7 @@ using Nest;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FunctionTests.V3
+namespace FunctionTests.V4
 {
     public partial class SearcherBehavior :
         IClassFixture<EsIndexFixture<TestEntity, TestConnectionProvider>>,
@@ -22,7 +22,7 @@ namespace FunctionTests.V3
     {
         private readonly EsIndexFixture<TestEntity, TestConnectionProvider> _esFxt;
         private readonly ITestOutputHelper _output;
-        private readonly TestApi<Startup, ISearcherApiV3> _searchClient;
+        private readonly TestApi<Startup, ISearcherApiV4> _searchClient;
 
         public SearcherBehavior(EsIndexFixture<TestEntity, TestConnectionProvider> esFxt, ITestOutputHelper output)
         {
@@ -31,7 +31,7 @@ namespace FunctionTests.V3
 
             _output = output;
 
-            _searchClient = new TestApi<Startup, ISearcherApiV3>()
+            _searchClient = new TestApi<Startup, ISearcherApiV4>()
             {
                 ServiceOverrider = ServiceOverrider,
                 Output = output

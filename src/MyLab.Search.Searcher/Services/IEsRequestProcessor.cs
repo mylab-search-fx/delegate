@@ -5,6 +5,6 @@ namespace MyLab.Search.Searcher.Services
 {
     public interface IEsRequestProcessor
     {
-        Task<FoundEntities<FoundEntityContent>> ProcessSearchRequestAsync(ClientSearchRequestV3 clientRequest, string ns, string searchToken);
+        Task<FoundEntities<FoundEntityContent>> ProcessSearchRequestAsync(ClientSearchRequestV4 clientRequest, string idxId, string searchToken);
     }
 }
