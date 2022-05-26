@@ -66,24 +66,23 @@ namespace MyLab.Search.Searcher.Services
                 throw new TokenizingDisabledException("Token factoring disabled");
 
             ClaimsPrincipal tokenPrincipal;
+
+            var tokenValidationParams = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateTokenReplay = false,
+                ValidateActor = false,
+                ValidateAudience = true,
+                ValidateLifetime = _options.Token.ExpirySec.HasValue,
+                LifetimeValidator = ValidateLifetime,
+                IssuerSigningKey = _securityKey.Value,
+                ValidAudience = idxId,
+                AudienceValidator = ValidateAudience
+            };
+
             try
             {
-                tokenPrincipal = _tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuer = false,
-                    ValidateTokenReplay = false,
-                    ValidateActor = false,
-                    ValidateAudience = true,
-                    ValidateLifetime = _options.Token.ExpirySec.HasValue,
-                    LifetimeValidator= (before, expires, securityToken, parameters) =>
-                    {
-                        if (!_options.Token.ExpirySec.HasValue)
-                            return true;
-                        return expires >= DateTime.UtcNow;
-                    },
-                    IssuerSigningKey = _securityKey.Value,
-                    ValidAudience = idxId
-                }, out _);
+                tokenPrincipal = _tokenHandler.ValidateToken(token, tokenValidationParams, out _);
             }
             catch (Exception e)
             {
@@ -94,20 +93,10 @@ namespace MyLab.Search.Searcher.Services
                 .Where(c => c.Type == IndexSettingsClaimName)
                 .Select(ParseClaim)
                 .ToArray();
+            
+            var targetClaim = idxClaims.FirstOrDefault(c => c.Id == idxId);
 
-            if (idxClaims.Length == 0)
-            {
-                throw new InvalidTokenException("Index claims not found in the Search Token");
-            }
-
-            var foundIdx = idxClaims.FirstOrDefault(c => c.Id == idxId);
-
-            if (foundIdx == null)
-            {
-                throw new InvalidTokenException("Context index claim not found in the Search Token");
-            }
-
-            return foundIdx;
+            return targetClaim ?? idxClaims.FirstOrDefault(c => c.Id == "*");
 
             IndexSettingsV4 ParseClaim(Claim claim)
             {
@@ -123,6 +112,24 @@ namespace MyLab.Search.Searcher.Services
                         .AndFactIs("token", claim.Value);
                 }
             }
+        }
+
+        private bool ValidateAudience(IEnumerable<string> audiences, SecurityToken securitytoken, TokenValidationParameters validationparameters)
+        {
+            var auds = audiences.ToArray();
+
+            if (auds.Contains("*"))
+            {
+                return true;
+            }
+
+            return auds.Contains(validationparameters.ValidAudience);
+        }
+
+        private bool ValidateLifetime(DateTime? before, DateTime? expires, SecurityToken securityToken, TokenValidationParameters parameters)
+        {
+            if (!_options.Token.ExpirySec.HasValue) return true;
+            return expires >= DateTime.UtcNow;
         }
 
         private JwtPayload BuildPayload(TokenRequestV4 request, string idxSettings)
