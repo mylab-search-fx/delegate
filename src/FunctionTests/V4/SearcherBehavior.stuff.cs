@@ -105,6 +105,11 @@ namespace FunctionTests.V4
             {
                 return Task.FromResult(_sort);
             }
+
+            public Task<ISort> ProvideDefaultAsync(string ns)
+            {
+                throw new System.NotImplementedException();
+            }
         }
     }
 }

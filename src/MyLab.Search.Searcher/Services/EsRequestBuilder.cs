@@ -125,6 +125,13 @@ namespace MyLab.Search.Searcher.Services
 
                 sorts.Add(sort);
             }
+            else
+            {
+                var defaultSort = await _esSortProvider.ProvideDefaultAsync(idxId);
+
+                if(defaultSort != null)
+                    sorts.Add(defaultSort);
+            }
 
             req.Sort = sorts;
 
