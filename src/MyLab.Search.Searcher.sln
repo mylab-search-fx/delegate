@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionTests", "FunctionTe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\UnitTests.csproj", "{B9E6C4C9-4EC2-4B77-91DF-F18E6CD30145}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyLab.Search.Searcher.Client", "MyLab.Search.Searcher.Client\MyLab.Search.Searcher.Client.csproj", "{3033DD66-A827-4E4A-B7A5-F7E466090E81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyLab.Search.SearcherClient", "MyLab.Search.SearcherClient\MyLab.Search.SearcherClient.csproj", "{3033DD66-A827-4E4A-B7A5-F7E466090E81}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
