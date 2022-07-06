@@ -22,6 +22,11 @@ namespace UnitTests
             {
                 throw new NotImplementedException();
             }
+
+            public Task<ISort> ProvideDefaultAsync(string ns)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private class TestFilterProvider : IEsFilterProvider
