@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MyLab.Search.Searcher.Client\MyLab.Search.SearcherClient.csproj" />
+    <ProjectReference Include="..\MyLab.Search.SearcherClient\MyLab.Search.SearcherClient.csproj" />
     <ProjectReference Include="..\MyLab.Search.Searcher\MyLab.Search.Searcher.csproj" />
   </ItemGroup>
 

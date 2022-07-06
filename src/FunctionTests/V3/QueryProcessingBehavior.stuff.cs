@@ -9,6 +9,7 @@ using MyLab.Search.EsAdapter;
 using MyLab.Search.EsTest;
 using MyLab.Search.Searcher;
 using MyLab.Search.Searcher.Options;
+using MyLab.Search.SearcherClient;
 using Xunit;
 using Xunit.Abstractions;
 

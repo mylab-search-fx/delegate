@@ -10,6 +10,7 @@ using MyLab.Search.EsTest;
 using MyLab.Search.Searcher;
 using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Services;
+using MyLab.Search.SearcherClient;
 using Nest;
 using Xunit;
 using Xunit.Abstractions;
