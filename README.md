@@ -332,6 +332,8 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
     *   [bool->should](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html) - если стратегия `Should` с минимальным количеством совпадений - `1`;
     *   [bool->must](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html) - если стратегия `Must`;
 
+В качестве имени целевого индекса в `Elasticsearch` используется переданный идентификатор индекса в запросе или имя индекса из соответствующего узла конфигурации `EsIndex`. 
+
 #### Фильтры запроса для ES
 
 ##### Загрузка фильтра
@@ -644,7 +646,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
     * `SignKey` - текстовый ключ подписи токена. Должен быть не меньше 16 байт.
   * `Indexes[]` - настройки индексов:
     * `Id` - идентификатор индекса; 
-    * `EsIndex` - целевой индекс в `Elasticsearch`;
+    * `EsIndex` - если указан, определяет целевой индекс в `Elasticsearch`;
     * `DefaultFilter` - (опционально) литеральный идентификатор фильтра по умолчанию;
     * `DefaultSort`  - (опционально) литеральный идентификатор сортировки по умолчанию;
     * `DefaultLimit`- (опционально) лимиты выборки по умолчанию;

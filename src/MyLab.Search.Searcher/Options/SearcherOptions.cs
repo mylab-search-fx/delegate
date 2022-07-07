@@ -30,10 +30,7 @@ namespace MyLab.Search.Searcher.Options
                 var nsOptions = Namespaces?.FirstOrDefault(n => n.Name == indexId);
 
                 if (nsOptions == null)
-                {
-                    throw new IndexOptionsNotFoundException(indexId)
-                        .AndFactIs("index-id", indexId);
-                }
+                    return null;
 
                 idxOptions = new IdxOptions(nsOptions);
 
@@ -57,7 +54,9 @@ namespace MyLab.Search.Searcher.Options
                 idxOptions = e.IndexOptionsFromNamespaceOptions;
             }
 
-            return $"{EsIndexNamePrefix ?? IndexNamePrefix ?? string.Empty}{idxOptions.EsIndex}{EsIndexNamePostfix ?? IndexNamePostfix ?? string.Empty}";
+            var totalEsIdxName = idxOptions?.EsIndex ?? idxId;
+
+            return $"{EsIndexNamePrefix ?? IndexNamePrefix ?? string.Empty}{totalEsIdxName}{EsIndexNamePostfix ?? IndexNamePostfix ?? string.Empty}";
         }
     }
 }
