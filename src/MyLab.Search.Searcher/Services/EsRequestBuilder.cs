@@ -61,7 +61,7 @@ namespace MyLab.Search.Searcher.Services
 
             int limit = clientSearchRequest.Limit > 0
                 ? clientSearchRequest.Limit
-                : idxOptions.DefaultLimit ?? 10;
+                : idxOptions?.DefaultLimit ?? 10;
 
             var req = new SearchRequest
             {
@@ -70,7 +70,7 @@ namespace MyLab.Search.Searcher.Services
             };
 
 
-            var filtersToAdd = await LoadFilters(clientSearchRequest.Filters, filterRefs, idxOptions.DefaultFilter, idxId);
+            var filtersToAdd = await LoadFilters(clientSearchRequest.Filters, filterRefs, idxOptions?.DefaultFilter, idxId);
             
             var queryProc = SearchQueryProcessor.Parse(clientSearchRequest.Query);
             var mapping = await _indexMappingService.GetIndexMappingAsync(idxId);
@@ -107,7 +107,7 @@ namespace MyLab.Search.Searcher.Services
 
             var sorts = new List<ISort>();
 
-            string sortId = clientSearchRequest.Sort?.Id ?? idxOptions.DefaultSort;
+            string sortId = clientSearchRequest.Sort?.Id ?? idxOptions?.DefaultSort;
 
             if (sortId != null)
             {
