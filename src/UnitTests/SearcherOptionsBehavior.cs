@@ -84,11 +84,15 @@ namespace UnitTests
         }
 
         [Theory]
-        [InlineData(null, null, "foo")]
-        [InlineData("prefix_", null, "prefix_foo")]
-        [InlineData("prefix_", "_postfix", "prefix_foo_postfix")]
-        [InlineData(null, "_postfix", "foo_postfix")]
-        public void ShouldCreateEsIndexName(string prefix, string postfix, string expectedResult)
+        [InlineData("foo", null, null, "foo")]
+        [InlineData("foo", "prefix_", null, "prefix_foo")]
+        [InlineData("foo", "prefix_", "_postfix", "prefix_foo_postfix")]
+        [InlineData("foo", null, "_postfix", "foo_postfix")]
+        [InlineData(null, null, null, "bar")]
+        [InlineData(null, "prefix_", null, "prefix_bar")]
+        [InlineData(null, "prefix_", "_postfix", "prefix_bar_postfix")]
+        [InlineData(null, null, "_postfix", "bar_postfix")]
+        public void ShouldCreateEsIndexName(string esIndexName, string prefix, string postfix, string expectedResult)
         {
             //Arrange
             var opts = new SearcherOptions
@@ -100,7 +104,7 @@ namespace UnitTests
                     new IdxOptions
                     {
                         Id = "bar",
-                        EsIndex = "foo"
+                        EsIndex = esIndexName
                     }
                 }
             };

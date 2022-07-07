@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using Elasticsearch.Net;
+using MyLab.Search.Searcher.Tools;
 using Nest;
 using Newtonsoft.Json;
 using Xunit;
@@ -25,8 +26,6 @@ namespace UnitTests
         public void ShouldBoolSerialize()
         {
             //Arrange
-            var client = new ElasticClient();
-
             var b = new BoolQuery
             {
                 MinimumShouldMatch = 2,
@@ -55,7 +54,7 @@ namespace UnitTests
             };
 
             //Act
-            var str = client.RequestResponseSerializer.SerializeToString(b);
+            var str = EsSerializer.Instance.SerializeToString(b);
             _output.WriteLine(str);
 
             //Assert
@@ -67,11 +66,10 @@ namespace UnitTests
         {
             //Arrange
             var str = "{\"Id\":{\"order\":\"desc\"}}";
-            var client = new ElasticClient();
-
+            
             //Act
             using var strm = new MemoryStream(Encoding.UTF8.GetBytes(str));
-            var sort = client.RequestResponseSerializer.Deserialize<ISort>(strm) as FieldSort;
+            var sort = EsSerializer.Instance.Deserialize<ISort>(strm) as FieldSort;
 
             //Assert
             Assert.NotNull(sort);
@@ -84,11 +82,10 @@ namespace UnitTests
         {
             //Arrange
             var str = "{\"range\":{\"Id\":{\"gte\":2,\"lt\":5}}}";
-            var client = new ElasticClient();
 
             //Act
             using var strm = new MemoryStream(Encoding.UTF8.GetBytes(str));
-            var queryContainer = (IQueryContainer)client.RequestResponseSerializer.Deserialize<QueryContainer>(strm);
+            var queryContainer = (IQueryContainer)EsSerializer.Instance.Deserialize<QueryContainer>(strm);
             var rangeQuery = queryContainer.Range as LongRangeQuery;
 
             //Assert

@@ -26,6 +26,22 @@ namespace MyLab.Search.Searcher.Services
 
         public async Task<ISort> ProvideAsync(string sortId, string ns, IEnumerable<KeyValuePair<string, string>> args = null)
         {
+            var sort = await ProvideCoreAsync(sortId, ns, args);
+
+            if(sort == null)
+                throw new ResourceNotFoundException("Specified sort not found")
+                    .AndFactIs("sortId", sortId);
+
+            return sort;
+        }
+
+        public Task<ISort> ProvideDefaultAsync(string ns)
+        {
+            return ProvideCoreAsync("default", ns);
+        }
+
+        async Task<ISort> ProvideCoreAsync(string sortId, string ns, IEnumerable<KeyValuePair<string, string>> args = null)
+        {
             var pathNs = Path.Combine(_options.SortPath, ns, sortId + ".json");
             var pathBase = Path.Combine(_options.SortPath, sortId + ".json");
 
@@ -43,8 +59,7 @@ namespace MyLab.Search.Searcher.Services
                 }
                 else
                 {
-                    throw new ResourceNotFoundException("Specified sort not found")
-                        .AndFactIs("sortId", sortId);
+                    return null;
                 }
             }
 

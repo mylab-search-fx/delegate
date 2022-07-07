@@ -315,13 +315,31 @@ namespace FunctionTests.V4
         }
 
         [Fact]
-        public async Task ShouldUseDefaultSort()
+        public async Task ShouldUseDefaultConfiguredSort()
         {
             //Arrange
             var cl = _searchClient.StartWithProxy(srv => srv
                 .Configure<SearcherOptions>(o =>
                 {
                     o.Indexes.First(n => n.Id == "test").DefaultSort = "revert";
+                }));
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", new ClientSearchRequestV4());
+
+            //Assert
+            Assert.NotNull(found);
+            Assert.Equal(20, found.Entities[0].Content.Id);
+        }
+
+        [Fact]
+        public async Task ShouldUseDefaultSort()
+        {
+            //Arrange
+            var cl = _searchClient.StartWithProxy(srv => srv
+                .Configure<SearcherOptions>(o =>
+                {
+                    o.Indexes.First(n => n.Id == "test").DefaultSort = null;
                 }));
 
             //Act

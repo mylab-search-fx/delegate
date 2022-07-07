@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <PackageId>MyLab.Search.Searcher.Client</PackageId>
+    <PackageId>MyLab.Search.SearcherClient</PackageId>
     <Authors>Andrey O.</Authors>
     <Copyright>Copyright (c) 2022 Andrey Osintsev &lt;ozzy.ext@gmail.com&gt;</Copyright>
-    <Product>MyLab.Search.Searcher.Client</Product>
+    <Product>MyLab.Search.SearcherClient</Product>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.7.7</Version>
-    <AssemblyVersion>1.7.7.2605</AssemblyVersion>
-    <FileVersion>1.7.7.2605</FileVersion>
+    <Version>1.8.7</Version>
+    <AssemblyVersion>1.8.7.0807</AssemblyVersion>
+    <FileVersion>1.8.7.0807</FileVersion>
     <PackageProjectUrl>https://github.com/mylab-search-fx/searcher</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mylab-search-fx/searcher.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

@@ -24,7 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MyLab.Search.Searcher.Client\MyLab.Search.Searcher.Client.csproj" />
+    <ProjectReference Include="..\MyLab.Search.Searcher.Client\MyLab.Search.SearcherClient.csproj" />
+    <ProjectReference Include="..\MyLab.Search.SearcherClient\MyLab.Search.SearcherClient.csproj" />
     <ProjectReference Include="..\MyLab.Search.Searcher\MyLab.Search.Searcher.csproj" />
   </ItemGroup>
 
@@ -45,6 +46,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="files\sort\idOrderParam.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="files\sort\default.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="files\sort\revert.json">

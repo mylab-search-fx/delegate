@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
 using MyLab.ApiClient;
+using MyLab.Search.Searcher.Client;
 
-namespace MyLab.Search.Searcher.Client
+namespace MyLab.Search.SearcherClient
 {
     /// <summary>
     /// Describe searcher APIv4

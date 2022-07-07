@@ -332,6 +332,8 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
     *   [bool->should](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html) - если стратегия `Should` с минимальным количеством совпадений - `1`;
     *   [bool->must](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html) - если стратегия `Must`;
 
+В качестве имени целевого индекса в `Elasticsearch` используется переданный идентификатор индекса в запросе или имя индекса из соответствующего узла конфигурации `EsIndex`. 
+
 #### Фильтры запроса для ES
 
 ##### Загрузка фильтра
@@ -357,6 +359,12 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 ```
 
 Если файл не будет найден и по этому адресу, то клиент получит ошибку `400 (BadRequest)`.
+
+Список применяемых фильтров формируется следующим образом:
+
+* фильтры из запроса
+* фильтры из токена поиска
+* фильтр по умолчанию из настроек индекса - поле `DefaultFilter`
 
 Пример файла фильтра:
 
@@ -408,7 +416,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 Сортировки загружаются из файлов `json` с содержанием, соответствующим структуре [узла сортировки в запросе `ES`](https://www.elastic.co/guide/en/elasticsearch/reference/current/sort-search-results.html)
 
-Путь к файлу фильтра формируется следующим образом:
+Путь к файлу сортировки формируется следующим образом:
 
 ```
 [sort-dir]/[index]/[sort].json
@@ -418,7 +426,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 
 * `sort-dir` - полный путь к директории. где находятся файлы с сортировками;
 * `index` - идентификатор индекса из запроса;
-* `sort` - литеральный идентификатор фильтра.
+* `sort` - литеральный идентификатор сортировки.
 
 Если не удалось найти файл в этой директории, то будет попытка обнаружить его в общей директории для всех индесов:
 
@@ -427,6 +435,12 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
 ```
 
 Если файл не будет найден и по этому адресу, то клиент получит ошибку `400 (BadRequest)`.
+
+Приложение пытается получить литеральный идентификатор сортировки в следующей последовательности:
+
+* из запроса поиска (обязателен, если указан)
+* из настроек индекса - поле `DefaultSort` (обязателен, если указан)
+* `default` (только если файл существует)
 
 Пример файла сортировки:
 
@@ -632,7 +646,7 @@ X-Search-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.....sagf0qhKM7TAxtuYcSGygZe
     * `SignKey` - текстовый ключ подписи токена. Должен быть не меньше 16 байт.
   * `Indexes[]` - настройки индексов:
     * `Id` - идентификатор индекса; 
-    * `EsIndex` - целевой индекс в `Elasticsearch`;
+    * `EsIndex` - если указан, определяет целевой индекс в `Elasticsearch`;
     * `DefaultFilter` - (опционально) литеральный идентификатор фильтра по умолчанию;
     * `DefaultSort`  - (опционально) литеральный идентификатор сортировки по умолчанию;
     * `DefaultLimit`- (опционально) лимиты выборки по умолчанию;
