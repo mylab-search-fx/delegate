@@ -180,7 +180,7 @@ namespace MyLab.Search.Searcher.Services
             }
             else
             {
-                if (idxOptions.QueryStrategy != default)
+                if (idxOptions != null && idxOptions.QueryStrategy != default)
                 {
                     queryStrategy = idxOptions.QueryStrategy;
                 }
