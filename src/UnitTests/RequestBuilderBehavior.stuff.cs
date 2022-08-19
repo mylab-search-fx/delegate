@@ -25,7 +25,7 @@ namespace UnitTests
 
             public Task<ISort> ProvideDefaultAsync(string ns)
             {
-                throw new NotImplementedException();
+                return Task.FromResult<ISort>(null);
             }
         }
 

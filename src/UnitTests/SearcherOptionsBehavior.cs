@@ -64,7 +64,7 @@ namespace UnitTests
         }
 
         [Fact]
-        public void ShouldThrowIfNsNotFound()
+        public void ShouldPassIfNsNotFound()
         {
             //Arrange
             var opts = new SearcherOptions
@@ -80,7 +80,7 @@ namespace UnitTests
             };
 
             //Act & Assert
-            Assert.Throws<IndexOptionsNotFoundException>(() => opts.GetIndexOptions("foo"));
+            opts.GetIndexOptions("foo");
         }
 
         [Theory]
@@ -117,7 +117,7 @@ namespace UnitTests
         }
 
         [Fact]
-        public void ShouldThrowWhenGetIndexNameAndNsNotFound()
+        public void ShouldPassWhenGetIndexNameAndNsNotFound()
         {
             //Arrange
             var opts = new SearcherOptions
@@ -133,7 +133,7 @@ namespace UnitTests
             };
 
             //Act & Assert
-            Assert.Throws<IndexOptionsNotFoundException>(() => opts.CreateEsIndexName("foo"));
+            opts.CreateEsIndexName("foo");
         }
     }
 }

@@ -55,6 +55,35 @@ namespace UnitTests
         }
 
         [Fact]
+        public async Task ShouldPassIfIndexOptionsNotFound()
+        {
+            //Arrange
+            var opt = new SearcherOptions
+            {
+                QueryStrategy = QuerySearchStrategy.Should
+            };
+
+            var reqBuilder = new EsRequestBuilder(opt,
+                new TestSortProvider(),
+                new TestFilterProvider(),
+                new TestIndexMappingService());
+
+            var sReq = new ClientSearchRequestV4()
+            {
+                Query = "nomater"
+            };
+
+            //Act
+            var esReq = await reqBuilder.BuildAsync(sReq, "test", null);
+            var boolQuery = ((IQueryContainer)esReq.Query).Bool;
+
+
+            //Assert
+            Assert.NotNull(boolQuery.Should);
+            Assert.Null(boolQuery.Must);
+        }
+
+        [Fact]
         public async Task ShouldUseDefaultQueryStrategyOr()
         {
             //Arrange
