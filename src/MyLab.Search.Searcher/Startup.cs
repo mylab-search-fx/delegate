@@ -11,6 +11,7 @@ using MyLab.Search.Searcher.Services;
 using MyLab.StatusProvider;
 using MyLab.WebErrors;
 using Newtonsoft.Json;
+using Prometheus;
 
 namespace MyLab.Search.Searcher
 {
@@ -56,6 +57,7 @@ namespace MyLab.Search.Searcher
                 .UseEndpoints(endpoints =>
                 {
                     endpoints.MapControllers();
+                    endpoints.MapMetrics();
                 })
                 .UseStatusApi(); ;
         }
