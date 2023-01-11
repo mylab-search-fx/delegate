@@ -4,7 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using MyLab.ApiClient;
-using MyLab.Search.Searcher.Client;
+using MyLab.Search.SearcherClient;
 using MyLab.Search.Searcher.Options;
 using Xunit;
 
@@ -26,16 +26,16 @@ namespace FunctionTests.V4
                 };
             }));
 
-            var tokenRequest = new MyLab.Search.Searcher.Client.TokenRequestV4()
+            var tokenRequest = new MyLab.Search.SearcherClient.TokenRequestV4()
             {
                 Indexes = new[]
                 {
-                    new MyLab.Search.Searcher.Client.IndexSettingsV4
+                    new MyLab.Search.SearcherClient.IndexSettingsV4
                     {
                         Id = indexIdInToken,
                         Filters = new[]
                         {
-                            new MyLab.Search.Searcher.Client.FilterRef
+                            new MyLab.Search.SearcherClient.FilterRef
                             {
                                 Id = "from5to15"
                             }
@@ -70,7 +70,7 @@ namespace FunctionTests.V4
                 };
             }));
 
-            var tokenRequest = new MyLab.Search.Searcher.Client.TokenRequestV4()
+            var tokenRequest = new MyLab.Search.SearcherClient.TokenRequestV4()
             {
                 Indexes = Array.Empty<IndexSettingsV4>()
             };
@@ -108,7 +108,7 @@ namespace FunctionTests.V4
                 };
             }));
 
-            var tokenRequest = new MyLab.Search.Searcher.Client.TokenRequestV4()
+            var tokenRequest = new MyLab.Search.SearcherClient.TokenRequestV4()
             {
                 Indexes = new IndexSettingsV4[]
                 {

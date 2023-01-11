@@ -26,12 +26,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\MyLab.Search.Searcher\Models\ClientSearchRequestV2.cs" Link="ClientSearchRequestV2.cs" />
     <Compile Include="..\MyLab.Search.Searcher\Models\ClientSearchRequestV3.cs" Link="ClientSearchRequestV3.cs" />
     <Compile Include="..\MyLab.Search.Searcher\Models\ClientSearchRequestV4.cs" Link="ClientSearchRequestV4.cs" />
     <Compile Include="..\MyLab.Search.Searcher\Models\FilterRef.cs" Link="FilterRef.cs" />
     <Compile Include="..\MyLab.Search.Searcher\Models\FiltersCall.cs" Link="FiltersCall.cs" />
     <Compile Include="..\MyLab.Search.Searcher\Models\FoundEntity.cs" Link="FoundEntity.cs" />
     <Compile Include="..\MyLab.Search.Searcher\Models\SortingRef.cs" Link="SortingRef.cs" />
+    <Compile Include="..\MyLab.Search.Searcher\Models\TokenRequestV2.cs" Link="TokenRequestV2.cs" />
     <Compile Include="..\MyLab.Search.Searcher\Models\TokenRequestV3.cs" Link="TokenRequestV3.cs" />
     <Compile Include="..\MyLab.Search.Searcher\Models\TokenRequestV4.cs" Link="TokenRequestV4.cs" />
     <Compile Include="..\MyLab.Search.Searcher\QuerySearchStrategy.cs" Link="QuerySearchStrategy.cs" />

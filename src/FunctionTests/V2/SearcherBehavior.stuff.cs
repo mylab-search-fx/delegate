@@ -4,16 +4,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MyLab.ApiClient.Test;
 using MyLab.Search.Searcher;
-using MyLab.Search.SearcherClient;
 using MyLab.Search.EsAdapter;
 using MyLab.Search.EsTest;
 using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Services;
+using MyLab.Search.SearcherClient;
 using Nest;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FunctionTests.V4
+namespace FunctionTests.V2
 {
     public partial class SearcherBehavior :
         IClassFixture<EsIndexFixture<TestEntity, TestConnectionProvider>>,
@@ -21,7 +21,7 @@ namespace FunctionTests.V4
     {
         private readonly EsIndexFixture<TestEntity, TestConnectionProvider> _esFxt;
         private readonly ITestOutputHelper _output;
-        private readonly TestApi<Startup, ISearcherApiV4> _searchClient;
+        private readonly TestApi<Startup, ISearcherApiV2> _searchClient;
 
         public SearcherBehavior(EsIndexFixture<TestEntity, TestConnectionProvider> esFxt, ITestOutputHelper output)
         {
@@ -30,7 +30,7 @@ namespace FunctionTests.V4
 
             _output = output;
 
-            _searchClient = new TestApi<Startup, ISearcherApiV4>()
+            _searchClient = new TestApi<Startup, ISearcherApiV2>()
             {
                 ServiceOverrider = ServiceOverrider,
                 Output = output

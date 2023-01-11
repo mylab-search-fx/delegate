@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Linq;
 using Newtonsoft.Json;
 
 #if IS_CLIENT
-namespace MyLab.Search.Searcher.Client
+namespace MyLab.Search.SearcherClient
 #else
 namespace MyLab.Search.Searcher.Models
 #endif
 
 {
     [Obsolete]
-    public class TokenRequestV2
+    public partial class TokenRequestV2
     {
         [JsonProperty("namespaces")]
         public NamespaceSettingsV2[] Namespaces { get; set; }

@@ -2,15 +2,15 @@
 
 namespace MyLab.Search.Searcher.Models
 {
-    static class TokenRequestV2Extensions
+    public partial class TokenRequestV2
     {
-        public static TokenRequestV4 ToV4(this TokenRequestV2 v2Req)
+        public TokenRequestV4 ToV4()
         {
             var req = new TokenRequestV4();
 
-            if (v2Req.Namespaces != null)
+            if (Namespaces != null)
             {
-                req.Indexes = v2Req.Namespaces.Select(ConvertNs).ToArray();
+                req.Indexes = Namespaces.Select(ConvertNs).ToArray();
             }
 
             return req;
