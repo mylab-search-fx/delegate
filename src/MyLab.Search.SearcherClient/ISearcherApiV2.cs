@@ -1,33 +1,35 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using MyLab.ApiClient;
 
 namespace MyLab.Search.SearcherClient
 {
     /// <summary>
-    /// Describe searcher APIv4
+    /// Describe delegate APIv2
     /// </summary>
     /// <remarks>
-    /// Contract key = `searcher`
+    /// Contract key = `search-delegate`
     /// </remarks>
-    [Api("v4", Key = "searcher")]
-    public interface ISearcherApiV4
+    [Api("v2", Key = "searcher")]
+    [Obsolete]
+    public interface ISearcherApiV2
     {
         /// <summary>
         /// Creates new search token
         /// </summary>
         [Post("token")]
-        Task<string> CreateSearchTokenAsync([JsonContent] TokenRequestV4 tokenRequest);
+        Task<string> CreateSearchTokenAsync([JsonContent] TokenRequestV2 tokenRequest);
 
         /// <summary>
         /// Performs searching
         /// </summary>
-        /// <param name="indexId">index identifier</param>
+        /// <param name="ns">namespace</param>
         /// <param name="searchRequest">contains search parameters</param>
         /// <param name="searchToken">search token</param>
-        [Post("indexes/{indexId}/searcher")]
+        [Post("search/{namespace}")]
         Task<FoundEntities<TRes>> SearchAsync<TRes>(
-            [Path("indexId")] string indexId,
-            [JsonContent] ClientSearchRequestV4 searchRequest,
+            [Path("namespace")] string ns,
+            [JsonContent] ClientSearchRequestV2 searchRequest,
             [Header("X-Search-Token")] string searchToken = null);
     }
 }

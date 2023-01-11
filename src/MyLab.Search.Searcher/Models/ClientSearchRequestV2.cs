@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 #if IS_CLIENT
@@ -7,14 +8,15 @@ namespace MyLab.Search.SearcherClient
 namespace MyLab.Search.Searcher.Models
 #endif
 {
-    public class ClientSearchRequestV3
+    [Obsolete]
+    public partial class ClientSearchRequestV2
     {
         [JsonProperty("query")]
         public string Query { get; set; }
         [JsonProperty("filters")]
         public FilterRef[] Filters { get; set; }
         [JsonProperty("sort")]
-        public SortingRef Sort { get; set; }
+        public string Sort { get; set; }
         [JsonProperty("offset")]
         public int Offset { get; set; }
         [JsonProperty("limit")]

@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using MyLab.Search.Searcher;
-using MyLab.Search.Searcher.Client;
+using MyLab.Search.SearcherClient;
 using MyLab.Search.EsAdapter.SearchEngine;
 using MyLab.Search.Searcher;
 using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Services;
 using Nest;
 using Xunit;
-using ClientQuerySearchStrategy = MyLab.Search.Searcher.Client.QuerySearchStrategy;
+using ClientQuerySearchStrategy = MyLab.Search.SearcherClient.QuerySearchStrategy;
 using ServerQuerySearchStrategy = MyLab.Search.Searcher.QuerySearchStrategy;
 
 namespace FunctionTests.V3
@@ -256,7 +256,7 @@ namespace FunctionTests.V3
 
             var request = new ClientSearchRequestV3
             {
-                Filters = new []{ new MyLab.Search.Searcher.Client.FilterRef { Id="bad" }  }
+                Filters = new []{ new MyLab.Search.SearcherClient.FilterRef { Id="bad" }  }
             };
 
             //Act
@@ -405,7 +405,7 @@ namespace FunctionTests.V3
 
             var req = new ClientSearchRequestV3
             {
-                Filters = new []{ new MyLab.Search.Searcher.Client.FilterRef { Id = "from5to15" } }
+                Filters = new []{ new MyLab.Search.SearcherClient.FilterRef { Id = "from5to15" } }
             };
 
             //Act
@@ -428,7 +428,7 @@ namespace FunctionTests.V3
 
             var req = new ClientSearchRequestV3
             {
-                Filters = new[] { new MyLab.Search.Searcher.Client.FilterRef { Id = "from5to15" } },
+                Filters = new[] { new MyLab.Search.SearcherClient.FilterRef { Id = "from5to15" } },
                 Sort = new SortingRef { Id = "revert" },
                 Offset = 1,
                 Limit = 1
@@ -451,7 +451,7 @@ namespace FunctionTests.V3
 
             var req = new ClientSearchRequestV3
             {
-                Filters = new[] { new MyLab.Search.Searcher.Client.FilterRef { Id = "from2to5" } }
+                Filters = new[] { new MyLab.Search.SearcherClient.FilterRef { Id = "from2to5" } }
             };
 
             //Act
@@ -478,16 +478,16 @@ namespace FunctionTests.V3
                 };
             }));
 
-            var tokenRequest = new MyLab.Search.Searcher.Client.TokenRequestV3()
+            var tokenRequest = new MyLab.Search.SearcherClient.TokenRequestV3()
             {
                 Namespaces = new []
                 {
-                    new MyLab.Search.Searcher.Client.NamespaceSettingsV3
+                    new MyLab.Search.SearcherClient.NamespaceSettingsV3
                     {
                         Name = "test",
                         Filters = new []
                         {
-                            new MyLab.Search.Searcher.Client.FilterRef
+                            new MyLab.Search.SearcherClient.FilterRef
                             {
                                 Id = "from5to15"
                             }
@@ -522,7 +522,7 @@ namespace FunctionTests.V3
             {
                 Filters = new[]
                 {
-                    new MyLab.Search.Searcher.Client.FilterRef
+                    new MyLab.Search.SearcherClient.FilterRef
                     {
                         Id = "paramFilter",
                         Args = new Dictionary<string, string>

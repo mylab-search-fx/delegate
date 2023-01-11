@@ -4,9 +4,9 @@
 
 `Docker` образ сервиса:[![Docker image](https://img.shields.io/static/v1?label=docker&style=flat&logo=docker&message=image&color=blue)](https://github.com/mylab-search-fx/Searcher/pkgs/container/Searcher)
 
-Спецификация `API`: [![API specification](https://img.shields.io/badge/OAS3-v4%20(actual)-green)](https://app.swaggerhub.com/apis/ozzy/mylab-search-searcher/4) [![API specification](https://img.shields.io/badge/OAS3-v3%20(obsolete)-lightgray)](https://app.swaggerhub.com/apis/ozzy/mylab-search-searcher/3) 
+Спецификация `API`: [![API specification](https://img.shields.io/badge/OAS3-v4%20(actual)-green)](https://app.swaggerhub.com/apis/ozzy/mylab-search-searcher/4) [![API specification](https://img.shields.io/badge/OAS3-v3%20(obsolete)-lightgray)](https://app.swaggerhub.com/apis/ozzy/mylab-search-searcher/3) [![API specification](https://img.shields.io/badge/OAS3-v2%20(obsolete)-lightgray)](https://app.swaggerhub.com/apis/ozzy/mylab-search-searcher/2) 
 
-Клиент на `.NETCore 3.1`: [![NuGet](https://img.shields.io/nuget/v/MyLab.Search.Searcher.Client.svg)](https://www.nuget.org/packages/MyLab.Search.Searcher.Client/)
+Клиент на `.NETCore 3.1`: [![NuGet](https://img.shields.io/nuget/v/MyLab.Search.SearcherClient.svg)](https://www.nuget.org/packages/MyLab.Search.SearcherClient/)
 
 Лицензия:  [![License](https://img.shields.io/github/license/mylab-search-fx/searcher)](./LICENSE)
 

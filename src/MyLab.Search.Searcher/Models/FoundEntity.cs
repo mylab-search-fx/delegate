@@ -1,5 +1,5 @@
 ﻿#if IS_CLIENT
-namespace MyLab.Search.Searcher.Client
+namespace MyLab.Search.SearcherClient
 #else
 namespace MyLab.Search.Searcher.Models
 #endif

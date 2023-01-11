@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using MyLab.Search.SearcherClient;
 using Xunit;
 
-namespace FunctionTests.V4
+namespace FunctionTests.V2
 {
     public partial class QueryProcessingBehavior 
     {
@@ -27,7 +27,7 @@ namespace FunctionTests.V4
 
             var api = StartApi(indexName);
 
-            var req = new ClientSearchRequestV4{ Query = "bar"};
+            var req = new ClientSearchRequestV2{ Query = "bar"};
 
             //Act
             var found = await api.SearchAsync<TestEntity>("test", req);
@@ -58,7 +58,7 @@ namespace FunctionTests.V4
 
             var api = StartApi(indexName);
 
-            var req = new ClientSearchRequestV4 { Query = "bar" };
+            var req = new ClientSearchRequestV2 { Query = "bar" };
 
             //Act
             var found = await api.SearchAsync<TestEntity>("test", req);
@@ -92,7 +92,7 @@ namespace FunctionTests.V4
 
             var api = StartApi(indexName);
 
-            var req = new ClientSearchRequestV4 { Query = query };
+            var req = new ClientSearchRequestV2 { Query = query };
 
             //Act
             var found = await api.SearchAsync<TestEntity>("test", req);
@@ -126,7 +126,7 @@ namespace FunctionTests.V4
 
             var api = StartApi(indexName);
 
-            var req = new ClientSearchRequestV4 { Query = query };
+            var req = new ClientSearchRequestV2 { Query = query };
 
             //Act
             var found = await api.SearchAsync<TestEntity>("test", req);
@@ -161,7 +161,7 @@ namespace FunctionTests.V4
 
             var api = StartApi(indexName);
 
-            var req = new ClientSearchRequestV4 { Query = "03.03.2001" };
+            var req = new ClientSearchRequestV2 { Query = "03.03.2001" };
 
             //Act
             var found = await api.SearchAsync<TestEntity>("test", req);
@@ -196,7 +196,7 @@ namespace FunctionTests.V4
 
             var api = StartApi(indexName);
 
-            var req = new ClientSearchRequestV4 { Query = "02.03.2001-04.03.2001" };
+            var req = new ClientSearchRequestV2 { Query = "02.03.2001-04.03.2001" };
 
             //Act
             var found = await api.SearchAsync<TestEntity>("test", req);
@@ -232,8 +232,8 @@ namespace FunctionTests.V4
 
             var api = StartApi(indexName);
 
-            var req1 = new ClientSearchRequestV4 { Query = "04.03.2001 foo_2" };
-            var req2 = new ClientSearchRequestV4 { Query = "foo_2 04.03.2001" };
+            var req1 = new ClientSearchRequestV2 { Query = "04.03.2001 foo_2" };
+            var req2 = new ClientSearchRequestV2 { Query = "foo_2 04.03.2001" };
 
             //Act
             var found1 = await api.SearchAsync<TestEntity>("test", req1);
@@ -276,14 +276,11 @@ namespace FunctionTests.V4
 
             var api = StartApi(indexName);
 
-            var req = new ClientSearchRequestV4
+            var req = new ClientSearchRequestV2
             {
                 Query = "<04.03.2001 foo",
                 Filters = new []{ new FilterRef{Id = "from1123to6123" } },
-                Sort = new SortingRef
-                {
-                    Id = "revert"
-                }
+                Sort = "revert"
             };
 
             //Act
@@ -317,7 +314,7 @@ namespace FunctionTests.V4
 
             var api = StartApi(indexName);
 
-            var req = new ClientSearchRequestV4 { Query = "foo-bar" };
+            var req = new ClientSearchRequestV2 { Query = "foo-bar" };
 
             //Act
             var found = await api.SearchAsync<TestEntity>("test", req);
@@ -347,7 +344,7 @@ namespace FunctionTests.V4
 
             var api = StartApi(indexName);
 
-            var req = new ClientSearchRequestV4 { Query = "foo-bar" };
+            var req = new ClientSearchRequestV2 { Query = "foo-bar" };
 
             //Act
             var found = await api.SearchAsync<TestEntity>("test", req);

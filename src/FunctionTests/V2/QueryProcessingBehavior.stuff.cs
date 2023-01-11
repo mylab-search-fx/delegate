@@ -4,16 +4,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MyLab.ApiClient.Test;
 using MyLab.Search.Searcher;
-using MyLab.Search.SearcherClient;
 using MyLab.Search.EsAdapter;
 using MyLab.Search.EsTest;
-using MyLab.Search.Searcher;
 using MyLab.Search.Searcher.Options;
 using MyLab.Search.SearcherClient;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FunctionTests.V3
+namespace FunctionTests.V2
 {
     partial class QueryProcessingBehavior :
         IClassFixture<EsFixture<TestConnectionProvider>>,
@@ -21,7 +19,7 @@ namespace FunctionTests.V3
     {
         private readonly EsFixture<TestConnectionProvider> _esFxt;
         private readonly ITestOutputHelper _output;
-        private readonly TestApi<Startup, ISearcherApiV3> _client;
+        private readonly TestApi<Startup, ISearcherApiV2> _client;
 
         public QueryProcessingBehavior(EsFixture<TestConnectionProvider> esFxt,
             ITestOutputHelper output)
@@ -30,7 +28,7 @@ namespace FunctionTests.V3
 
             _output = output;
 
-            _client = new TestApi<Startup, ISearcherApiV3>()
+            _client = new TestApi<Startup, ISearcherApiV2>()
             {
                 ServiceOverrider = srv => srv
                     .Configure<ElasticsearchOptions>(o =>
@@ -49,7 +47,7 @@ namespace FunctionTests.V3
             };
         }
 
-        ISearcherApiV3 StartApi(string indexName)
+        ISearcherApiV2 StartApi(string indexName)
         {
             return _client.StartWithProxy(srv =>
             {

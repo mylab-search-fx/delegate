@@ -4,12 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MyLab.ApiClient.Test;
 using MyLab.Search.Searcher;
-using MyLab.Search.Searcher.Client;
+using MyLab.Search.SearcherClient;
 using MyLab.Search.EsAdapter;
 using MyLab.Search.EsTest;
-using MyLab.Search.Searcher;
 using MyLab.Search.Searcher.Options;
-using MyLab.Search.SearcherClient;
 using Xunit;
 using Xunit.Abstractions;
 

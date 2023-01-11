@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using MyLab.Search.Searcher.Client;
+using MyLab.Search.SearcherClient;
 using Xunit;
 
 namespace FunctionTests.V3

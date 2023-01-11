@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MyLab.HttpMetrics;
+using MyLab.Log;
 using MyLab.Search.EsAdapter;
 using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Services;
@@ -29,7 +30,7 @@ namespace MyLab.Search.Searcher
             services
                 .AddAppStatusProviding(Configuration as IConfigurationRoot)
                 .AddUrlBasedHttpMetrics()
-                .AddLogging(l => l.AddConsole())
+                .AddLogging(l => l.AddMyLabConsole())
                 .AddSingleton<IEsRequestProcessor, EsRequestProcessor>()
                 .AddSingleton<IEsRequestBuilder, EsRequestBuilder>()
                 .AddSingleton<IEsFilterProvider, EsFilterProvider>()
