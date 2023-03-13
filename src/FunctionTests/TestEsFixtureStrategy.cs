@@ -4,9 +4,9 @@ using MyLab.Search.EsTest;
 
 namespace FunctionTests
 {
-    public class TestConnectionProvider : IConnectionProvider
+    public class TestEsFixtureStrategy : EsFixtureStrategy
     {
-        public IConnectionPool Provide()
+        public override IConnectionPool ProvideConnection()
         {
             return new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
         }

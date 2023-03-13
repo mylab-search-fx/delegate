@@ -18,4 +18,11 @@ namespace FunctionTests
         [Date(Name = "Date")]
         public DateTime Date { get; set; }
     }
+
+    [ElasticsearchType(IdProperty = nameof(Id))]
+    public class TestEntityWithNotIndexedField : TestEntity
+    {
+        [Text(Name = "NotIndexed",  Index=false)]
+        public string NotIndexed { get; set; }
+    }
 }

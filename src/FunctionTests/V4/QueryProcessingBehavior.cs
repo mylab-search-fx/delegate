@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MyLab.Search.EsAdapter;
+using MyLab.Search.EsAdapter.Indexing;
 using MyLab.Search.SearcherClient;
 using Xunit;
 
@@ -15,14 +17,19 @@ namespace FunctionTests.V4
 
             await using var disposer = await CreateIndexAsync(indexName);
 
-            var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
+            var indexer = new EsIndexer<TestEntity>(_esFxt.Indexer, new SingleIndexNameProvider(indexName));;
 
-            await indexer.IndexManyAsync(new[]
+            var createReq = new EsBulkIndexingRequest<TestEntity>
             {
-                new TestEntity{ Id = 1, Value = "foo"},
-                new TestEntity{ Id = 2, Value = "barfoobaz"},
-                new TestEntity{ Id = 3, Value = "baz"},
-            });
+                CreateList = new[]
+                {
+                    new TestEntity{ Id = 1, Value = "foo"},
+                    new TestEntity{ Id = 2, Value = "barfoobaz"},
+                    new TestEntity{ Id = 3, Value = "baz"},
+                }
+            };
+
+            await indexer.BulkAsync(createReq);
             await Task.Delay(2000);
 
             var api = StartApi(indexName);
@@ -46,14 +53,19 @@ namespace FunctionTests.V4
 
             await using var disposer = await CreateIndexAsync(indexName);
 
-            var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
+            var indexer = new EsIndexer<TestEntity>(_esFxt.Indexer, new SingleIndexNameProvider(indexName));;
 
-            await indexer.IndexManyAsync(new[]
+            var createReq = new EsBulkIndexingRequest<TestEntity>
             {
-                new TestEntity{ Id = 1, Value = "foo"}, 
-                new TestEntity{ Id = 2, Value = "bar"}, 
-                new TestEntity{ Id = 3, Value = "baz"}, 
-            });
+                CreateList = new[]
+                {
+                    new TestEntity{ Id = 1, Value = "foo"},
+                    new TestEntity{ Id = 2, Value = "bar"},
+                    new TestEntity{ Id = 3, Value = "baz"},
+                }
+            };
+
+            await indexer.BulkAsync(createReq);
             await Task.Delay(2000);
 
             var api = StartApi(indexName);
@@ -80,14 +92,19 @@ namespace FunctionTests.V4
 
             await using var disposer = await CreateIndexAsync(indexName);
 
-            var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
+            var indexer = new EsIndexer<TestEntity>(_esFxt.Indexer, new SingleIndexNameProvider(indexName));;
 
-            await indexer.IndexManyAsync(new[]
+            var createReq = new EsBulkIndexingRequest<TestEntity>
             {
-                new TestEntity{ Id = 123, Value = "foo"},
-                new TestEntity{ Id = 124, Value = "bar"},
-                new TestEntity{ Id = 125, Value = "baz"},
-            });
+                CreateList = new[]
+                {
+                    new TestEntity{ Id = 123, Value = "foo"},
+                    new TestEntity{ Id = 124, Value = "bar"},
+                    new TestEntity{ Id = 125, Value = "baz"},
+                }
+            };
+
+            await indexer.BulkAsync(createReq);
             await Task.Delay(2000);
 
             var api = StartApi(indexName);
@@ -113,15 +130,20 @@ namespace FunctionTests.V4
 
             await using var disposer = await CreateIndexAsync(indexName);
 
-            var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
+            var indexer = new EsIndexer<TestEntity>(_esFxt.Indexer, new SingleIndexNameProvider(indexName));;
 
-            await indexer.IndexManyAsync(new[]
+            var createReq = new EsBulkIndexingRequest<TestEntity>
             {
-                new TestEntity{ Id = 123, Value = "foo"},
-                new TestEntity{ Id = 124, Value = "bar"},
-                new TestEntity{ Id = 125, Value = "baz"},
-                new TestEntity{ Id = 126, Value = "qoz"},
-            });
+                CreateList = new[]
+                {
+                    new TestEntity{ Id = 123, Value = "foo"},
+                    new TestEntity{ Id = 124, Value = "bar"},
+                    new TestEntity{ Id = 125, Value = "baz"},
+                    new TestEntity{ Id = 126, Value = "qoz"},
+                }
+            };
+
+            await indexer.BulkAsync(createReq);
             await Task.Delay(2000);
 
             var api = StartApi(indexName);
@@ -147,16 +169,21 @@ namespace FunctionTests.V4
 
             await using var disposer = await CreateIndexAsync(indexName);
 
-            var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
+            var indexer = new EsIndexer<TestEntity>(_esFxt.Indexer, new SingleIndexNameProvider(indexName));;
 
-            await indexer.IndexManyAsync(new[]
+            var createReq = new EsBulkIndexingRequest<TestEntity>
             {
-                new TestEntity{ Id = 1, Date = new DateTime(2001, 03, 01)},
-                new TestEntity{ Id = 2, Date = new DateTime(2001, 03, 02)},
-                new TestEntity{ Id = 3, Date = new DateTime(2001, 03, 03)},
-                new TestEntity{ Id = 4, Date = new DateTime(2001, 03, 03, 10, 10, 01)},
-                new TestEntity{ Id = 5, Date = new DateTime(2001, 03, 04)},
-            });
+                CreateList = new[]
+                {
+                    new TestEntity{ Id = 1, Date = new DateTime(2001, 03, 01)},
+                    new TestEntity{ Id = 2, Date = new DateTime(2001, 03, 02)},
+                    new TestEntity{ Id = 3, Date = new DateTime(2001, 03, 03)},
+                    new TestEntity{ Id = 4, Date = new DateTime(2001, 03, 03, 10, 10, 01)},
+                    new TestEntity{ Id = 5, Date = new DateTime(2001, 03, 04)},
+                }
+            };
+
+            await indexer.BulkAsync(createReq);
             await Task.Delay(2000);
 
             var api = StartApi(indexName);
@@ -181,17 +208,22 @@ namespace FunctionTests.V4
 
             await using var disposer = await CreateIndexAsync(indexName);
 
-            var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
+            var indexer = new EsIndexer<TestEntity>(_esFxt.Indexer, new SingleIndexNameProvider(indexName));;
 
-            await indexer.IndexManyAsync(new[]
+            var createReq = new EsBulkIndexingRequest<TestEntity>
             {
-                new TestEntity{ Id = 1, Date = new DateTime(2001, 03, 01)},
-                new TestEntity{ Id = 2, Date = new DateTime(2001, 03, 02)},
-                new TestEntity{ Id = 3, Date = new DateTime(2001, 03, 03)},
-                new TestEntity{ Id = 4, Date = new DateTime(2001, 03, 03, 10, 10, 01)},
-                new TestEntity{ Id = 5, Date = new DateTime(2001, 03, 04)},
-                new TestEntity{ Id = 6, Date = new DateTime(2001, 03, 05)},
-            });
+                CreateList = new[]
+                {
+                    new TestEntity{ Id = 1, Date = new DateTime(2001, 03, 01)},
+                    new TestEntity{ Id = 2, Date = new DateTime(2001, 03, 02)},
+                    new TestEntity{ Id = 3, Date = new DateTime(2001, 03, 03)},
+                    new TestEntity{ Id = 4, Date = new DateTime(2001, 03, 03, 10, 10, 01)},
+                    new TestEntity{ Id = 5, Date = new DateTime(2001, 03, 04)},
+                    new TestEntity{ Id = 6, Date = new DateTime(2001, 03, 05)},
+                }
+            };
+
+            await indexer.BulkAsync(createReq);
             await Task.Delay(2000);
 
             var api = StartApi(indexName);
@@ -217,17 +249,22 @@ namespace FunctionTests.V4
 
             await using var disposer = await CreateIndexAsync(indexName);
 
-            var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
+            var indexer = new EsIndexer<TestEntity>(_esFxt.Indexer, new SingleIndexNameProvider(indexName));;
 
-            await indexer.IndexManyAsync(new[]
+            var createReq = new EsBulkIndexingRequest<TestEntity>
             {
-                new TestEntity{ Id = 1, Value = "foo_1", Date = new DateTime(2001, 03, 01)},
-                new TestEntity{ Id = 2, Value = "foo_2", Date = new DateTime(2001, 03, 02)},
-                new TestEntity{ Id = 3, Value = "foo_3", Date = new DateTime(2001, 03, 03)},
-                new TestEntity{ Id = 4, Value = "foo_4", Date = new DateTime(2001, 03, 03, 10, 10, 01)},
-                new TestEntity{ Id = 5, Value = "foo_5", Date = new DateTime(2001, 03, 04)},
-                new TestEntity{ Id = 6, Value = "foo_6", Date = new DateTime(2001, 03, 05)},
-            });
+                CreateList = new[]
+                {
+                    new TestEntity{ Id = 1, Value = "foo_1", Date = new DateTime(2001, 03, 01)},
+                    new TestEntity{ Id = 2, Value = "foo_2", Date = new DateTime(2001, 03, 02)},
+                    new TestEntity{ Id = 3, Value = "foo_3", Date = new DateTime(2001, 03, 03)},
+                    new TestEntity{ Id = 4, Value = "foo_4", Date = new DateTime(2001, 03, 03, 10, 10, 01)},
+                    new TestEntity{ Id = 5, Value = "foo_5", Date = new DateTime(2001, 03, 04)},
+                    new TestEntity{ Id = 6, Value = "foo_6", Date = new DateTime(2001, 03, 05)},
+                }
+            };
+
+            await indexer.BulkAsync(createReq);
             await Task.Delay(2000);
 
             var api = StartApi(indexName);
@@ -261,17 +298,22 @@ namespace FunctionTests.V4
 
             await using var disposer = await CreateIndexAsync(indexName);
 
-            var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
+            var indexer = new EsIndexer<TestEntity>(_esFxt.Indexer, new SingleIndexNameProvider(indexName));;
 
-            await indexer.IndexManyAsync(new[]
+            var createReq = new EsBulkIndexingRequest<TestEntity>
             {
-                new TestEntity{ Id = 1123, Value = "foo_1", Date = new DateTime(2001, 03, 01)},
-                new TestEntity{ Id = 2123, Value = "foo_2", Date = new DateTime(2001, 03, 02)},
-                new TestEntity{ Id = 3123, Value = "foo_3", Date = new DateTime(2001, 03, 03)},
-                new TestEntity{ Id = 4123, Value = "bar_4", Date = new DateTime(2001, 03, 03, 10, 10, 01)},
-                new TestEntity{ Id = 5123, Value = "bar_5", Date = new DateTime(2001, 03, 04)},
-                new TestEntity{ Id = 6123, Value = "bar_6", Date = new DateTime(2001, 03, 05)},
-            });
+                CreateList = new[]
+                {
+                    new TestEntity{ Id = 1123, Value = "foo_1", Date = new DateTime(2001, 03, 01)},
+                    new TestEntity{ Id = 2123, Value = "foo_2", Date = new DateTime(2001, 03, 02)},
+                    new TestEntity{ Id = 3123, Value = "foo_3", Date = new DateTime(2001, 03, 03)},
+                    new TestEntity{ Id = 4123, Value = "bar_4", Date = new DateTime(2001, 03, 03, 10, 10, 01)},
+                    new TestEntity{ Id = 5123, Value = "bar_5", Date = new DateTime(2001, 03, 04)},
+                    new TestEntity{ Id = 6123, Value = "bar_6", Date = new DateTime(2001, 03, 05)}
+                }
+            };
+
+            await indexer.BulkAsync(createReq);
             await Task.Delay(2000);
 
             var api = StartApi(indexName);
@@ -305,14 +347,19 @@ namespace FunctionTests.V4
 
             await using var disposer = await CreateIndexAsync(indexName);
 
-            var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
+            var indexer = new EsIndexer<TestEntity>(_esFxt.Indexer, new SingleIndexNameProvider(indexName));;
 
-            await indexer.IndexManyAsync(new[]
+            var createReq = new EsBulkIndexingRequest<TestEntity>
             {
-                new TestEntity{ Id = 1, Keyword = "foo"},
-                new TestEntity{ Id = 2, Keyword  = "bar"},
-                new TestEntity{ Id = 3, Keyword  = "foo-bar"}
-            });
+                CreateList = new[]
+                {
+                    new TestEntity{ Id = 1, Keyword = "foo"},
+                    new TestEntity{ Id = 2, Keyword  = "bar"},
+                    new TestEntity{ Id = 3, Keyword  = "foo-bar"}
+                }
+            };
+
+            await indexer.BulkAsync(createReq);
             await Task.Delay(2000);
 
             var api = StartApi(indexName);
@@ -336,13 +383,18 @@ namespace FunctionTests.V4
 
             await using var disposer = await CreateIndexAsync(indexName);
 
-            var indexer = _esFxt.CreateIndexer<TestEntity>().ForIndex(indexName);
+            var indexer = new EsIndexer<TestEntity>(_esFxt.Indexer, new SingleIndexNameProvider(indexName));;
 
-            await indexer.IndexManyAsync(new[]
+            var createReq = new EsBulkIndexingRequest<TestEntity>
             {
-                new TestEntity{ Id = 1, Value = "foo"},
-                new TestEntity{ Id = 2, Value  = "bar"}
-            });
+                CreateList = new[]
+                {
+                    new TestEntity{ Id = 1, Value = "foo"},
+                    new TestEntity{ Id = 2, Value  = "bar"}
+                }
+            };
+
+            await indexer.BulkAsync(createReq);
             await Task.Delay(2000);
 
             var api = StartApi(indexName);

@@ -37,7 +37,8 @@ namespace MyLab.Search.Searcher
                 .AddSingleton<IEsSortProvider, EsSortProvider>()
                 .AddSingleton<IIndexMappingService, IndexMappingService>()
                 .AddSingleton<ITokenService, TokenService>()
-                .AddEsTools(Configuration, "ES")
+                .AddEsTools()
+                .ConfigureEsTools(Configuration)
                 .Configure<SearcherOptions>(Configuration.GetSection("Searcher"))
                 .AddControllers(o => o.AddExceptionProcessing())
                     .AddNewtonsoftJson(opt =>

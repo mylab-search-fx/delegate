@@ -14,14 +14,14 @@ using Xunit.Abstractions;
 namespace FunctionTests.V4
 {
     partial class QueryProcessingBehavior :
-        IClassFixture<EsFixture<TestConnectionProvider>>,
+        IClassFixture<EsFixture<TestEsFixtureStrategy>>,
         IAsyncLifetime
     {
-        private readonly EsFixture<TestConnectionProvider> _esFxt;
+        private readonly EsFixture<TestEsFixtureStrategy> _esFxt;
         private readonly ITestOutputHelper _output;
         private readonly TestApi<Startup, ISearcherApiV4> _client;
 
-        public QueryProcessingBehavior(EsFixture<TestConnectionProvider> esFxt,
+        public QueryProcessingBehavior(EsFixture<TestEsFixtureStrategy> esFxt,
             ITestOutputHelper output)
         {
             _esFxt = esFxt;
@@ -31,7 +31,7 @@ namespace FunctionTests.V4
             _client = new TestApi<Startup, ISearcherApiV4>()
             {
                 ServiceOverrider = srv => srv
-                    .Configure<ElasticsearchOptions>(o =>
+                    .ConfigureEsTools(o =>
                     {
                         o.Url = "http://localhost:9200";
                     })
@@ -68,7 +68,7 @@ namespace FunctionTests.V4
 
         string CreateIndexName() => "test-" + Guid.NewGuid().ToString("N");
 
-        Task<IAsyncDisposable> CreateIndexAsync(string indexName) => _esFxt.Manager.CreateIndexAsync(indexName, c => c.Map<TestEntity>(m => m.AutoMap()));
+        Task<IIndexDeleter> CreateIndexAsync(string indexName) => _esFxt.IndexTools.CreateIndexAsync(indexName, c => c.Map<TestEntity>(m => m.AutoMap()));
 
         public async Task InitializeAsync()
         {

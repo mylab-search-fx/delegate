@@ -3,27 +3,25 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MyLab.ApiClient.Test;
-using MyLab.Search.Searcher;
-using MyLab.Search.SearcherClient;
 using MyLab.Search.EsAdapter;
-using MyLab.Search.EsTest;
 using MyLab.Search.Searcher;
-using MyLab.Search.Searcher.Options;
 using MyLab.Search.SearcherClient;
+using MyLab.Search.EsTest;
+using MyLab.Search.Searcher.Options;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace FunctionTests.V3
 {
     partial class QueryProcessingBehavior :
-        IClassFixture<EsFixture<TestConnectionProvider>>,
+        IClassFixture<EsFixture<TestEsFixtureStrategy>>,
         IAsyncLifetime
     {
-        private readonly EsFixture<TestConnectionProvider> _esFxt;
+        private readonly EsFixture<TestEsFixtureStrategy> _esFxt;
         private readonly ITestOutputHelper _output;
         private readonly TestApi<Startup, ISearcherApiV3> _client;
 
-        public QueryProcessingBehavior(EsFixture<TestConnectionProvider> esFxt,
+        public QueryProcessingBehavior(EsFixture<TestEsFixtureStrategy> esFxt,
             ITestOutputHelper output)
         {
             _esFxt = esFxt;
@@ -33,7 +31,7 @@ namespace FunctionTests.V3
             _client = new TestApi<Startup, ISearcherApiV3>()
             {
                 ServiceOverrider = srv => srv
-                    .Configure<ElasticsearchOptions>(o =>
+                    .ConfigureEsTools(o =>
                     {
                         o.Url = "http://localhost:9200";
                     })
@@ -70,7 +68,7 @@ namespace FunctionTests.V3
 
         string CreateIndexName() => "test-" + Guid.NewGuid().ToString("N");
 
-        Task<IAsyncDisposable> CreateIndexAsync(string indexName) => _esFxt.Manager.CreateIndexAsync(indexName, c => c.Map<TestEntity>(m => m.AutoMap()));
+        Task<IIndexDeleter> CreateIndexAsync(string indexName) => _esFxt.IndexTools.CreateIndexAsync(indexName, c => c.Map<TestEntity>(m => m.AutoMap()));
 
         public async Task InitializeAsync()
         {
