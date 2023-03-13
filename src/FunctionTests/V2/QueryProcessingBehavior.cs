@@ -88,7 +88,7 @@ namespace FunctionTests.V2
             //Arrange
             var indexName = CreateIndexName();
 
-            await using var disposer = await CreateIndexAsync(indexName);
+            await using var disposer = await CreateIndexAsync<TestEntityWithNotIndexedField>(indexName);
 
             var indexer = new EsIndexer<TestEntity>(_esFxt.Indexer, new SingleIndexNameProvider(indexName));
 

@@ -70,6 +70,12 @@ namespace FunctionTests.V3
 
         Task<IIndexDeleter> CreateIndexAsync(string indexName) => _esFxt.IndexTools.CreateIndexAsync(indexName, c => c.Map<TestEntity>(m => m.AutoMap()));
 
+        Task<IIndexDeleter> CreateIndexAsync<T>(string indexName)
+            where T : class
+        {
+            return _esFxt.IndexTools.CreateIndexAsync(indexName, c => c.Map<T>(m => m.AutoMap()));
+        }
+
         public async Task InitializeAsync()
         {
         }

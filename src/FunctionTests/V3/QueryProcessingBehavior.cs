@@ -81,6 +81,44 @@ namespace FunctionTests.V3
             Assert.Equal(2, found.Entities[0].Content.Id);
         }
 
+        [Fact]
+        public async Task ShouldIgnoreNotIndexedFields()
+        {
+            //Arrange
+            var indexName = CreateIndexName();
+
+            await using var disposer = await CreateIndexAsync<TestEntityWithNotIndexedField>(indexName);
+
+            var indexer = new EsIndexer<TestEntity>(_esFxt.Indexer, new SingleIndexNameProvider(indexName));
+
+            var createReq = new EsBulkIndexingRequest<TestEntity>
+            {
+                CreateList = new[]
+                {
+                    new TestEntityWithNotIndexedField{ Id = 1, Value = "foo"},
+                    new TestEntityWithNotIndexedField{ Id = 2, Value = "bar"},
+                    new TestEntityWithNotIndexedField{ Id = 3, NotIndexed = "bar"},
+                }
+            };
+
+            await indexer.BulkAsync(createReq);
+
+            await Task.Delay(2000);
+
+            var api = StartApi(indexName);
+
+            var req = new ClientSearchRequestV3 { Query = "bar" };
+
+            //Act
+
+            var found = await api.SearchAsync<TestEntityWithNotIndexedField>("test", req);
+
+            //Assert
+            Assert.NotNull(found);
+            Assert.Single<FoundEntity<TestEntityWithNotIndexedField>>(found.Entities);
+            Assert.Equal(2, found.Entities[0].Content.Id);
+        }
+
         [Theory]
         [InlineData("124", 124)]
         [InlineData("<124", 123)]
