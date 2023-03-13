@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using MyLab.Search.Searcher.Tools;
 using Nest;
 
 namespace MyLab.Search.Searcher.QueryTools
@@ -39,9 +40,11 @@ namespace MyLab.Search.Searcher.QueryTools
                 foreach (var queryItem in Items)
                 {
                     var itemShouldQueries = new List<QueryContainer>();
-
+                    
                     foreach (var property in mapping.Properties.Values)
                     {
+                        if(!MappingPropertyTools.IsIndexed(property)) continue;
+
                         foreach (var itemExpression in queryItem.Expressions)
                         {
                             if (itemExpression.TryCreateQuery(property, out var q))

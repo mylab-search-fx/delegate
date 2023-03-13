@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MyLab.ApiClient.Test;
 using MyLab.Search.Searcher;
 using MyLab.Search.EsAdapter;
+using MyLab.Search.EsAdapter.Indexing;
 using MyLab.Search.EsTest;
 using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Services;
@@ -16,14 +19,14 @@ using Xunit.Abstractions;
 namespace FunctionTests.V2
 {
     public partial class SearcherBehavior :
-        IClassFixture<EsIndexFixture<TestEntity, TestConnectionProvider>>,
+        IClassFixture<EsIndexFixture<TestEntity, TestEsFixtureStrategy>>,
         IAsyncLifetime
     {
-        private readonly EsIndexFixture<TestEntity, TestConnectionProvider> _esFxt;
+        private readonly EsIndexFixture<TestEntity, TestEsFixtureStrategy> _esFxt;
         private readonly ITestOutputHelper _output;
         private readonly TestApi<Startup, ISearcherApiV2> _searchClient;
 
-        public SearcherBehavior(EsIndexFixture<TestEntity, TestConnectionProvider> esFxt, ITestOutputHelper output)
+        public SearcherBehavior(EsIndexFixture<TestEntity, TestEsFixtureStrategy> esFxt, ITestOutputHelper output)
         {
             _esFxt = esFxt;
             //_esFxt.Output = output;
@@ -42,7 +45,7 @@ namespace FunctionTests.V2
         private void ServiceOverrider(IServiceCollection srv)
         {
             srv
-                .Configure<ElasticsearchOptions>(o =>
+                .Configure<EsOptions>(o =>
                 {
                     o.Url = "http://localhost:9200";
                 })
@@ -66,13 +69,27 @@ namespace FunctionTests.V2
 
         public async Task InitializeAsync()
         {
-            await _esFxt.Indexer.IndexManyAsync(CreateTestEntities());
+            var bulkIndexingRequest = new EsBulkIndexingRequest<TestEntity>()
+            {
+                CreateList = CreateTestEntities().ToArray()
+            };
+
+            try
+            {
+                await _esFxt.Indexer.BulkAsync(bulkIndexingRequest);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
 
             await Task.Delay(1000);
         }
 
         public async Task DisposeAsync()
         {
+            await _esFxt.IndexTools.DeleteIndexAsync();
             _searchClient.Dispose();
         }
 

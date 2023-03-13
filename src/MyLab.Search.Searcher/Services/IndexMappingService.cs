@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using MyLab.Log;
 using MyLab.Log.Dsl;
 using MyLab.Search.EsAdapter;
+using MyLab.Search.EsAdapter.Inter;
 using MyLab.Search.Searcher.Options;
 using Nest;
 
