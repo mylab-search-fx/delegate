@@ -16,8 +16,12 @@ RUN dotnet publish -c release -o /app --no-restore
 
 # final stage/image
 FROM mcr.microsoft.com/dotnet/$DOTNET_BASE:5.0
+
 ARG PROJ
+
 ENV PROJ_FILE=$PROJ
+ENV ASPNETCORE_URLS=http://+:80
+
 WORKDIR /app
 COPY --from=build /app /app
 EXPOSE 80
