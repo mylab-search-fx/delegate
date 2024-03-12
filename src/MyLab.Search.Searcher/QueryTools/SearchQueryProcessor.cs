@@ -7,7 +7,7 @@ using Nest;
 
 namespace MyLab.Search.Searcher.QueryTools
 {
-    class SearchQueryProcessor
+    public class SearchQueryProcessor
     {
         private static readonly IQueryExpressionFactory[] Factories = 
         {
@@ -81,33 +81,44 @@ namespace MyLab.Search.Searcher.QueryTools
                     .Where(l => l.Length > 2)
                     .ToArray();
 
+
+                if (literals.Length > 1)
+                {
+                    ApplyCalcExpressions(queryString, literals.Length+1, items);
+                }
+
                 for (int i = 0; i < literals.Length; i++)
                 {
-                    var boost = 1 * (literals.Length - i);
+                    var boost = literals.Length - i;
                     var literal = literals[i];
 
-                    var expressions = new List<IQueryExpression>();
-
-                    foreach (var factory in Factories)
-                    {
-                        if (factory.TryCreate(literal, out var expr))
-                        {
-                            expressions.Add(expr);
-                        }
-                    }
-
-                    if (expressions.Count != 0)
-                    {
-                        items.Add(new QueryItem(literal, boost, expressions));
-                    }
+                    ApplyCalcExpressions(literal, boost, items);
                 }
             }
 
             return new SearchQueryProcessor(items);
         }
+
+        private static void ApplyCalcExpressions(string literal, int boost, List<QueryItem> items)
+        {
+            var expressions = new List<IQueryExpression>();
+
+            foreach (var factory in Factories)
+            {
+                if (factory.TryCreate(literal, out var expr))
+                {
+                    expressions.Add(expr);
+                }
+            }
+
+            if (expressions.Count != 0)
+            {
+                items.Add(new QueryItem(literal, boost, expressions));
+            }
+        }
     }
 
-    class QueryItem
+    public class QueryItem
     {
         public IReadOnlyCollection<IQueryExpression> Expressions { get; }
         public int Boost { get; }

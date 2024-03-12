@@ -1,8 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using MyLab.Search.Searcher;
+using MyLab.Search.Searcher.Models;
+using MyLab.Search.Searcher.Options;
+using MyLab.Search.Searcher.QueryTools;
 using MyLab.Search.Searcher.Services;
+using MyLab.Search.Searcher.Tools;
 using Nest;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace UnitTests
@@ -77,6 +84,40 @@ namespace UnitTests
                     return new KeyValuePair<PropertyName, IProperty>(propName, prop);
                 }
             }
+        }
+        
+        async Task<SearchRequestPlan> BuildRequestByQueryAsync(string text)
+        {
+            var opt = new SearcherOptions
+            {
+                QueryStrategy = QuerySearchStrategy.Must,
+                Indexes = new[]
+                {
+                    new IdxOptions
+                    {
+                        Id = "test"
+                    }
+                }
+            };
+
+            var reqBuilder = new EsRequestBuilder(opt,
+                new TestSortProvider(),
+                new TestFilterProvider(),
+                new TestIndexMappingService());
+
+            var sReq = new ClientSearchRequestV4
+            {
+                Query = text
+            };
+
+            var plan = reqBuilder.BuildPlan(sReq, "test", null);
+            var esReq = await reqBuilder.BuildRequestAsync(plan, "test");
+
+            var str = await EsSerializer.Instance.SerializeAsync(esReq);
+
+            _output.WriteLine(str);
+
+            return plan;
         }
     }
 }

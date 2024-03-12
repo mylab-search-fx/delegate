@@ -65,7 +65,7 @@ namespace MyLab.Search.Searcher.Services
 
             var indexName = _options.CreateEsIndexName(idxId);
 
-            var esRequest = await _requestBuilder.BuildAsync(clientRequest, idxId, idxSettings?.Filters);
+            var esRequest = await _requestBuilder.BuildRequestAsync(clientRequest, idxId, idxSettings?.Filters);
 
             var strReq = EsSerializer.Instance.SerializeToString(esRequest);
 

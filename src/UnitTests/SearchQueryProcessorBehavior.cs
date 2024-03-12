@@ -66,9 +66,10 @@ namespace UnitTests
                 .ToArray();
 
             //Assert
-            Assert.Equal(2, boosts.Length);
-            Assert.Equal(2, boosts[0]);
-            Assert.Equal(1, boosts[1]);
+            Assert.Equal(3, boosts.Length);
+            Assert.Equal(3, boosts[0]);
+            Assert.Equal(2, boosts[1]);
+            Assert.Equal(1, boosts[2]);
         }
 
         [Fact]
