@@ -115,7 +115,7 @@ namespace FunctionTests.V3
 
             //Assert
             Assert.NotNull(found);
-            Assert.Single<FoundEntity<TestEntityWithNotIndexedField>>(found.Entities);
+            Assert.Single(found.Entities);
             Assert.Equal(2, found.Entities[0].Content.Id);
         }
 
@@ -372,9 +372,9 @@ namespace FunctionTests.V3
             //Assert
             Assert.NotNull(found);
             Assert.Equal(3, found.Entities.Length);
-            Assert.Equal(4123, found.Entities[0].Content.Id);
-            Assert.Equal(3123, found.Entities[1].Content.Id);
-            Assert.Equal(2123, found.Entities[2].Content.Id);
+            Assert.Equal(3123, found.Entities[0].Content.Id);
+            Assert.Equal(2123, found.Entities[1].Content.Id);
+            Assert.Equal(4123, found.Entities[2].Content.Id);
         }
 
         [Fact]

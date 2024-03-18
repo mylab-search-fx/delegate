@@ -2,7 +2,7 @@
 
 namespace MyLab.Search.Searcher.QueryTools
 {
-    interface IQueryExpression
+    public interface IQueryExpression
     {
         bool TryCreateQuery(IProperty property, out QueryBase query);
     }

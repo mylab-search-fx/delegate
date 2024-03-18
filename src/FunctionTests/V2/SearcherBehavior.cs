@@ -56,11 +56,11 @@ namespace FunctionTests.V2
             var found = await cl.SearchAsync<TestEntity>("test", request);
 
             //Assert
-            Assert.Equal(12, found.Entities.Length);
-            Assert.Equal(20, found.Entities[0].Content.Id);
-            Assert.Equal(19, found.Entities[1].Content.Id);
-            Assert.Equal(10, found.Entities[10].Content.Id);
-            Assert.Equal(1, found.Entities[11].Content.Id);
+            Assert.Equal(11, found.Entities.Length);
+            Assert.Equal(1, found.Entities[0].Content.Id);
+            Assert.Equal(20, found.Entities[1].Content.Id);
+            Assert.Equal(12, found.Entities[9].Content.Id);
+            Assert.Equal(11, found.Entities[10].Content.Id);
         }
 
         [Fact]
@@ -103,11 +103,11 @@ namespace FunctionTests.V2
             var found = await cl.SearchAsync<TestEntity>("test", request);
 
             //Assert
-            Assert.Equal(12, found.Entities.Length);
-            Assert.Equal(19, found.Entities[0].Content.Id);
-            Assert.Equal(18, found.Entities[1].Content.Id);
-            Assert.Equal(10, found.Entities[9].Content.Id);
-            Assert.Equal(1, found.Entities[10].Content.Id);
+            Assert.Equal(11, found.Entities.Length);
+            Assert.Equal(1, found.Entities[0].Content.Id);
+            Assert.Equal(20, found.Entities[1].Content.Id);
+            Assert.Equal(12, found.Entities[9].Content.Id);
+            Assert.Equal(11, found.Entities[10].Content.Id);
         }
 
         [Theory]
@@ -123,7 +123,7 @@ namespace FunctionTests.V2
 
             var request = new ClientSearchRequestV2
             {
-                Query = "Kw_Val_1 Val_10",
+                Query = "Kw_Val_1 Val_1",
                 Limit = 20,
             };
 
@@ -144,7 +144,7 @@ namespace FunctionTests.V2
 
             var request = new ClientSearchRequestV2
             {
-                Query = "Kw_Val_1 Val_10",
+                Query = "Kw_Val_1 Val_1",
                 Limit = 20,
                 QuerySearchStrategy = strategy
             };
@@ -157,7 +157,7 @@ namespace FunctionTests.V2
         }
 
         [Fact]
-        public async Task ShouldSearchWithStartOfKeyword()
+        public async Task ShouldSearchWithFullKeyword()
         {
             //Arrange
             var cl = _searchClient.StartWithProxy();
@@ -172,7 +172,7 @@ namespace FunctionTests.V2
             var found = await cl.SearchAsync<TestEntity>("test", request);
 
             //Assert
-            Assert.Equal(11, found.Entities.Length);
+            Assert.Single(found.Entities);
         }
 
         [Theory]

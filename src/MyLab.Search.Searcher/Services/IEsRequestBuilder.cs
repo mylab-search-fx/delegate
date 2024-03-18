@@ -7,6 +7,8 @@ namespace MyLab.Search.Searcher.Services
 {
     interface IEsRequestBuilder
     {
-        Task<SearchRequest> BuildAsync(ClientSearchRequestV4 clientSearchRequest, string idxId, FilterRef[] filterRefs);
+        Task<SearchRequest> BuildRequestAsync(ClientSearchRequestV4 clientSearchRequest, string idxId, FilterRef[] filterRefs);
+        Task<SearchRequest> BuildRequestAsync(SearchRequestPlan requestPlan,string idxId);
+        SearchRequestPlan BuildPlan(ClientSearchRequestV4 clientSearchRequest, string idxId, FilterRef[] filterRefs);
     }
 }

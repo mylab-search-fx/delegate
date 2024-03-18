@@ -29,7 +29,7 @@ namespace FunctionTests.V2
         public SearcherBehavior(EsIndexFixture<TestEntity, TestEsFixtureStrategy> esFxt, ITestOutputHelper output)
         {
             _esFxt = esFxt;
-            //_esFxt.Output = output;
+            esFxt.Output = output;
 
             _output = output;
 
@@ -87,10 +87,10 @@ namespace FunctionTests.V2
             await Task.Delay(1000);
         }
 
-        public async Task DisposeAsync()
+        public Task DisposeAsync()
         {
-            await _esFxt.IndexTools.DeleteIndexAsync();
             _searchClient.Dispose();
+            return Task.CompletedTask;
         }
 
         class TestFilterProvider : IEsFilterProvider
