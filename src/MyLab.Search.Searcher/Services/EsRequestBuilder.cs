@@ -53,7 +53,9 @@ namespace MyLab.Search.Searcher.Services
                 Size = plan.Size
             };
 
-            if (plan.HasQueryOrSorting)
+            var sorts = new List<ISort>();
+
+            if (plan.HasQuery)
             {
                 var boolModel = new BoolQuery();
 
@@ -68,7 +70,10 @@ namespace MyLab.Search.Searcher.Services
                     switch (plan.Query.Strategy)
                     {
                         case QuerySearchStrategy.Should:
+                        {
                             boolModel.Should = queryExpressions;
+                            boolModel.MinimumShouldMatch = 1;
+                        }
                             break;
                         case QuerySearchStrategy.Must:
                             boolModel.Must = queryExpressions;
@@ -80,28 +85,26 @@ namespace MyLab.Search.Searcher.Services
 
                 req.Query = boolModel;
 
-                var sorts = new List<ISort>();
-
-                sorts.Insert(0, new FieldSort
+                sorts.Add(new FieldSort
                 {
                     Field = "_score",
                     Order = SortOrder.Descending
                 });
-
-                if (plan.Sorting != null)
-                {
-                    var sorting = await _esSortProvider.ProvideAsync(plan.Sorting.Id, idxId, plan.Sorting.Args);
-                    sorts.Add(sorting);
-                }
-                else
-                {
-                    var sorting = await _esSortProvider.ProvideDefaultAsync(idxId);
-                    if(sorting != null)
-                        sorts.Add(sorting);
-                }
-
-                req.Sort = sorts;
             }
+
+            if (plan.Sorting != null)
+            {
+                var sorting = await _esSortProvider.ProvideAsync(plan.Sorting.Id, idxId, plan.Sorting.Args);
+                sorts.Add(sorting);
+            }
+            else
+            {
+                var sorting = await _esSortProvider.ProvideDefaultAsync(idxId);
+                if(sorting != null)
+                    sorts.Add(sorting);
+            }
+
+            req.Sort = sorts;
 
             return req;
         }

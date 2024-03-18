@@ -9,7 +9,7 @@ namespace MyLab.Search.Searcher.Models
         public int? Size { get; set; }
         public SearchRequestPlanQuery Query { get; set; }
         public SortingRef Sorting { get; set; }
-        public bool HasQueryOrSorting => Query is { HasQuery: true } || Sorting != null;
+        public bool HasQuery => Query is { HasQuery: true };
     }
 
     class SearchRequestPlanQuery

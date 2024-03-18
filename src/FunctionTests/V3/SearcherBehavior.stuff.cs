@@ -78,10 +78,10 @@ namespace FunctionTests.V3
             await Task.Delay(1000);
         }
 
-        public async Task DisposeAsync()
+        public Task DisposeAsync()
         {
-            await _esFxt.IndexTools.DeleteIndexAsync();
             _searchClient.Dispose();
+            return Task.CompletedTask;
         }
 
         class TestFilterProvider : IEsFilterProvider

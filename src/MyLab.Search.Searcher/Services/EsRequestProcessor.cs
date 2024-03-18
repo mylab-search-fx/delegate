@@ -110,7 +110,7 @@ namespace MyLab.Search.Searcher.Services
             return new FoundEntities<FoundEntityContent>
             {
                 Entities = foundEntities.ToArray(),
-                Total = res.HitsMetadata.Total.Value,
+                Total = res.HitsMetadata?.Total.Value ?? 0,
                 EsRequest = _options.Debug 
                     ? JObject.Parse(strReq)
                     : null
