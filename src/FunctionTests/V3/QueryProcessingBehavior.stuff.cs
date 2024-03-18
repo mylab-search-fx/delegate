@@ -10,6 +10,8 @@ using MyLab.Search.EsTest;
 using MyLab.Search.Searcher.Options;
 using Xunit;
 using Xunit.Abstractions;
+using MyLab.Search.EsAdapter.Tools;
+using Nest;
 
 namespace FunctionTests.V3
 {
@@ -68,13 +70,19 @@ namespace FunctionTests.V3
 
         string CreateIndexName() => "test-" + Guid.NewGuid().ToString("N");
 
-        Task<IIndexDeleter> CreateIndexAsync(string indexName) => _esFxt.IndexTools.CreateIndexAsync(indexName, c => c.Map<TestEntity>(m => m.AutoMap()));
+        Task<IAsyncDisposable> CreateIndexAsync(string indexName)
+            => CreateIndexAsync<TestEntity>(indexName);
 
-        Task<IIndexDeleter> CreateIndexAsync<T>(string indexName)
-            where T : class
+        async Task<IAsyncDisposable> CreateIndexAsync<T>(string indexName) where T : class
         {
-            return _esFxt.IndexTools.CreateIndexAsync(indexName, c => c.Map<T>(m => m.AutoMap()));
+            var indexTools = await _esFxt.Tools.Indexes.CreateAsync
+            (
+                new CreateIndexDescriptor(indexName).Map(m => m.AutoMap<T>())
+            );
+
+            return TestTools.IndexToolToAsyncDeleter(indexTools);
         }
+
 
         public async Task InitializeAsync()
         {

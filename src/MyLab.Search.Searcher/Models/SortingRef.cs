@@ -13,7 +13,7 @@ namespace MyLab.Search.Searcher.Models
     public class SortingRef
     {
         /// <summary>
-        /// Sorting identifier
+        /// Ref identifier
         /// </summary>
         [JsonProperty("id")]
         public string Id { get; set; }

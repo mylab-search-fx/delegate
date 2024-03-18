@@ -114,7 +114,7 @@ namespace MyLab.Search.Searcher.Services
             }
         }
 
-        private bool ValidateAudience(IEnumerable<string> audiences, SecurityToken securitytoken, TokenValidationParameters validationparameters)
+        private bool ValidateAudience(IEnumerable<string> audiences, SecurityToken securityToken, TokenValidationParameters validationParameters)
         {
             var auds = audiences.ToArray();
 
@@ -123,7 +123,7 @@ namespace MyLab.Search.Searcher.Services
                 return true;
             }
 
-            return auds.Contains(validationparameters.ValidAudience);
+            return auds.Contains(validationParameters.ValidAudience);
         }
 
         private bool ValidateLifetime(DateTime? before, DateTime? expires, SecurityToken securityToken, TokenValidationParameters parameters)

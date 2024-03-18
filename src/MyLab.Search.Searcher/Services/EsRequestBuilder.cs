@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -44,7 +45,71 @@ namespace MyLab.Search.Searcher.Services
             _log = logger?.Dsl();
         }
 
-        public async Task<SearchRequest> BuildAsync(ClientSearchRequestV4 clientSearchRequest, string idxId, FilterRef[] filterRefs)
+        public async Task<SearchRequest> BuildRequestAsync(SearchRequestPlan plan, string idxId)
+        {
+            SearchRequest req = new SearchRequest
+            {
+                From = plan.From,
+                Size = plan.Size
+            };
+
+            var sorts = new List<ISort>();
+
+            if (plan.HasQuery)
+            {
+                var boolModel = new BoolQuery();
+
+                if (plan.Query?.Filters is { Length: > 0 })
+                    boolModel.Filter = await LoadFiltersAsync(plan.Query.Filters, idxId);
+
+                if (plan.Query?.QueryProcessor != null)
+                {
+                    var mapping = await _indexMappingService.GetIndexMappingAsync(idxId);
+                    var queryExpressions = plan.Query.QueryProcessor.Process(mapping).ToArray();
+
+                    switch (plan.Query.Strategy)
+                    {
+                        case QuerySearchStrategy.Should:
+                        {
+                            boolModel.Should = queryExpressions;
+                            boolModel.MinimumShouldMatch = 1;
+                        }
+                            break;
+                        case QuerySearchStrategy.Must:
+                            boolModel.Must = queryExpressions;
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+
+                req.Query = boolModel;
+
+                sorts.Add(new FieldSort
+                {
+                    Field = "_score",
+                    Order = SortOrder.Descending
+                });
+            }
+
+            if (plan.Sorting != null)
+            {
+                var sorting = await _esSortProvider.ProvideAsync(plan.Sorting.Id, idxId, plan.Sorting.Args);
+                sorts.Add(sorting);
+            }
+            else
+            {
+                var sorting = await _esSortProvider.ProvideDefaultAsync(idxId);
+                if(sorting != null)
+                    sorts.Add(sorting);
+            }
+
+            req.Sort = sorts;
+
+            return req;
+        }
+
+        public SearchRequestPlan BuildPlan(ClientSearchRequestV4 clientSearchRequest, string idxId, FilterRef[] filterRefs)
         {
             IdxOptions idxOptions;
 
@@ -63,86 +128,60 @@ namespace MyLab.Search.Searcher.Services
                 ? clientSearchRequest.Limit
                 : idxOptions?.DefaultLimit ?? 10;
 
-            var req = new SearchRequest
+            var req = new SearchRequestPlan
             {
                 From = clientSearchRequest.Offset,
                 Size = limit
             };
 
 
-            var filtersToAdd = await LoadFilters(clientSearchRequest.Filters, filterRefs, idxOptions?.DefaultFilter, idxId);
-            
-            var queryProc = SearchQueryProcessor.Parse(clientSearchRequest.Query);
-            var mapping = await _indexMappingService.GetIndexMappingAsync(idxId);
+            var filtersToAdd = CompileFilters(clientSearchRequest.Filters, filterRefs, idxOptions?.DefaultFilter);
 
-            var queryExpressions = queryProc.Process(mapping).ToArray();
+            var queryProc = SearchQueryProcessor.Parse(clientSearchRequest.Query);
 
             bool hasFilters = filtersToAdd.Length != 0;
-            bool hasQueries = queryExpressions.Length != 0;
+            bool hasQueries = queryProc.Items.Count != 0;
 
             if (hasFilters || hasQueries)
             {
-                var boolModel = new BoolQuery();
+                var queryModel = new SearchRequestPlanQuery();
 
                 if (hasFilters)
-                    boolModel.Filter = filtersToAdd;
+                    queryModel.Filters = filtersToAdd;
 
                 if (hasQueries)
                 {
-                    var queryStrategy = CalcSearchStrategy(clientSearchRequest, idxOptions);
-
-                    if (queryStrategy == QuerySearchStrategy.Must)
-                    {
-                        boolModel.Must = queryExpressions;
-                    }
-                    else
-                    {
-                        boolModel.Should = queryExpressions;
-                        boolModel.MinimumShouldMatch = 1;
-                    }
+                    queryModel.Strategy = CalcSearchStrategy(clientSearchRequest, idxOptions);
+                    queryModel.QueryProcessor = queryProc;
                 }
 
-                req.Query = boolModel;
+                req.Query = queryModel;
             }
-
-            var sorts = new List<ISort>();
 
             string sortId = clientSearchRequest.Sort?.Id ?? idxOptions?.DefaultSort;
 
             if (sortId != null)
             {
-                var sort = await _esSortProvider.ProvideAsync(sortId, idxId, clientSearchRequest.Sort?.Args);
-
-                if (req.Query != null && clientSearchRequest.Sort == null)
+                req.Sorting = new SortingRef
                 {
-                    sorts.Insert(0, new FieldSort
-                    {
-                        Field = "_score",
-                        Order = SortOrder.Descending
-                    });
-
-                }
-
-                sorts.Add(sort);
+                    Id = sortId,
+                    Args = clientSearchRequest.Sort?.Args
+                };
             }
-            else
-            {
-                var defaultSort = await _esSortProvider.ProvideDefaultAsync(idxId);
-
-                if(defaultSort != null)
-                    sorts.Add(defaultSort);
-            }
-
-            req.Sort = sorts;
-
             
-
             return req;
         }
 
-        private async Task<QueryContainer[]> LoadFilters(FilterRef[] requestFilters, FilterRef[] tokenFilters, string nsOptionsDefaultFilter, string ns)
+        public Task<SearchRequest> BuildRequestAsync(ClientSearchRequestV4 clientSearchRequest, string idxId, FilterRef[] filterRefs)
         {
-            var fc  =new List<FilterRef>();
+            var plan = BuildPlan(clientSearchRequest, idxId, filterRefs);
+
+            return BuildRequestAsync(plan, idxId);
+        }
+
+        private FilterRef[] CompileFilters(FilterRef[] requestFilters, FilterRef[] tokenFilters, string nsOptionsDefaultFilter)
+        {
+            var fc = new List<FilterRef>();
 
             if (tokenFilters != null && tokenFilters.Length != 0)
             {
@@ -155,15 +194,20 @@ namespace MyLab.Search.Searcher.Services
             }
             else
             {
-                if(nsOptionsDefaultFilter != null)
-                    fc.Add(new FilterRef { Id = nsOptionsDefaultFilter});
+                if (nsOptionsDefaultFilter != null)
+                    fc.Add(new FilterRef { Id = nsOptionsDefaultFilter });
             }
 
+            return fc.ToArray();
+        }
+
+        private async Task<QueryContainer[]> LoadFiltersAsync(IEnumerable<FilterRef> filters, string indexId)
+        {
             var result = new List<QueryContainer>();
 
-            foreach (var fRef in fc)
+            foreach (var f in filters)
             {
-                var filter = await _filterProvider.ProvideAsync(fRef.Id, ns, fRef.Args);
+                var filter = await _filterProvider.ProvideAsync(f.Id, indexId, f.Args);
                 result.Add(filter);
             }
 

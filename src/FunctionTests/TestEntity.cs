@@ -22,7 +22,7 @@ namespace FunctionTests
     [ElasticsearchType(IdProperty = nameof(Id))]
     public class TestEntityWithNotIndexedField : TestEntity
     {
-        [Text(Name = "NotIndexed",  Index=false)]
+        [Text(Name = "NotIndexed", Index = false)]
         public string NotIndexed { get; set; }
     }
 }

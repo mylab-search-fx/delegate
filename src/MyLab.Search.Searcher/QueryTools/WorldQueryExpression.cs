@@ -22,10 +22,11 @@ namespace MyLab.Search.Searcher.QueryTools
 
             if (property.Type == "keyword")
             {
-                query = new RegexpQuery
+                query = new MatchQuery
                 {
                     Field = property.Name.Name,
-                    Value = LiteralRegex
+                    Query = Literal,
+                    Analyzer = "whitespace"
                 };
             }
 

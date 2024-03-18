@@ -3,55 +3,32 @@ using MyLab.Search.Searcher;
 using MyLab.Search.Searcher.Models;
 using MyLab.Search.Searcher.Options;
 using MyLab.Search.Searcher.Services;
-using MyLab.Search.Searcher.Tools;
 using Nest;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace UnitTests
 {
     public partial class RequestBuilderBehavior
     {
-        [Theory]
-        [InlineData("firstname middlename lastname 123")]
-        [InlineData("Супер Иванович Администратор")]
-        [InlineData("Проверяющий Тест Тестович")]
-        [InlineData("Провер")]
-        [InlineData("942 Ефим")]
-        public async Task ShouldBuildRequestByQuery(string query)
+        [Fact]
+        public async Task ShouldBuildRequestByQuery()
         {
             //Arrange
-            var opt = new SearcherOptions
-            {
-                QueryStrategy = QuerySearchStrategy.Must,
-                Indexes = new []
-                {
-                    new IdxOptions
-                    {
-                        Id = "test"
-                    } 
-                }
-            };
-            
-            var reqBuilder = new EsRequestBuilder(opt,
-                new TestSortProvider(), 
-                new TestFilterProvider(), 
-                new TestIndexMappingService()); 
-
-            var sReq = new ClientSearchRequestV4()
-            {
-                Query= query
-            };
+            const string testQuery = "firstname middlename lastname 123";
 
             //Act
-            var esReq = await reqBuilder.BuildAsync(sReq, "test", null);
-
-            var str = await EsSerializer.Instance.SerializeAsync(esReq);
-
-            _output.WriteLine(str);
+            var plan = await BuildRequestByQueryAsync(testQuery);
 
             //Assert
-
+            Assert.NotNull(plan);
+            Assert.Equal(QuerySearchStrategy.Must, plan.Query.Strategy);
+            Assert.NotNull(plan.Query.QueryProcessor);
+            
+             Assert.Contains(plan.Query.QueryProcessor.Items, itm => itm is{ Name: testQuery, Boost:5} );
+             Assert.Contains(plan.Query.QueryProcessor.Items, itm => itm is{ Name: "firstname", Boost:4} );
+             Assert.Contains(plan.Query.QueryProcessor.Items, itm => itm is{ Name: "middlename", Boost:3} );
+             Assert.Contains(plan.Query.QueryProcessor.Items, itm => itm is{ Name: "lastname", Boost:2} );
+             Assert.Contains(plan.Query.QueryProcessor.Items, itm => itm is{ Name: "123", Boost:1} );
         }
 
         [Fact]
@@ -74,7 +51,7 @@ namespace UnitTests
             };
 
             //Act
-            var esReq = await reqBuilder.BuildAsync(sReq, "test", null);
+            var esReq = await reqBuilder.BuildRequestAsync(sReq, "test", null);
             var boolQuery = ((IQueryContainer)esReq.Query).Bool;
 
 
@@ -110,7 +87,7 @@ namespace UnitTests
             };
 
             //Act
-            var esReq = await reqBuilder.BuildAsync(sReq, "test", null);
+            var esReq = await reqBuilder.BuildRequestAsync(sReq, "test", null);
             var boolQuery = ((IQueryContainer)esReq.Query).Bool;
 
 
@@ -146,7 +123,7 @@ namespace UnitTests
             };
 
             //Act
-            var esReq = await reqBuilder.BuildAsync(sReq, "test", null);
+            var esReq = await reqBuilder.BuildRequestAsync(sReq, "test", null);
             var boolQuery = ((IQueryContainer)esReq.Query).Bool;
 
 
@@ -183,7 +160,7 @@ namespace UnitTests
             };
 
             //Act
-            var esReq = await reqBuilder.BuildAsync(sReq, "test", null);
+            var esReq = await reqBuilder.BuildRequestAsync(sReq, "test", null);
             var boolQuery = ((IQueryContainer)esReq.Query).Bool;
 
 
