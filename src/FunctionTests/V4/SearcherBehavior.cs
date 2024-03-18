@@ -12,6 +12,7 @@ using Nest;
 using Xunit;
 using ClientQuerySearchStrategy = MyLab.Search.SearcherClient.QuerySearchStrategy;
 using ServerQuerySearchStrategy = MyLab.Search.Searcher.QuerySearchStrategy;
+using MyLab.Search.EsAdapter.Indexing;
 
 namespace FunctionTests.V4
 {
@@ -140,6 +141,58 @@ namespace FunctionTests.V4
 
             //Assert
             Assert.Equal(expectedFoundCount, found.Entities.Length);
+        }
+
+        [Fact]
+        public async Task ShouldSearchForWholeQuery()
+        {
+            //Arrange
+            var testEntity1 = new TestEntity
+            {
+                Id = 100500,
+                Value = "Some long text here"
+            };
+
+            var testEntity2 = new TestEntity
+            {
+                Id = 100501,
+                Value = "Some lo"
+            };
+
+            var bulkIndexingRequest = new EsBulkIndexingRequest<TestEntity>()
+            {
+                CreateList = new []
+                {
+                    testEntity1,
+                    testEntity2
+                }
+            };
+
+            await _esFxt.Indexer.BulkAsync(bulkIndexingRequest);
+
+            await Task.Delay(1000);
+
+            var cl = _searchClient.StartWithProxy(srv =>
+            {
+                srv.Configure<SearcherOptions>(o =>
+                {
+                    o.Debug = true;
+                });
+            });
+
+            var request = new ClientSearchRequestV4
+            {
+                Query = "Some long text",
+                Limit = 20,
+            };
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", request);
+
+            //Assert
+            Assert.Equal(2, found.Entities.Length);
+            Assert.Equal(testEntity1.Id, found.Entities[0].Content.Id);
+            Assert.Equal(testEntity2.Id, found.Entities[1].Content.Id);
         }
 
         [Theory]
