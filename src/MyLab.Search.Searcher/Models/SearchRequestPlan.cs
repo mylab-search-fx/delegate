@@ -16,7 +16,7 @@ namespace MyLab.Search.Searcher.Models
     {
         public QuerySearchStrategy Strategy { get; set; }
         public FilterRef[] Filters { get; set; }
-        public SearchQueryProcessor QueryProcessor { get; set; }
-        public bool HasQuery => Filters is { Length: > 0 } || QueryProcessor != null;
+        public SearchQueryApplier QueryApplier { get; set; }
+        public bool HasQuery => Filters is { Length: > 0 } || QueryApplier != null;
     }
 }

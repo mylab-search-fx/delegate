@@ -196,6 +196,113 @@ namespace FunctionTests.V4
         }
 
         [Theory]
+        [InlineData("Some long text here","some long")]
+        [InlineData("Some long text here","Some Long")]
+        [InlineData("Some long text here","SOME LONG")]
+        [InlineData("Some long text here", "Some long")]
+        [InlineData("Какой-то длинный текст", "Какой-то длинный")]
+        [InlineData("Какой-то длинный текст", "Какой-то Длинный")]
+        [InlineData("Какой-то длинный текст", "какой-то длинный")]
+        [InlineData("Какой-то длинный текст", "КАКОЙ-ТО ДЛИННЫЙ")]
+        public async Task ShouldSearchTextCaseIndependent(string indexText, string searchText)
+        {
+            //Arrange
+            var testEntity = new TestEntity
+            {
+                Id = 100500,
+                Value = indexText
+            };
+
+            var bulkIndexingRequest = new EsBulkIndexingRequest<TestEntity>()
+            {
+                CreateList = new[]
+                {
+                    testEntity
+                }
+            };
+
+            await _esFxt.Indexer.BulkAsync(bulkIndexingRequest);
+
+            await Task.Delay(1000);
+
+            var cl = _searchClient.StartWithProxy(srv =>
+            {
+                srv.Configure<SearcherOptions>(o =>
+                {
+                    o.Debug = true;
+                });
+            });
+
+            var request = new ClientSearchRequestV4
+            {
+                Query = searchText,
+                Limit = 20,
+            };
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", request);
+
+            //Assert
+            Assert.Single(found.Entities);
+            Assert.Equal(testEntity.Id, found.Entities[0].Content.Id);
+            Assert.Equal(testEntity.Value, found.Entities[0].Content.Value);
+        }
+
+        [Theory]
+        [InlineData("Keyword value", "Keyword value")]
+        [InlineData("Keyword value", "keyword value")]
+        [InlineData("Keyword value", "Keyword Value")]
+        [InlineData("Keyword value", "KEYWORD VALUE")]
+        [InlineData("Ключевое слово", "Ключевое слово")]
+        //[InlineData("Ключевое слово", "ключевое слово")]
+        //[InlineData("Ключевое слово", "Ключевое Слово")]
+        //[InlineData("Ключевое слово", "КЛЮЧЕВОЕ СЛОВО")]
+        public async Task ShouldSearchKeywordCaseIndependent(string indexText, string searchText)
+        {
+            //Arrange
+            var testEntity = new TestEntity
+            {
+                Id = 100500,
+                Keyword = indexText
+            };
+
+            var bulkIndexingRequest = new EsBulkIndexingRequest<TestEntity>()
+            {
+                CreateList = new[]
+                {
+                    testEntity
+                }
+            };
+
+            await _esFxt.Indexer.BulkAsync(bulkIndexingRequest);
+
+            await Task.Delay(1000);
+
+            var cl = _searchClient.StartWithProxy(srv =>
+            {
+                srv.Configure<SearcherOptions>(o =>
+                {
+                    o.Debug = true;
+                });
+            });
+
+            var request = new ClientSearchRequestV4
+            {
+                Query = searchText,
+                Limit = 20,
+            };
+
+            //Act
+            var found = await cl.SearchAsync<TestEntity>("test", request);
+
+            //Assert
+            Assert.Single(found.Entities);
+            Assert.Equal(testEntity.Id, found.Entities[0].Content.Id);
+            Assert.Equal(testEntity.Keyword, found.Entities[0].Content.Keyword);
+
+        }
+
+        [Theory]
         [InlineData(ClientQuerySearchStrategy.Should, 11)]
         [InlineData(ClientQuerySearchStrategy.Must, 1)]
         public async Task ShouldSearchWithStrategyFromQuery(ClientQuerySearchStrategy strategy, int expectedFoundCount)

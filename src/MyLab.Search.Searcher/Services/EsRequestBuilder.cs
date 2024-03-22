@@ -62,25 +62,10 @@ namespace MyLab.Search.Searcher.Services
                 if (plan.Query?.Filters is { Length: > 0 })
                     boolModel.Filter = await LoadFiltersAsync(plan.Query.Filters, idxId);
 
-                if (plan.Query?.QueryProcessor != null)
+                if (plan.Query?.QueryApplier != null)
                 {
                     var mapping = await _indexMappingService.GetIndexMappingAsync(idxId);
-                    var queryExpressions = plan.Query.QueryProcessor.Process(mapping).ToArray();
-
-                    switch (plan.Query.Strategy)
-                    {
-                        case QuerySearchStrategy.Should:
-                        {
-                            boolModel.Should = queryExpressions;
-                            boolModel.MinimumShouldMatch = 1;
-                        }
-                            break;
-                        case QuerySearchStrategy.Must:
-                            boolModel.Must = queryExpressions;
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
+                    plan.Query.QueryApplier.Apply(mapping, plan.Query.Strategy, boolModel);
                 }
 
                 req.Query = boolModel;
@@ -137,7 +122,7 @@ namespace MyLab.Search.Searcher.Services
 
             var filtersToAdd = CompileFilters(clientSearchRequest.Filters, filterRefs, idxOptions?.DefaultFilter);
 
-            var queryProc = SearchQueryProcessor.Parse(clientSearchRequest.Query);
+            var queryProc = SearchQueryApplier.Parse(clientSearchRequest.Query);
 
             bool hasFilters = filtersToAdd.Length != 0;
             bool hasQueries = queryProc.Items.Count != 0;
@@ -152,7 +137,7 @@ namespace MyLab.Search.Searcher.Services
                 if (hasQueries)
                 {
                     queryModel.Strategy = CalcSearchStrategy(clientSearchRequest, idxOptions);
-                    queryModel.QueryProcessor = queryProc;
+                    queryModel.QueryApplier = queryProc;
                 }
 
                 req.Query = queryModel;
