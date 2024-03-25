@@ -79,10 +79,15 @@ namespace MyLab.Search.Searcher.Services
 
             foreach (var sortingArg in args)
             {
-                str = str.Replace("{" + sortingArg.Key + "}", sortingArg.Value);
+                str = str.Replace("{" + sortingArg.Key + "}", NormalizeSortArg(sortingArg.Value));
             }
 
             return str;
+        }
+
+        private static string NormalizeSortArg(string sortArgValue)
+        {
+            return sortArgValue.Replace("\"", "\\\"");
         }
     }
 }
