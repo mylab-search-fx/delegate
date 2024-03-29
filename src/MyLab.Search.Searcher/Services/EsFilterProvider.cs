@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Extensions.Options;
 using MyLab.Log;
 using MyLab.Search.Searcher.Options;
@@ -72,7 +73,7 @@ namespace MyLab.Search.Searcher.Services
 
         private static string NormalizeFilterArg(string filterArgValue)
         {
-            return filterArgValue.Replace("\"", "\\\"");
+            return HttpUtility.JavaScriptStringEncode(filterArgValue);
         }
     }
 }

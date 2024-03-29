@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Extensions.Options;
 using MyLab.Log;
 using MyLab.Search.Searcher.Options;
@@ -87,7 +88,7 @@ namespace MyLab.Search.Searcher.Services
 
         private static string NormalizeSortArg(string sortArgValue)
         {
-            return sortArgValue.Replace("\"", "\\\"");
+            return HttpUtility.JavaScriptStringEncode(sortArgValue);
         }
     }
 }
