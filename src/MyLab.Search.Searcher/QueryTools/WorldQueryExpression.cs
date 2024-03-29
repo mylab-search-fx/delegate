@@ -22,11 +22,11 @@ namespace MyLab.Search.Searcher.QueryTools
 
             if (property.Type == "keyword")
             {
-                query = new MatchQuery
+                query = new TermQuery()
                 {
                     Field = property.Name.Name,
-                    Query = Literal,
-                    Analyzer = "whitespace"
+                    CaseInsensitive = true,
+                    Value = Literal
                 };
             }
 

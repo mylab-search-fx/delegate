@@ -16,7 +16,7 @@ namespace UnitTests
             //Arrange
 
             //Act
-            var q = SearchQueryProcessor.Parse(query);
+            var q = SearchQueryApplier.Parse(query);
 
             //Assert
             Assert.Empty(q.Items);
@@ -30,7 +30,7 @@ namespace UnitTests
             //Arrange
 
             //Act
-            var q = SearchQueryProcessor.Parse(query);
+            var q = SearchQueryApplier.Parse(query);
 
             //Assert
             Assert.Empty(q.Items);
@@ -43,7 +43,7 @@ namespace UnitTests
             string query = "foo";
 
             //Act
-            var q = SearchQueryProcessor.Parse(query);
+            var q = SearchQueryApplier.Parse(query);
             var p = q.Items.FirstOrDefault()
                 ?.Expressions.FirstOrDefault() as WorldQueryExpression;
             
@@ -59,17 +59,17 @@ namespace UnitTests
             string query = "foo bar";
 
             //Act
-            var q = SearchQueryProcessor.Parse(query);
+            var q = SearchQueryApplier.Parse(query);
 
             var boosts = q.Items
                 .Select(p => p.Boost)
                 .ToArray();
 
             //Assert
-            Assert.Equal(3, boosts.Length);
-            Assert.Equal(3, boosts[0]);
-            Assert.Equal(2, boosts[1]);
-            Assert.Equal(1, boosts[2]);
+            Assert.Equal(3, q.FullQueryItem.Boost);
+            Assert.Equal(2, boosts.Length);
+            Assert.Equal(2, boosts[0]);
+            Assert.Equal(1, boosts[1]);
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace UnitTests
             string query = "123";
 
             //Act
-            var q = SearchQueryProcessor.Parse(query);
+            var q = SearchQueryApplier.Parse(query);
 
             var numParam = q.Items
                 .FirstOrDefault()
@@ -102,7 +102,7 @@ namespace UnitTests
             DateTime expected = new DateTime(2003, 02, 01);
 
             //Act
-            var q = SearchQueryProcessor.Parse(query);
+            var q = SearchQueryApplier.Parse(query);
 
             var dtParam = q.Items
                     .FirstOrDefault(p => p.Boost == 1)
@@ -123,7 +123,7 @@ namespace UnitTests
             //Arrange
 
             //Act
-            var q = SearchQueryProcessor.Parse(query);
+            var q = SearchQueryApplier.Parse(query);
 
             var numParam = q.Items
                     .FirstOrDefault()
@@ -143,7 +143,7 @@ namespace UnitTests
             //Arrange
 
             //Act
-            var q = SearchQueryProcessor.Parse(query);
+            var q = SearchQueryApplier.Parse(query);
 
             var numParam = q.Items
                     .FirstOrDefault()
@@ -168,7 +168,7 @@ namespace UnitTests
             DateTime expectedTo = new DateTime(2003, 02, 02);
 
             //Act
-            var q = SearchQueryProcessor.Parse(query);
+            var q = SearchQueryApplier.Parse(query);
 
             var dtParam = q.Items
                     .FirstOrDefault(p => p.Boost == 1)
@@ -192,7 +192,7 @@ namespace UnitTests
             DateTime expectedTo = new DateTime(2003, 02, 02);
 
             //Act
-            var q = SearchQueryProcessor.Parse(query);
+            var q = SearchQueryApplier.Parse(query);
 
             var dtParam = q.Items
                     .FirstOrDefault(p => p.Boost == 1)
@@ -216,7 +216,7 @@ namespace UnitTests
             DateTime expectedFrom = new DateTime(2003, 02, 01);
 
             //Act
-            var q = SearchQueryProcessor.Parse(query);
+            var q = SearchQueryApplier.Parse(query);
 
             var dtParam = q.Items
                     .FirstOrDefault(p => p.Boost == 1)
@@ -236,7 +236,7 @@ namespace UnitTests
             string query = "94200005";
 
             //Act
-            var q = SearchQueryProcessor.Parse(query);
+            var q = SearchQueryApplier.Parse(query);
             var t = q.Items.FirstOrDefault()?.Expressions.OfType<WorldQueryExpression>().FirstOrDefault();
             var n = q.Items.FirstOrDefault()?.Expressions.OfType<NumericQueryExpression>().FirstOrDefault();
 

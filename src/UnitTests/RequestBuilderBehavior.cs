@@ -11,7 +11,7 @@ namespace UnitTests
     public partial class RequestBuilderBehavior
     {
         [Fact]
-        public async Task ShouldBuildRequestByQuery()
+        public async Task ShouldAddFullQueryWhenMultipleWords()
         {
             //Arrange
             const string testQuery = "firstname middlename lastname 123";
@@ -22,13 +22,31 @@ namespace UnitTests
             //Assert
             Assert.NotNull(plan);
             Assert.Equal(QuerySearchStrategy.Must, plan.Query.Strategy);
-            Assert.NotNull(plan.Query.QueryProcessor);
-            
-             Assert.Contains(plan.Query.QueryProcessor.Items, itm => itm is{ Name: testQuery, Boost:5} );
-             Assert.Contains(plan.Query.QueryProcessor.Items, itm => itm is{ Name: "firstname", Boost:4} );
-             Assert.Contains(plan.Query.QueryProcessor.Items, itm => itm is{ Name: "middlename", Boost:3} );
-             Assert.Contains(plan.Query.QueryProcessor.Items, itm => itm is{ Name: "lastname", Boost:2} );
-             Assert.Contains(plan.Query.QueryProcessor.Items, itm => itm is{ Name: "123", Boost:1} );
+            Assert.NotNull(plan.Query.QueryApplier);
+            Assert.NotNull(plan.Query.QueryApplier.FullQueryItem);
+            Assert.Contains(plan.Query.QueryApplier.Items, itm => itm is{ Name: "firstname", Boost:4} );
+            Assert.Contains(plan.Query.QueryApplier.Items, itm => itm is{ Name: "middlename", Boost:3} );
+            Assert.Contains(plan.Query.QueryApplier.Items, itm => itm is{ Name: "lastname", Boost:2} );
+            Assert.Contains(plan.Query.QueryApplier.Items, itm => itm is{ Name: "123", Boost:1} );
+        }
+
+        [Fact]
+        public async Task ShouldBuildRequestByQueryWithSingleWords()
+        {
+            //Arrange
+            const string testQuery = "firstname";
+
+            //Act
+            var plan = await BuildRequestByQueryAsync(testQuery);
+
+            //Assert
+            Assert.NotNull(plan);
+            Assert.Equal(QuerySearchStrategy.Must, plan.Query.Strategy);
+            Assert.NotNull(plan.Query.QueryApplier);
+
+            Assert.Null(plan.Query.QueryApplier.FullQueryItem);
+            Assert.Single(plan.Query.QueryApplier.Items);
+            Assert.Contains(plan.Query.QueryApplier.Items, itm => itm is { Name: "firstname", Boost: 1 });
         }
 
         [Fact]

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Extensions.Options;
 using MyLab.Log;
 using MyLab.Search.Searcher.Options;
@@ -64,11 +65,15 @@ namespace MyLab.Search.Searcher.Services
 
             foreach (var filterArg in args)
             {
-                str = str.Replace("{" + filterArg.Key + "}", filterArg.Value);
+                str = str.Replace("{" + filterArg.Key + "}", NormalizeFilterArg(filterArg.Value));
             }
 
             return str;
         }
 
+        private static string NormalizeFilterArg(string filterArgValue)
+        {
+            return HttpUtility.JavaScriptStringEncode(filterArgValue);
+        }
     }
 }
